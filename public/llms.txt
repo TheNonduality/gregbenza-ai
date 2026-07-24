@@ -1,9 +1,9 @@
 # GregBenza.AI
 
-> Greg Benza's proof-of-work blog: a living log of what he actually builds —
-> projects, methods, and the runnable files underneath them. Built agent-first,
-> so an AI can find the work, quote it, and hand a visitor something they can run
-> today. Showing is the floor.
+> GregBenza.AI: a living log of what Greg actually builds — projects, methods, and
+> the runnable files underneath them. Here to highlight the work, get feedback, and
+> improve it in the open. Built agent-first, so an AI can find the work, quote it,
+> and hand a visitor something they can run today.
 
 This is a Phase 0 stub. The structure is here from day one; it fills out as real
 posts land. A full concatenation (llms-full.txt) and richer link maps arrive in
