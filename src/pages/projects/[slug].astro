@@ -1,0 +1,145 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Media from '../../components/Media.astro';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects', ({ data }) => !data.draft);
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { data } = project;
+// Part 3 — the full background story is the markdown body.
+const { Content } = await render(project);
+
+// Icon/label per technical-input kind. Kept here so the three-part skeleton
+// renders identically for every project.
+const kindLabel: Record<string, string> = {
+  prompt: 'Prompt',
+  skill: 'Skill',
+  connector: 'Connector',
+  output: 'Output',
+};
+---
+
+<Base title={`${data.title} — Greg Benza`} description={data.blurb}>
+  <article
+    class="project"
+    data-accent={data.accent}
+    style={data.accent ? `--accent:${data.accent}` : undefined}
+  >
+    <p class="eyebrow">
+      <a href="/">← the log</a>
+    </p>
+    <h1>{data.title}</h1>
+    <time datetime={data.date.toISOString()}>
+      {data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}
+    </time>
+
+    {/* Part 1 — blurb: the human hook. */}
+    <p class="blurb">{data.blurb}</p>
+
+    {/* Hero media — proves native rendering (image / video / clean YouTube). */}
+    {data.hero && <Media {...data.hero} />}
+
+    {/* Part 2 — technical details: the runnable inputs behind the work. */}
+    {
+      data.technical.length > 0 && (
+        <section class="technical" aria-label="Technical details">
+          <h2>Under the hood</h2>
+          <p class="section-note">The inputs behind this — clickable, downloadable, runnable today.</p>
+          <ul class="inputs">
+            {data.technical.map((t) => (
+              <li>
+                <span class={`tag tag-${t.kind}`}>{kindLabel[t.kind] ?? t.kind}</span>
+                <span class="input-body">
+                  {t.file ? (
+                    <a href={t.file} download>
+                      {t.label}
+                    </a>
+                  ) : t.url ? (
+                    <a href={t.url} rel="noopener">
+                      {t.label}
+                    </a>
+                  ) : (
+                    <span>{t.label}</span>
+                  )}
+                  {t.note && <span class="input-note">{t.note}</span>}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    <hr />
+
+    {/* Part 3 — full background story: the deep pool agents draw from. */}
+    <section class="background">
+      <div class="prose">
+        <Content />
+      </div>
+    </section>
+  </article>
+</Base>
+
+<style>
+  .project > time {
+    display: block;
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    color: var(--ink-faint);
+  }
+  .blurb {
+    font-size: 1.3rem;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    margin-block: var(--space-3);
+  }
+  .technical {
+    background: var(--paper-edge);
+    border-radius: var(--radius);
+    padding: var(--space-2) var(--space-3);
+    margin-block: var(--space-3);
+  }
+  .technical h2 { margin-top: var(--space-1); }
+  .section-note {
+    font-family: var(--font-ui);
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    margin-top: 0;
+  }
+  .inputs { list-style: none; padding: 0; margin: 0; }
+  .inputs li {
+    display: flex;
+    gap: var(--space-2);
+    align-items: baseline;
+    padding: var(--space-1) 0;
+    border-top: 1px solid var(--hairline);
+  }
+  .tag {
+    flex: 0 0 auto;
+    font-family: var(--font-ui);
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--paper);
+    background: var(--ink-soft);
+    padding: 0.15em 0.5em;
+    border-radius: var(--radius);
+  }
+  .tag-output { background: var(--accent); }
+  .input-body { display: flex; flex-direction: column; }
+  .input-note {
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    color: var(--ink-faint);
+  }
+  /* Give the rendered background story comfortable rhythm. */
+  .prose :global(h2) { border-top: none; }
+</style>

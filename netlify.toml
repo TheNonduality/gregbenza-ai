@@ -1,0 +1,8 @@
+# Netlify build pipeline for GregBenza.AI.
+# Static Astro build: `npm run build` emits dist/, Netlify serves it.
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"

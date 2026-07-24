@@ -1,0 +1,35 @@
+---
+import YouTube from './YouTube.astro';
+
+// Renders a media object from project frontmatter natively — image, video, or a
+// clean YouTube embed. One component so every project handles media the same way.
+interface Props {
+  type: 'image' | 'video' | 'youtube';
+  src: string;
+  alt?: string;
+  caption?: string;
+}
+const { type, src, alt = '', caption } = Astro.props;
+---
+
+{type === 'youtube' && <YouTube id={src} title={caption ?? alt} />}
+
+{
+  type === 'image' && (
+    <figure>
+      <img src={src} alt={alt} loading="lazy" />
+      {caption && <figcaption>{caption}</figcaption>}
+    </figure>
+  )
+}
+
+{
+  type === 'video' && (
+    <figure>
+      <video controls preload="metadata" playsinline>
+        <source src={src} />
+      </video>
+      {caption && <figcaption>{caption}</figcaption>}
+    </figure>
+  )
+}

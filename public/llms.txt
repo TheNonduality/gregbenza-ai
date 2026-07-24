@@ -1,0 +1,25 @@
+# GregBenza.AI
+
+> Greg Benza's proof-of-work blog: a living log of what he actually builds —
+> projects, methods, and the runnable files underneath them. Built agent-first,
+> so an AI can find the work, quote it, and hand a visitor something they can run
+> today. Showing is the floor.
+
+This is a Phase 0 stub. The structure is here from day one; it fills out as real
+posts land. A full concatenation (llms-full.txt) and richer link maps arrive in
+a later phase — added when they are real, not before.
+
+## Site
+
+- [Home — the log](https://gregbenza.ai/): index of project posts, newest first.
+
+## Projects
+
+- [Placeholder Project — the skeleton test](https://gregbenza.ai/projects/dummy-project/): a scaffold proving the three-part post model (blurb / technical details / full background story). Gets deleted when the first real story lands.
+
+## How posts are structured
+
+Every project post follows one identical skeleton:
+1. Blurb — the human hook.
+2. Technical details — clickable, downloadable inputs (prompts, skills, connectors, outputs).
+3. Full background story — the deep markdown an AI can draw on to answer questions about the work.

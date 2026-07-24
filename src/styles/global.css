@@ -1,0 +1,110 @@
+/* Global base styles. Deliberately plain — Phase 0 ships an honest, ugly-but-real
+   skeleton. The look is a Phase 2 job. Everything here reads from tokens.css. */
+@import './tokens.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  width: 100%;
+  max-width: var(--measure);
+  margin-inline: auto;
+  padding-inline: var(--space-2);
+}
+
+/* Links carry the ink; the accent is reserved for deliberate emphasis. */
+a {
+  color: var(--ink);
+  text-decoration-color: var(--accent-soft);
+  text-underline-offset: 2px;
+}
+a:hover {
+  color: var(--accent);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-ui);
+  line-height: 1.2;
+  font-weight: 600;
+}
+h1 { font-size: 2rem; margin-block: var(--space-4) var(--space-2); }
+h2 { font-size: 1.4rem; margin-block: var(--space-4) var(--space-1); }
+h3 { font-size: 1.1rem; margin-block: var(--space-3) var(--space-1); }
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+figure { margin: var(--space-3) 0; }
+figcaption {
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  color: var(--ink-faint);
+  margin-top: var(--space-1);
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--hairline);
+  margin-block: var(--space-4);
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--paper-edge);
+  padding: 0.1em 0.35em;
+  border-radius: var(--radius);
+}
+
+.eyebrow {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.site-header,
+.site-footer {
+  font-family: var(--font-ui);
+}
+.site-header {
+  border-bottom: 1px solid var(--hairline);
+  padding-block: var(--space-2);
+}
+.site-header a { text-decoration: none; }
+.site-header .brand {
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+}
+.site-footer {
+  border-top: 1px solid var(--hairline);
+  margin-top: var(--space-5);
+  padding-block: var(--space-3);
+  font-size: 0.85rem;
+  color: var(--ink-faint);
+}

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="5" fill="#faf8f4"/>
+  <!-- A single ink brushstroke over a seal-red ground mark. -->
+  <rect x="6" y="6" width="20" height="20" rx="3" fill="#a5322a" opacity="0.12"/>
+  <path d="M9 21c3-9 5-12 7-12s2 4 4 4 3-2 3-2" fill="none" stroke="#1a1a1a" stroke-width="2.4" stroke-linecap="round"/>
+  <circle cx="22" cy="10" r="2" fill="#a5322a"/>
+</svg>

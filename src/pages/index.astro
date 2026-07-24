@@ -1,0 +1,75 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+
+const projects = (await getCollection('projects', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+---
+
+<Base title="Greg Benza — proof-of-work">
+  <p class="eyebrow">Proof-of-work</p>
+  <h1>What I actually build.</h1>
+  <p>
+    A living log of the work — the projects, the methods, the woods, the practice.
+    Not the polished resume: the real thing, with the files and workflows underneath
+    it, packaged so you can run them today. Showing is the floor.
+  </p>
+
+  <hr />
+
+  <p class="eyebrow">The log</p>
+  {
+    projects.length === 0 ? (
+      <p>Nothing here yet — the census fills this in.</p>
+    ) : (
+      <ul class="project-list">
+        {projects.map((p) => (
+          <li>
+            <a href={`/projects/${p.id}/`}>
+              <span class="title">{p.data.title}</span>
+              <span class="blurb">{p.data.blurb}</span>
+              <time datetime={p.data.date.toISOString()}>
+                {p.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}
+              </time>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</Base>
+
+<style>
+  .project-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .project-list li {
+    border-bottom: 1px solid var(--hairline);
+  }
+  .project-list a {
+    display: block;
+    padding: var(--space-3) 0;
+    text-decoration: none;
+  }
+  .project-list .title {
+    display: block;
+    font-family: var(--font-ui);
+    font-weight: 600;
+    font-size: 1.2rem;
+  }
+  .project-list .blurb {
+    display: block;
+    color: var(--ink-soft);
+    margin-top: var(--space-1);
+  }
+  .project-list time {
+    display: block;
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+    margin-top: var(--space-1);
+  }
+</style>

@@ -1,0 +1,37 @@
+/* ==========================================================================
+   Design tokens — seeded with the Phase 0 design direction.
+   Chinese watercolor (水墨, ink-wash): mostly black and white, one occasional
+   accent. Restraint is the design principle — these are the SEED values, not
+   the finished system (that lands in Phase 2). Everything downstream reads
+   from these variables so the later skin swap is one file, not a rewrite.
+   ========================================================================== */
+
+:root {
+  /* Ink on rice paper. Near-black ink, warm off-white ground. */
+  --ink: #1a1a1a;
+  --ink-soft: #4a4a4a;
+  --ink-faint: #8a8a8a;
+  --paper: #faf8f4;
+  --paper-edge: #efece4;
+  --hairline: #dcd8ce;
+
+  /* The one accent: a seal-stamp red (印章), used sparingly. */
+  --accent: #a5322a;
+  --accent-soft: #c56b60;
+
+  /* Type — a serif for the human voice, system stack so Phase 0 ships no
+     web-font weight. Real type choices are a Phase 2 decision. */
+  --font-body: Georgia, 'Times New Roman', serif;
+  --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace;
+
+  /* Spacing scale. */
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2.5rem;
+  --space-5: 4rem;
+
+  --measure: 42rem;      /* readable line length */
+  --radius: 3px;
+}
