@@ -101,6 +101,11 @@ code {
   font-size: 1.05rem;
   letter-spacing: 0.02em;
 }
+.site-header .tagline {
+  font-weight: 400;
+  font-size: 0.9rem;
+  color: var(--ink-faint);
+}
 .site-footer {
   border-top: 1px solid var(--hairline);
   margin-top: var(--space-5);
