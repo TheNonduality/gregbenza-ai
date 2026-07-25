@@ -31,7 +31,11 @@ const posterSrc = poster ?? (src.endsWith('.web.mp4') ? src.replace(/\.web\.mp4$
 {
   type === 'video' && (
     <figure>
-      <video controls preload="metadata" playsinline muted poster={posterSrc}>
+      {/* No `muted`: the air unit records no audio track at all (verified with
+          ffprobe on both the web encodes and the originals), so muting only
+          added a crossed-out speaker implying sound was being withheld.
+          `muted` is only required for autoplay, and nothing here autoplays. */}
+      <video controls preload="metadata" playsinline poster={posterSrc}>
         <source src={src} type="video/mp4" />
       </video>
       {caption && <figcaption>{caption}</figcaption>}
