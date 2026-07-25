@@ -7,11 +7,13 @@
     "dev": "astro dev",
     "build": "astro build && node scripts/emit-redirects.mjs",
     "preview": "astro preview",
-    "check": "astro check"
+    "check": "astro check",
+    "guidance": "node scripts/read-guidance.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.2.0",
     "@astrojs/sitemap": "^3.7.3",
+    "@netlify/blobs": "^10.7.10",
     "astro": "^5.13.0"
   }
 }

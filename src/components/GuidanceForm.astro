@@ -1,9 +1,12 @@
 ---
 // "Offer guidance" — the feedback door. A quiet button that unfolds a small
-// Netlify form. Anonymous by default; the post slug rides along as a hidden
-// field so guidance arrives tagged with what it's about.
-// NOTE: Netlify Forms only deliver on the deployed site — the local preview
-// renders but cannot send. Live-fire test is on the pre-publish checklist.
+// form. Anonymous by default; the post slug rides along as a hidden field so
+// guidance arrives tagged with what it's about.
+//
+// Posts to our own function at /api/guidance, NOT to Netlify Forms. Netlify
+// Forms accepted every submission and stored none of them — confirmed
+// 2026-07-25 across four tests including Greg's own phone. See
+// netlify/functions/guidance.mjs for the full account.
 interface Props {
   context?: string; // which page/post this guidance is about
 }
@@ -12,18 +15,13 @@ const { context = 'site' } = Astro.props;
 
 <details class="guidance">
   <summary class="guidance-btn">Offer guidance</summary>
-  <form
-    name="guidance"
-    method="POST"
-    action="/thanks/"
-    data-netlify="true"
-    netlify-honeypot="bot-field"
-    class="guidance-form"
-  >
-    <input type="hidden" name="form-name" value="guidance" />
+  <form name="guidance" method="POST" action="/api/guidance" class="guidance-form">
     <input type="hidden" name="context" value={context} />
+    {/* Honeypot: off-screen rather than display:none, because bots skip what
+        is hidden outright. tabindex and autocomplete keep real people — and
+        their password managers — from ever landing in it by accident. */}
     <p class="hp" aria-hidden="true">
-      <label>Don't fill this out: <input name="bot-field" /></label>
+      <label>Don't fill this out: <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
     </p>
     <label class="g-label">
       What should be different?
