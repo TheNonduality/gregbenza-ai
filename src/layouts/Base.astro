@@ -135,8 +135,17 @@ const aboutPrompt =
     flex-wrap: nowrap;
   }
   @media (max-width: 900px) {
+    .header-ask-row {
+      margin-left: 0;
+      width: 100%;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .header-ask-row::-webkit-scrollbar {
+      display: none;
+    }
     .header-ask-row :global(.ask-more) {
-      flex-wrap: wrap;
       justify-content: flex-start;
     }
   }

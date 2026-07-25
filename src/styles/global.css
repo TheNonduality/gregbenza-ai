@@ -22,9 +22,11 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* The column breathes with the screen: readable on a phone, generous on a
+   laptop, capped before lines get silly on huge monitors. */
 .wrap {
   width: 100%;
-  max-width: var(--measure);
+  max-width: clamp(var(--measure), 82vw, 68rem);
   margin-inline: auto;
   padding-inline: var(--space-2);
 }
