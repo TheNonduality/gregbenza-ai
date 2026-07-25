@@ -143,7 +143,7 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
   .feed {
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    gap: var(--space-3);
     margin-block: var(--space-3) var(--space-5);
   }
   .placard {
@@ -160,6 +160,35 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
   .placard-link {
     display: block;
     text-decoration: none;
+  }
+  /* Compact placards on wide screens: media rides left, words right, several
+     placards per screen. Stacks back to media-on-top on phones. */
+  @media (min-width: 700px) {
+    .placard-link {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      align-items: stretch;
+    }
+    .placard-media {
+      height: 100%;
+      aspect-ratio: auto;
+      min-height: 158px;
+      max-height: 200px;
+    }
+    .placard-body {
+      padding: var(--space-2) var(--space-3);
+      align-self: center;
+    }
+    .placard-title {
+      font-size: 1.1rem;
+    }
+    .placard-headline {
+      font-size: 0.98rem;
+      margin-top: 0.3rem;
+    }
+    .placard-tag {
+      margin-top: 0.6rem;
+    }
   }
   .placard-actions {
     display: flex;
