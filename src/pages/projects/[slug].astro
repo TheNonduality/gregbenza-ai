@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Media from '../../components/Media.astro';
+import AskButtons from '../../components/AskButtons.astro';
 
 export async function getStaticPaths() {
   const projects = await getCollection('projects', ({ data }) => !data.draft);
@@ -45,6 +46,40 @@ const kindLabel: Record<string, string> = {
 
     {/* Hero media — proves native rendering (image / video / clean YouTube). */}
     {data.hero && <Media {...data.hero} />}
+
+    {/* Ask-more: hand this post's markdown twin to the visitor's own AI. */}
+    {data.agentMd && <AskButtons agentMd={data.agentMd} title={data.title} />}
+
+    {/* The AI record — dry, identical fields on every placard. */}
+    {
+      data.record && (
+        <section class="record" aria-label="The AI record">
+          <h2>{data.expandLabel ?? 'Inputs, outputs, and prompts'}</h2>
+          <dl>
+            <dt>Problem</dt>
+            <dd>{data.record.problem}</dd>
+            <dt>What went in</dt>
+            <dd>
+              <ul>
+                {data.record.wentIn.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+            </dd>
+            <dt>What came back</dt>
+            <dd>
+              <ul>
+                {data.record.cameBack.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+            </dd>
+            <dt>Outcome</dt>
+            <dd>{data.record.outcome}</dd>
+          </dl>
+        </section>
+      )
+    }
 
     {/* Part 2 — technical details: the runnable inputs behind the work. */}
     {
@@ -101,6 +136,24 @@ const kindLabel: Record<string, string> = {
     color: var(--ink-soft);
     margin-block: var(--space-3);
   }
+  .record {
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    padding: var(--space-2) var(--space-3);
+    margin-block: var(--space-3);
+  }
+  .record h2 { margin-top: var(--space-1); }
+  .record dt {
+    font-family: var(--font-ui);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-top: var(--space-2);
+  }
+  .record dd { margin: var(--space-1) 0 0; }
+  .record dd ul { margin: 0; padding-left: 1.2em; }
+  .record dd li { margin-bottom: 0.35em; }
   .technical {
     background: var(--paper-edge);
     border-radius: var(--radius);

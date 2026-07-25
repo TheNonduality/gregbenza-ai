@@ -1,0 +1,77 @@
+---
+// The ask-more row: hands this post's agent-facing markdown to the visitor's
+// own AI, prompt preloaded. Data-driven on purpose — prefill support breaks
+// without notice (Copilot did), so a service is one edit to add or demote.
+// ChatGPT and Perplexity auto-submit on open; the prompt must stay short,
+// tame, and fully visible to the reader.
+interface Props {
+  agentMd: string; // site-absolute path to the post's markdown twin
+  title: string;
+}
+const { agentMd, title } = Astro.props;
+
+const SITE = 'https://gregbenza.ai';
+const prompt = `Read ${SITE}${agentMd} — Greg Benza's record of "${title}". Tell me the story of how it went, then let's discuss how to apply the method.`;
+const q = encodeURIComponent(prompt);
+
+const services = [
+  { name: 'Claude', href: `https://claude.ai/new?q=${q}` },
+  { name: 'ChatGPT', href: `https://chatgpt.com/?q=${q}` },
+  { name: 'Perplexity', href: `https://www.perplexity.ai/search?q=${q}` },
+];
+---
+
+<div class="ask-more" data-prompt={prompt}>
+  <span class="ask-label">Ask your AI about this</span>
+  {services.map((s) => (
+    <a class="ask-btn" href={s.href} target="_blank" rel="noopener">{s.name} ↗</a>
+  ))}
+  <button class="ask-btn ask-copy" type="button">Copy prompt</button>
+</div>
+
+<script>
+  // Copy-prompt fallback for AIs without a prefill URL (Gemini, Copilot, …).
+  document.querySelectorAll<HTMLElement>('.ask-more').forEach((row) => {
+    const btn = row.querySelector<HTMLButtonElement>('.ask-copy');
+    btn?.addEventListener('click', async () => {
+      await navigator.clipboard.writeText(row.dataset.prompt ?? '');
+      const old = btn.textContent;
+      btn.textContent = 'Copied';
+      setTimeout(() => (btn.textContent = old), 1500);
+    });
+  });
+</script>
+
+<style>
+  .ask-more {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1);
+    margin-block: var(--space-2);
+  }
+  .ask-label {
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+    margin-right: var(--space-1);
+  }
+  .ask-btn {
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    color: var(--ink);
+    background: none;
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    padding: 0.35em 0.9em;
+    text-decoration: none;
+    cursor: pointer;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .ask-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+</style>

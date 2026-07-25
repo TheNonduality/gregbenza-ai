@@ -36,6 +36,17 @@ const media = z.object({
   caption: z.string().optional(),
 });
 
+// The AI record — the dry, repeatable heart of a placard. Each post documents
+// ONE engagement with AI: what the problem was, what went in, what came back
+// (including what the AI could NOT do), and the outcome. Identical fields on
+// every post; narrative lives only in the agent-facing markdown.
+const record = z.object({
+  problem: z.string(),
+  wentIn: z.array(z.string()),
+  cameBack: z.array(z.string()),
+  outcome: z.string(),
+});
+
 const projects = defineCollection({
   loader: glob({ pattern: '**/index.{md,mdx}', base: './src/content/projects' }),
   schema: z.object({
@@ -43,10 +54,19 @@ const projects = defineCollection({
     date: z.coerce.date(),
     // Part 1 — the human hook.
     blurb: z.string(),
+    // Which project lineage this placard belongs to (feed filter chips).
+    project: z.string().optional(),
     // Hero media proving native rendering (image / video / clean YouTube embed).
     hero: media.optional(),
+    // The AI record — inputs, outputs, outcome. See `record` above.
+    record: record.optional(),
+    // Per-post expand label: specific and technical, never generic.
+    expandLabel: z.string().optional(),
     // Part 2 — technical details: the runnable inputs behind the work.
     technical: z.array(technicalInput).default([]),
+    // Site-absolute path to this post's agent-facing markdown twin — the file
+    // the ask-more buttons point a visitor's AI at.
+    agentMd: z.string().optional(),
     // Optional per-project accent override (design tokens hold the default).
     accent: z.string().optional(),
     draft: z.boolean().default(false),

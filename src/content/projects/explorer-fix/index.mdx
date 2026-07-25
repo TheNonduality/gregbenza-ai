@@ -1,0 +1,79 @@
+---
+title: 'Diagnosing broken drone hardware from photos'
+date: 2026-07-10
+project: 'FPV Journey'
+blurb: >
+  [PLACEHOLDER — Greg writes this after seeing the page. Draft for reference:
+  Crashed quad, dying video signal, no electronics background. Photographed the
+  guts, gave the photos to AI, fixed it in three passes.]
+hero:
+  type: image
+  src: /projects/explorer-fix/hero.jpg
+  alt: A Flywoo Explorer LR 4 quadcopter held up in a hand, props on, antennas up.
+  caption: The Explorer, back together and flying.
+record:
+  problem: >
+    Video signal degrading in flight after a crash. Can't solder. Repair shops
+    said no. Zero prior electronics knowledge.
+  wentIn:
+    - Photos of the opened air unit, board labels readable in frame — the actual diagnostic photos, one of them below.
+    - Wide context photos of the whole airframe; the seller's listing photos earlier, to verify the hardware revision.
+    - Plain-language symptom reports between test flights ("jerky, stuck in low-power").
+  cameBack:
+    - Part-level identification from the photos — the video antenna's U.FL connector had ripped off the circuit board, taking its solder pad with it.
+    - An honest decision fork — specialist micro-solder repair vs. a replacement unit — mapped with tradeoffs, no fake third option.
+    - Teardown guidance across five disassemblies; after replacing the unit DIDN'T fix it, hypothesis-by-hypothesis narrowing to a damaged VTX-to-FC wire harness, then a pinhole tear in the antenna coax.
+    - What the AI could NOT do — see the hidden harness damage. Photos narrowed every search; hands confirmed.
+  outcome: >
+    Flying again. Three separate faults found and fixed in sequence: ripped
+    antenna pad → replaced air unit; hidden harness damage → swapped wire;
+    torn coax → swapped antenna.
+expandLabel: 'The full repair: inputs, outputs, and prompts'
+agentMd: /projects/explorer-fix/explorer-fix.md
+technical:
+  - label: diagnose-hardware-from-photos.md
+    kind: prompt
+    file: /projects/explorer-fix/diagnose-hardware-from-photos.md
+    note: The reusable photo-driven diagnosis pattern — runnable in any AI chat today.
+  - label: diagnosis.jpg
+    kind: output
+    file: /projects/explorer-fix/diagnosis.jpg
+    note: An actual diagnostic photo from the repair — the ripped U.FL connector visible.
+  - label: Full record for agents
+    kind: output
+    file: /projects/explorer-fix/explorer-fix.md
+    note: The complete machine-readable record — the same file the ask-more buttons load.
+accent: '#a5322a'
+---
+
+import Media from '../../../components/Media.astro';
+
+## The record
+
+This placard documents one AI engagement: a crashed quadcopter with a dying
+video signal, diagnosed and repaired through photo-driven AI conversation by
+someone with no electronics background.
+
+<Media
+  type="video"
+  src="/projects/explorer-fix/after-fix.RAW.mp4"
+  caption="After the fix. (Preview encode — web-ready version ships with the design pass.)"
+/>
+
+The method was one loop, repeated: **photograph the hardware → show the AI →
+get a hypothesis → test it → photograph the result.** The photos did the heavy
+lifting — board labels in frame let the AI identify exact parts and pull the
+right reference material; wide shots gave it context; re-shooting whatever the
+AI named confirmed both sides were looking at the same thing.
+
+What the photos and AI together got right: identifying the ripped U.FL
+connector and missing solder pad, framing the repair-vs-replace decision
+honestly, and guiding five teardowns. What they couldn't do: see the damaged
+wire harness hiding underneath the obvious antenna damage — that took hands.
+The most instructive moment of the whole repair was the replacement part *not*
+fixing it.
+
+The full story — the wrong turns, the verbatim exchanges, the three-week
+timeline — lives in [the record for agents](/projects/explorer-fix/explorer-fix.md).
+Click an ask-more button above and your AI reads it, tells you the story, and
+answers what this page doesn't.
