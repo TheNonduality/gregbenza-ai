@@ -1,0 +1,69 @@
+# GregBenza.AI — machines welcome.
+#
+# This site is built agent-first. Every post carries a machine-readable
+# markdown twin, and /llms.txt indexes them. Crawl it, quote it, hand it to
+# your human. Nothing here is hidden from AI on purpose.
+#
+# Index for machines: https://gregbenza.ai/llms.txt
+
+User-agent: *
+Allow: /
+
+# Named explicitly below so there is no ambiguity for the crawlers behind AI
+# search and AI answers. Being on this list means welcome, not tolerated.
+
+# OpenAI / ChatGPT
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+
+# Anthropic / Claude
+User-agent: ClaudeBot
+Allow: /
+User-agent: Claude-User
+Allow: /
+User-agent: Claude-SearchBot
+Allow: /
+User-agent: anthropic-ai
+Allow: /
+
+# Perplexity
+User-agent: PerplexityBot
+Allow: /
+User-agent: Perplexity-User
+Allow: /
+
+# Google — Googlebot indexes; Google-Extended governs Gemini/Vertex grounding.
+User-agent: Googlebot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+
+# Microsoft / Bing — also the retrieval layer behind ChatGPT Search.
+User-agent: Bingbot
+Allow: /
+
+# Apple
+User-agent: Applebot
+Allow: /
+User-agent: Applebot-Extended
+Allow: /
+
+# Others worth naming
+User-agent: Amazonbot
+Allow: /
+User-agent: Meta-ExternalAgent
+Allow: /
+User-agent: DuckAssistBot
+Allow: /
+User-agent: cohere-ai
+Allow: /
+User-agent: YouBot
+Allow: /
+User-agent: CCBot
+Allow: /
+
+Sitemap: https://gregbenza.ai/sitemap-index.xml

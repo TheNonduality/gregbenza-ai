@@ -1,12 +1,38 @@
 ---
 import '../styles/global.css';
 import AskButtons from '../components/AskButtons.astro';
+import JsonLd from '../components/JsonLd.astro';
 
 interface Props {
   title: string;
   description?: string;
+  /** Site-absolute path to the social preview image, e.g. /projects/x/hero.jpg */
+  image?: string;
+  imageAlt?: string;
+  ogType?: 'website' | 'article';
+  /** Structured-data nodes for this page. See src/lib/schema.ts. */
+  jsonLd?: unknown;
 }
-const { title, description = 'GregBenza.ai — a living log of what Greg builds, open to feedback.' } = Astro.props;
+const {
+  title,
+  description = 'GregBenza.ai — a living log of what Greg builds, open to feedback.',
+  image,
+  imageAlt,
+  ogType = 'website',
+  jsonLd,
+} = Astro.props;
+
+// Folded YAML blurbs arrive with newlines baked in. Meta tags are single-line
+// values — a raw newline here ships a ragged description to every crawler and
+// unfurl card, so flatten before anything else touches these strings.
+const oneLine = (s: string) => s.replace(/\s+/g, ' ').trim();
+const metaTitle = oneLine(title);
+const metaDescription = oneLine(description);
+
+// Canonical and Open Graph both need absolute URLs; Astro.site is the real
+// domain (set in astro.config.mjs), so these resolve correctly in dev and prod.
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const socialImage = image ? new URL(image, Astro.site).href : undefined;
 
 const aboutPrompt =
   'Read https://gregbenza.ai/about.md — the machine-readable record of Greg Benza’s proof-of-work site. Tell me about the builder and the work, then let’s explore whatever looks interesting.';
@@ -18,11 +44,33 @@ const aboutPrompt =
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
-    <title>{title}</title>
-    <meta name="description" content={description} />
+    <title>{metaTitle}</title>
+    <meta name="description" content={metaDescription} />
+    <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <!-- Agent-readable from day one: point machines at the site index. -->
     <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt" />
+    <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
+
+    <!-- Open Graph / Twitter: what a shared link unfurls into. Without these a
+         link pasted into Slack, iMessage, or X shows a bare URL. -->
+    <meta property="og:site_name" content="GregBenza.AI" />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={metaTitle} />
+    <meta property="og:description" content={metaDescription} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="en_US" />
+    {socialImage && <meta property="og:image" content={socialImage} />}
+    {socialImage && imageAlt && <meta property="og:image:alt" content={imageAlt} />}
+    {/* Big card only when there is a real image to fill it; otherwise the
+        small card, which degrades honestly instead of showing a blank slab. */}
+    <meta name="twitter:card" content={socialImage ? 'summary_large_image' : 'summary'} />
+    <meta name="twitter:title" content={metaTitle} />
+    <meta name="twitter:description" content={metaDescription} />
+    {socialImage && <meta name="twitter:image" content={socialImage} />}
+    {socialImage && imageAlt && <meta name="twitter:image:alt" content={imageAlt} />}
+
+    {jsonLd && <JsonLd data={jsonLd} />}
   </head>
   <body>
     <header class="site-header">

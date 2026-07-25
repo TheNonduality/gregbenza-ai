@@ -4,6 +4,8 @@ import Base from '../../layouts/Base.astro';
 import Media from '../../components/Media.astro';
 import AskButtons from '../../components/AskButtons.astro';
 import GuidanceForm from '../../components/GuidanceForm.astro';
+import { readQa } from '../../lib/qa';
+import { SITE_URL, PERSON_ID, BLOG_ID, abs, person, blog, graph } from '../../lib/schema';
 
 export async function getStaticPaths() {
   const projects = await getCollection('projects', ({ data }) => !data.draft);
@@ -27,9 +29,89 @@ const kindLabel: Record<string, string> = {
   input: 'Input',
   output: 'Output',
 };
+
+// Same flattening the layout does — folded YAML blurbs carry newlines, and
+// structured data should hold the clean sentence a crawler will quote.
+const blurb = data.blurb.replace(/\s+/g, ' ').trim();
+
+const fmtDate = (d: Date) =>
+  d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+
+// Part 4 — the Q&A. Read back from this post's markdown twin so the questions
+// have exactly one home and the HTML can't drift from what agents read.
+const qa = await readQa(data.agentMd);
+
+// Video posters follow the media naming convention (foo.web.mp4 → foo.poster.jpg).
+const posterFor = (src: string) => src.replace(/\.web\.mp4$/, '.poster.jpg');
+
+// What a shared link unfurls into: the hero if it's an image, its poster frame
+// if it's a video, YouTube's thumbnail if it's an embed.
+const socialImage =
+  data.hero?.type === 'image'
+    ? data.hero.src
+    : data.hero?.type === 'video'
+      ? posterFor(data.hero.src)
+      : data.hero?.type === 'youtube'
+        ? `https://i.ytimg.com/vi/${data.hero.src}/maxresdefault.jpg`
+        : undefined;
+
+const postUrl = `${SITE_URL}/projects/${project.id}/`;
+
+// VideoObject for each self-hosted clip. Only local video: a YouTube embed's
+// upload date and duration belong to YouTube, and we don't assert what we
+// haven't measured. uploadDate is the post's date — when the clip went public
+// on this site, which is what the field means here.
+const videoNodes = [data.hero, data.outro]
+  .filter((m) => m?.type === 'video')
+  .map((m) => ({
+    '@type': 'VideoObject',
+    name: m!.caption ?? data.title,
+    description: m!.caption ?? blurb,
+    contentUrl: abs(m!.src),
+    thumbnailUrl: abs(posterFor(m!.src)),
+    uploadDate: data.date.toISOString(),
+    ...(m!.duration ? { duration: m!.duration } : {}),
+    isPartOf: { '@id': `${postUrl}#post` },
+  }));
+
+const jsonLd = graph([
+  person,
+  blog,
+  {
+    // Both types are true of every post here: a dated blog entry AND a
+    // technical write-up. Schema.org allows the pair; crawlers take the union.
+    '@type': ['BlogPosting', 'TechArticle'],
+    '@id': `${postUrl}#post`,
+    headline: data.title,
+    description: blurb,
+    url: postUrl,
+    mainEntityOfPage: postUrl,
+    datePublished: data.date.toISOString(),
+    dateModified: (data.updated ?? data.date).toISOString(),
+    author: { '@id': PERSON_ID },
+    publisher: { '@id': PERSON_ID },
+    isPartOf: { '@id': BLOG_ID },
+    inLanguage: 'en',
+    ...(data.project ? { keywords: data.project } : {}),
+    ...(socialImage ? { image: [abs(socialImage)] } : {}),
+    ...(videoNodes.length ? { video: videoNodes } : {}),
+    // The machine-readable twin of this page — say out loud that it exists.
+    ...(data.agentMd
+      ? { encoding: { '@type': 'MediaObject', encodingFormat: 'text/markdown', contentUrl: abs(data.agentMd) } }
+      : {}),
+  },
+  ...videoNodes,
+]);
 ---
 
-<Base title={`${data.title} — Greg Benza`} description={data.blurb}>
+<Base
+  title={`${data.title} — Greg Benza`}
+  description={data.blurb}
+  image={socialImage}
+  imageAlt={data.hero?.alt ?? data.hero?.caption}
+  ogType="article"
+  jsonLd={jsonLd}
+>
   <article
     class="project"
     data-accent={data.accent}
@@ -39,9 +121,19 @@ const kindLabel: Record<string, string> = {
       <a href="/">← the log</a>
     </p>
     <h1>{data.title}</h1>
-    <time datetime={data.date.toISOString()}>
-      {data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}
-    </time>
+    <p class="dateline">
+      <time datetime={data.date.toISOString()}>{fmtDate(data.date)}</time>
+      {/* Only shown once a published post has actually been revised — the
+          freshness signal stays honest because it can't appear otherwise. */}
+      {data.updated && (
+        <>
+          <span class="dateline-sep">·</span>
+          <time class="updated" datetime={data.updated.toISOString()}>
+            Updated {fmtDate(data.updated)}
+          </time>
+        </>
+      )}
+    </p>
 
     {/* The headline — Greg's one-liner under the title. */}
     <p class="blurb">{data.blurb}</p>
@@ -94,6 +186,22 @@ const kindLabel: Record<string, string> = {
       )
     }
 
+    {/* The Q&A — read from this post's markdown twin so humans see exactly
+        what agents read. Front-loaded answers, one question per heading. */}
+    {
+      qa.length > 0 && (
+        <section class="qa" aria-label="Questions and answers">
+          <h2>Questions this answers</h2>
+          {qa.map((pair) => (
+            <div class="qa-item">
+              <h3 class="qa-q">{pair.q}</h3>
+              <p class="qa-a">{pair.a}</p>
+            </div>
+          ))}
+        </section>
+      )
+    }
+
     {/* Part 2 — technical details: the runnable inputs behind the work. */}
     {
       data.technical.length > 0 && (
@@ -131,11 +239,40 @@ const kindLabel: Record<string, string> = {
 </Base>
 
 <style>
-  .project > time {
-    display: block;
+  .dateline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4rem;
+    margin: 0;
     font-family: var(--font-ui);
     font-size: 0.85rem;
     color: var(--ink-faint);
+  }
+  .dateline-sep {
+    color: var(--hairline);
+  }
+  .updated {
+    color: var(--ink-soft);
+  }
+  .qa {
+    margin-block: var(--space-3);
+  }
+  .qa h2 {
+    margin-bottom: var(--space-2);
+  }
+  .qa-item + .qa-item {
+    margin-top: var(--space-3);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--hairline);
+  }
+  .qa-q {
+    margin: 0 0 var(--space-1);
+    color: var(--ink);
+  }
+  .qa-a {
+    margin: 0;
+    color: var(--ink-soft);
   }
   .blurb {
     font-size: 1.3rem;

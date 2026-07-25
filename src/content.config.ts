@@ -36,6 +36,10 @@ const media = z.object({
   src: z.string(),
   alt: z.string().optional(),
   caption: z.string().optional(),
+  // ISO 8601 duration (e.g. 'PT39S') for video. Measured with ffprobe, not
+  // guessed — it feeds the VideoObject structured data, so a wrong number here
+  // is a wrong claim to every crawler that reads it.
+  duration: z.string().optional(),
 });
 
 // The AI record — the dry, repeatable heart of a placard. Each post documents
@@ -54,6 +58,10 @@ const projects = defineCollection({
   schema: z.object({
     title: z.string(),
     date: z.coerce.date(),
+    // Set only when a published post is materially revised. Drives the visible
+    // "Updated" line and dateModified in structured data — freshness signals
+    // that must never be faked, so this stays empty until a real revision.
+    updated: z.coerce.date().optional(),
     // Part 1 — the human hook.
     blurb: z.string(),
     // Which project lineage this placard belongs to (feed filter chips).

@@ -6,3 +6,8 @@
 
 [build.environment]
   NODE_VERSION = "22"
+
+# Redirects are NOT declared here. The one rule this site needs — the guessed
+# /projects/<slug>.md → the real twin — can't be expressed with Netlify
+# placeholders (they substitute only once). scripts/emit-redirects.mjs writes
+# dist/_redirects from the built output instead. See that file for the detail.

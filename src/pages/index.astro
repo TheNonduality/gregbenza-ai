@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import AskButtons from '../components/AskButtons.astro';
 import GuidanceForm from '../components/GuidanceForm.astro';
+import { SITE_URL, PERSON_ID, BLOG_ID, person, blog, graph } from '../lib/schema';
 
 const projects = (await getCollection('projects', ({ data }) => !data.draft)).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
@@ -11,9 +12,41 @@ const projects = (await getCollection('projects', ({ data }) => !data.draft)).so
 // Filter chips come from the posts themselves — one chip per project lineage.
 const lineages = [...new Set(projects.map((p) => p.data.project).filter(Boolean))] as string[];
 const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+// Structured data: who made this (Person), what this page is (Blog), and what
+// it holds (the post list). Posts repeat the same @ids so crawlers stitch the
+// graph together across pages.
+const jsonLd = graph([
+  person,
+  {
+    ...blog,
+    blogPost: projects.map((p) => ({
+      '@type': 'BlogPosting',
+      '@id': `${SITE_URL}/projects/${p.id}/#post`,
+      headline: p.data.title,
+      url: `${SITE_URL}/projects/${p.id}/`,
+      datePublished: p.data.date.toISOString(),
+      dateModified: (p.data.updated ?? p.data.date).toISOString(),
+      author: { '@id': PERSON_ID },
+    })),
+  },
+  {
+    '@type': 'WebPage',
+    '@id': `${SITE_URL}/#webpage`,
+    url: `${SITE_URL}/`,
+    name: 'GregBenza.AI — where good ideas go to grow',
+    isPartOf: { '@id': BLOG_ID },
+    about: { '@id': PERSON_ID },
+    inLanguage: 'en',
+  },
+]);
 ---
 
-<Base title="GregBenza.ai — where good ideas go to grow">
+<Base title="GregBenza.ai — where good ideas go to grow" jsonLd={jsonLd}>
+  {/* The page's one h1. Words borrowed from the header and <title> — no new
+      voice invented here; the design pass owns how loud this reads. */}
+  <h1 class="page-title">GregBenza.AI — where good ideas go to grow</h1>
+
   {/* Filter chips — quiet by default (showing everything); ink when pressed. */}
   {
     lineages.length > 0 && (
@@ -119,6 +152,14 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 </script>
 
 <style>
+  /* Quiet by design: the header already carries the brand, so the h1 states
+     the page for machines and readers without shouting over the log. */
+  .page-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin-block: var(--space-3) 0;
+  }
   .chips {
     display: flex;
     flex-wrap: wrap;

@@ -1,0 +1,15 @@
+---
+// Emits one <script type="application/ld+json"> block. Kept as a component so
+// every page escapes its payload the same way.
+interface Props {
+  data: unknown;
+}
+const { data } = Astro.props;
+
+// A literal "</script>" inside any string value would close the tag early and
+// spill JSON into the document. Escaping the angle brackets as unicode keeps
+// the JSON byte-identical in meaning and inert in HTML.
+const json = JSON.stringify(data).replace(/</g, '\\u003c').replace(/>/g, '\\u003e');
+---
+
+<script type="application/ld+json" is:inline set:html={json} />
