@@ -66,6 +66,8 @@ const projects = defineCollection({
     expandLabel: z.string().optional(),
     // Part 2 — technical details: the runnable inputs behind the work.
     technical: z.array(technicalInput).default([]),
+    // Closing media — plays the post out after the record and downloads.
+    outro: media.optional(),
     // Site-absolute path to this post's agent-facing markdown twin — the file
     // the ask-more buttons point a visitor's AI at.
     agentMd: z.string().optional(),

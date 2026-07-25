@@ -120,6 +120,8 @@ const kindLabel: Record<string, string> = {
       )
     }
 
+    {/* Outro media — the post plays out on the work itself. */}
+    {data.outro && <Media {...data.outro} />}
   </article>
 </Base>
 
