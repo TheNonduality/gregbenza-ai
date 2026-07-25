@@ -33,9 +33,12 @@ const aboutPrompt =
           <span class="brand-name">GregBenza.ai</span>
           <span class="tagline">— where good ideas go to grow</span>
         </a>
-        <div class="header-ask-row">
-          <AskButtons prompt={aboutPrompt} label="Ask your AI about me" />
-        </div>
+        <details class="header-ask">
+          <summary class="header-ask-btn">Ask your AI about me</summary>
+          <div class="header-ask-row">
+            <AskButtons prompt={aboutPrompt} label="" />
+          </div>
+        </details>
       </div>
       {/* One ink brush stroke under the header — the site's horizon line. */}
       <svg class="brush" viewBox="0 0 1200 14" preserveAspectRatio="none" aria-hidden="true">
@@ -129,43 +132,76 @@ const aboutPrompt =
       gap: 0;
       line-height: 1.15;
       min-width: 0;
+      flex: 1 1 auto;
     }
     .brand-name {
       font-size: 1.05rem;
     }
     .tagline {
-      font-size: 0.78rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 70vw;
+      font-size: 0.72rem;
+      white-space: normal;
+      max-width: 100%;
     }
   }
   .header-row {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     row-gap: 0.3rem;
   }
-  .header-ask-row {
+  /* One quiet button in the header; the platform pills unfold beneath it, so
+     the top of a phone screen stays for the brand and the work. */
+  .header-ask {
     margin-left: auto;
+    position: relative;
+    flex: 0 0 auto;
+  }
+  .header-ask-btn {
+    list-style: none;
+    cursor: pointer;
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    padding: 0.3em 0.9em;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.1rem;
+  }
+  .header-ask-btn::-webkit-details-marker {
+    display: none;
+  }
+  .header-ask-btn:hover,
+  .header-ask[open] .header-ask-btn {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .header-ask-row {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.4rem);
+    z-index: 20;
+    background: var(--paper);
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    padding: 0.5rem;
+    box-shadow: 0 4px 14px rgba(26, 26, 26, 0.1);
   }
   .header-ask-row :global(.ask-more) {
     margin-block: 0;
-    justify-content: flex-end;
     flex-wrap: nowrap;
   }
-  @media (max-width: 900px) {
+  @media (max-width: 560px) {
+    .header-ask-btn {
+      font-size: 0.72rem;
+      padding: 0.25em 0.7em;
+      min-height: 1.9rem;
+    }
     .header-ask-row {
-      margin-left: 0;
-      width: 100%;
+      right: 0;
+      max-width: 92vw;
       overflow-x: auto;
       scrollbar-width: none;
-      -webkit-overflow-scrolling: touch;
-    }
-    .header-ask-row::-webkit-scrollbar {
-      display: none;
-    }
-    .header-ask-row :global(.ask-more) {
-      justify-content: flex-start;
     }
   }
   .brush {

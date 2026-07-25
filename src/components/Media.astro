@@ -8,8 +8,13 @@ interface Props {
   src: string;
   alt?: string;
   caption?: string;
+  poster?: string;
 }
-const { type, src, alt = '', caption } = Astro.props;
+const { type, src, alt = '', caption, poster } = Astro.props;
+
+// Convention: <name>.web.mp4 ships beside <name>.poster.jpg. iOS Safari needs
+// an explicit source type and a poster, or the player renders blank.
+const posterSrc = poster ?? (src.endsWith('.web.mp4') ? src.replace(/\.web\.mp4$/, '.poster.jpg') : undefined);
 ---
 
 {type === 'youtube' && <YouTube id={src} title={caption ?? alt} />}
@@ -26,8 +31,8 @@ const { type, src, alt = '', caption } = Astro.props;
 {
   type === 'video' && (
     <figure>
-      <video controls preload="metadata" playsinline>
-        <source src={src} />
+      <video controls preload="metadata" playsinline muted poster={posterSrc}>
+        <source src={src} type="video/mp4" />
       </video>
       {caption && <figcaption>{caption}</figcaption>}
     </figure>
