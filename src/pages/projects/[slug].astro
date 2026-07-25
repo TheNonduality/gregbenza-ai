@@ -42,11 +42,18 @@ const kindLabel: Record<string, string> = {
       {data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}
     </time>
 
-    {/* Part 1 — blurb: the human hook. */}
+    {/* The headline — Greg's one-liner under the title. */}
     <p class="blurb">{data.blurb}</p>
 
     {/* Hero media — proves native rendering (image / video / clean YouTube). */}
     {data.hero && <Media {...data.hero} />}
+
+    {/* The blurb — Greg's words under the picture. The markdown body. */}
+    <section class="post-blurb">
+      <div class="prose">
+        <Content />
+      </div>
+    </section>
 
     {/* Ask-more: hand this post's markdown twin to the visitor's own AI. */}
     {data.agentMd && <AskButtons agentMd={data.agentMd} title={data.title} />}
@@ -113,14 +120,6 @@ const kindLabel: Record<string, string> = {
       )
     }
 
-    <hr />
-
-    {/* Part 3 — full background story: the deep pool agents draw from. */}
-    <section class="background">
-      <div class="prose">
-        <Content />
-      </div>
-    </section>
   </article>
 </Base>
 
