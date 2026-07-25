@@ -94,7 +94,7 @@ const aboutPrompt =
     display: flex;
     align-items: baseline;
     gap: 0.5rem;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     text-decoration: none;
     line-height: 1.25;
   }
@@ -103,17 +103,28 @@ const aboutPrompt =
     font-weight: 700;
     font-size: 1.35rem;
     color: var(--ink);
+    white-space: nowrap;
   }
   .tagline {
     font-family: var(--font-body);
     font-style: italic;
     font-size: 1.15rem;
     color: var(--ink-soft);
+    white-space: nowrap;
   }
-  @media (max-width: 560px) {
+  @media (max-width: 640px) {
+    .brand {
+      flex-wrap: wrap;
+      gap: 0 0.5rem;
+    }
     .tagline {
       font-size: 0.95rem;
+      white-space: normal;
     }
+  }
+  .header-row {
+    flex-wrap: wrap;
+    row-gap: 0.3rem;
   }
   .header-ask-row {
     margin-left: auto;
@@ -121,16 +132,11 @@ const aboutPrompt =
   .header-ask-row :global(.ask-more) {
     margin-block: 0;
     justify-content: flex-end;
+    flex-wrap: nowrap;
   }
-  @media (max-width: 700px) {
-    .header-row {
-      flex-wrap: wrap;
-    }
-    .header-ask-row {
-      margin-left: 0;
-      width: 100%;
-    }
+  @media (max-width: 900px) {
     .header-ask-row :global(.ask-more) {
+      flex-wrap: wrap;
       justify-content: flex-start;
     }
   }
