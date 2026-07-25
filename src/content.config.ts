@@ -18,9 +18,11 @@ import { glob } from 'astro/loaders';
 const technicalInput = z.object({
   // What the visitor is getting.
   label: z.string(),
-  // The kind of input — drives the icon/label on the page and keeps the
+  // The kind — drives the icon/label on the page and keeps the
   // machine-readable structure consistent across every project.
-  kind: z.enum(['prompt', 'skill', 'connector', 'output']),
+  // 'input' = something that was fed TO the AI (a diagnostic photo, a file);
+  // 'output' = something the AI or the work produced.
+  kind: z.enum(['prompt', 'skill', 'connector', 'input', 'output']),
   // A one-line description of what it does / why it matters.
   note: z.string().optional(),
   // Downloadable file served from /public, OR an external link — exactly one.
