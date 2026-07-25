@@ -120,6 +120,11 @@ const jsonLd = graph([
     <p class="eyebrow">
       <a href="/">← the log</a>
     </p>
+
+    {/* Ask-your-AI at the very top: the fastest way off the page for anyone
+        who would rather have their own AI read the record than read this. */}
+    {data.agentMd && <AskButtons agentMd={data.agentMd} title={data.title} />}
+
     <h1>{data.title}</h1>
     <p class="dateline">
       <time datetime={data.date.toISOString()}>{fmtDate(data.date)}</time>
@@ -141,19 +146,12 @@ const jsonLd = graph([
     {/* Hero media — proves native rendering (image / video / clean YouTube). */}
     {data.hero && <Media {...data.hero} />}
 
-    {/* Ask-more rides right under the hero: hand this post's markdown twin
-        to the visitor's own AI. */}
-    {data.agentMd && <AskButtons agentMd={data.agentMd} title={data.title} />}
-
     {/* The blurb — Greg's words. The markdown body. */}
     <section class="post-blurb">
       <div class="prose">
         <Content />
       </div>
     </section>
-
-    {/* The feedback door — guidance arrives tagged with this post. */}
-    <GuidanceForm context={project.id} />
 
     {/* The AI record — dry, identical fields on every placard. */}
     {
@@ -235,6 +233,9 @@ const jsonLd = graph([
 
     {/* Outro media — the post plays out on the work itself. */}
     {data.outro && <Media {...data.outro} />}
+
+    {/* The feedback door, last: read the whole record, then say something. */}
+    <GuidanceForm context={project.id} />
   </article>
 </Base>
 
