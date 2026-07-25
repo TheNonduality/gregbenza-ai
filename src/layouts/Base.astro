@@ -47,6 +47,10 @@ const aboutPrompt =
     <title>{metaTitle}</title>
     <meta name="description" content={metaDescription} />
     <link rel="canonical" href={canonical} />
+    <!-- Google Search Console ownership proof. Public by design and useless to
+         anyone without control of the domain — not a credential. Google
+         re-checks it, so it stays. -->
+    <meta name="google-site-verification" content="8603VMCvQNsi_EMf8otqhAfYyjfhl5rhE012ZNBFSCc" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <!-- Agent-readable from day one: point machines at the site index. -->
     <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt" />
