@@ -4,3 +4,13 @@ dist/
 .DS_Store
 .env
 .netlify/
+
+# Raw media dropped at repo root never ships; web-ready media lives in public/
+/*.mp4
+/*.MP4
+/*.mov
+/*.MOV
+/*.jpg
+/*.jpeg
+/*.png
+/*.heic
