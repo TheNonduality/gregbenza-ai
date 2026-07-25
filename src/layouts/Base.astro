@@ -196,6 +196,16 @@ const aboutPrompt =
     flex-wrap: nowrap;
     row-gap: 0.3rem;
   }
+  /* The gap between the two mobile breakpoints: the brand is still full size
+     (that shrinks at 640) but the viewport is narrower than the row needs, so
+     the header grew sideways past the screen. Let it grow a line instead — the
+     ask pill drops beneath the brand. Above 700 the row fits again and this
+     stops applying, so the header is one line everywhere else. */
+  @media (min-width: 641px) and (max-width: 700px) {
+    .header-row {
+      flex-wrap: wrap;
+    }
+  }
   /* One quiet button in the header; the platform pills unfold beneath it, so
      the top of a phone screen stays for the brand and the work. */
   .header-ask {
