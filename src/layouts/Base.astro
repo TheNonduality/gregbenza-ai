@@ -1,11 +1,15 @@
 ---
 import '../styles/global.css';
+import AskButtons from '../components/AskButtons.astro';
 
 interface Props {
   title: string;
   description?: string;
 }
 const { title, description = 'GregBenza.ai — a living log of what Greg builds, open to feedback.' } = Astro.props;
+
+const aboutPrompt =
+  'Read https://gregbenza.ai/about.md — the machine-readable record of Greg Benza’s proof-of-work site. Tell me about the builder and the work, then let’s explore whatever looks interesting.';
 ---
 
 <!doctype html>
@@ -29,12 +33,9 @@ const { title, description = 'GregBenza.ai — a living log of what Greg builds,
           <span class="brand-name">GregBenza.ai</span>
           <span class="tagline">where good ideas go to grow</span>
         </a>
-        <a
-          class="header-ask"
-          href={`https://claude.ai/new?q=${encodeURIComponent('Read https://gregbenza.ai/about.md — the machine-readable record of Greg Benza’s proof-of-work site. Tell me about the builder and the work, then let’s explore whatever looks interesting.')}`}
-          target="_blank"
-          rel="noopener"
-        >Ask your AI about me ↗</a>
+        <div class="header-ask-row">
+          <AskButtons prompt={aboutPrompt} label="Ask your AI about me" />
+        </div>
       </div>
       {/* One ink brush stroke under the header — the site's horizon line. */}
       <svg class="brush" viewBox="0 0 1200 14" preserveAspectRatio="none" aria-hidden="true">
@@ -106,25 +107,23 @@ const { title, description = 'GregBenza.ai — a living log of what Greg builds,
     font-size: 0.8rem;
     color: var(--ink-faint);
   }
-  .header-ask {
+  .header-ask-row {
     margin-left: auto;
-    font-family: var(--font-ui);
-    font-size: 0.85rem;
-    color: var(--ink-soft);
-    border: 1px solid var(--hairline);
-    border-radius: 999px;
-    padding: 0.4em 1em;
-    text-decoration: none;
-    white-space: nowrap;
   }
-  .header-ask:hover {
-    border-color: var(--accent);
-    color: var(--accent);
+  .header-ask-row :global(.ask-more) {
+    margin-block: 0;
+    justify-content: flex-end;
   }
-  @media (max-width: 560px) {
-    .header-ask {
-      font-size: 0.75rem;
-      padding: 0.35em 0.7em;
+  @media (max-width: 700px) {
+    .header-row {
+      flex-wrap: wrap;
+    }
+    .header-ask-row {
+      margin-left: 0;
+      width: 100%;
+    }
+    .header-ask-row :global(.ask-more) {
+      justify-content: flex-start;
     }
   }
   .brush {

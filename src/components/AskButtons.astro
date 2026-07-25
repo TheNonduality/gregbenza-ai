@@ -5,13 +5,17 @@
 // ChatGPT and Perplexity auto-submit on open; the prompt must stay short,
 // tame, and fully visible to the reader.
 interface Props {
-  agentMd: string; // site-absolute path to the post's markdown twin
-  title: string;
+  agentMd?: string; // site-absolute path to the target markdown
+  title?: string;
+  prompt?: string; // explicit prompt override (e.g. the header's about row)
+  label?: string;
 }
-const { agentMd, title } = Astro.props;
+const { agentMd, title, prompt: promptOverride, label = 'Ask your AI about this' } = Astro.props;
 
 const SITE = 'https://gregbenza.ai';
-const prompt = `Read ${SITE}${agentMd} — Greg Benza's record of "${title}". Tell me the story of how it went, then let's discuss how to apply the method.`;
+const prompt =
+  promptOverride ??
+  `Read ${SITE}${agentMd} — Greg Benza's record of "${title}". Tell me the story of how it went, then let's discuss how to apply the method.`;
 const q = encodeURIComponent(prompt);
 
 const services = [
@@ -22,7 +26,7 @@ const services = [
 ---
 
 <div class="ask-more" data-prompt={prompt}>
-  <span class="ask-label">Ask your AI about this</span>
+  <span class="ask-label">{label}</span>
   {services.map((s) => (
     <a class="ask-btn" href={s.href} target="_blank" rel="noopener">{s.name} ↗</a>
   ))}
