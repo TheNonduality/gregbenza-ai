@@ -22,9 +22,22 @@ const { title, description = 'GregBenza.ai — a living log of what Greg builds,
   </head>
   <body>
     <header class="site-header">
-      <div class="wrap">
-        <a href="/" class="brand">GregBenza.ai <span class="tagline">— where good ideas go to grow</span></a>
+      <div class="wrap header-row">
+        {/* Seal-stamp mark — placeholder until Greg's personal logo lands. */}
+        <a href="/" class="seal" aria-label="GregBenza.ai home">GB</a>
+        <a href="/" class="brand">
+          <span class="brand-name">GregBenza.ai</span>
+          <span class="tagline">where good ideas go to grow</span>
+        </a>
       </div>
+      {/* One ink brush stroke under the header — the site's horizon line. */}
+      <svg class="brush" viewBox="0 0 1200 14" preserveAspectRatio="none" aria-hidden="true">
+        <path
+          d="M0 8 Q 90 3 210 7 T 460 6 Q 600 10 740 6 T 1000 8 Q 1110 5 1200 7 L 1200 10 Q 1080 13 940 10 T 640 11 Q 480 8 330 11 T 60 10 L 0 11 Z"
+          fill="var(--ink)"
+          opacity="0.82"
+        />
+      </svg>
     </header>
     <main class="wrap">
       <slot />
@@ -36,3 +49,60 @@ const { title, description = 'GregBenza.ai — a living log of what Greg builds,
     </footer>
   </body>
 </html>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--paper);
+  }
+  .header-row {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding-block: 0.7rem;
+  }
+  .seal {
+    flex: 0 0 auto;
+    width: 2.4rem;
+    height: 2.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--accent);
+    border-radius: 4px;
+    color: var(--accent);
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+  }
+  .seal:hover {
+    background: var(--accent);
+    color: var(--paper);
+  }
+  .brand {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    line-height: 1.25;
+  }
+  .brand-name {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--ink);
+  }
+  .tagline {
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+  }
+  .brush {
+    display: block;
+    width: 100%;
+    height: 7px;
+  }
+</style>

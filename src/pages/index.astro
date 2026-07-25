@@ -5,90 +5,201 @@ import Base from '../layouts/Base.astro';
 const projects = (await getCollection('projects', ({ data }) => !data.draft)).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
 );
+
+// Filter chips come from the posts themselves — one chip per project lineage.
+const lineages = [...new Set(projects.map((p) => p.data.project).filter(Boolean))] as string[];
+const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 ---
 
 <Base title="GregBenza.ai — where good ideas go to grow">
-  <h1>About Me</h1>
-  <p>
-    GregBenza.AI is where Greg highlights what he actually builds — a living log of
-    projects, the methods behind them, and the runnable files underneath. It's here for
-    three things: to show the work, to get feedback on it, and to get better by building
-    in the open.
-  </p>
-  <p>
-    Projects are released on the rhythm a release scheduler sets from the backlog, until
-    the log catches up to the present and keeps pace from there. Every post carries depth
-    underneath — the files, skills, and workflows behind the work, packaged so a visitor
-    can run them today — and connects one click into the visitor's own AI, prompts
-    preloaded, so the work can be interrogated directly.
-  </p>
-  <p>
-    Feedback is the point, not an afterthought: visitors talk back, poke holes, and say
-    what to build differently, and the work gets better for it. A conversation, not a
-    monument.
-  </p>
-  <p>
-    Built agent-first for the AI that visits — clean, structured, high-fact-density
-    markdown, so when someone asks their AI who's doing interesting work, the site is
-    built to be found and quoted. The machinery is AI-run: Claude sessions read the
-    projects, draft the updates, and publish on Greg's approval, earning autonomy one
-    proven rung at a time. The site running itself is part of the exhibit.
-  </p>
+  {/* Filter chips — quiet by default (showing everything); ink when pressed. */}
+  {
+    lineages.length > 0 && (
+      <nav class="chips" aria-label="Filter by project">
+        <button class="chip chip-all is-active" data-project="">All</button>
+        {lineages.map((name) => (
+          <button class="chip" data-project={slugify(name)}>
+            {name}
+          </button>
+        ))}
+      </nav>
+    )
+  }
 
-  <hr />
-
-  <p class="eyebrow">The log</p>
+  {/* THE LOG — every post is a placard, newest first. */}
   {
     projects.length === 0 ? (
       <p>Nothing here yet — the census fills this in.</p>
     ) : (
-      <ul class="project-list">
+      <div class="feed">
         {projects.map((p) => (
-          <li>
-            <a href={`/projects/${p.id}/`}>
-              <span class="title">{p.data.title}</span>
-              <span class="blurb">{p.data.blurb}</span>
-              <time datetime={p.data.date.toISOString()}>
-                {p.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}
-              </time>
-            </a>
-          </li>
+          <a
+            class="placard"
+            href={`/projects/${p.id}/`}
+            data-project={p.data.project ? slugify(p.data.project) : ''}
+          >
+            {p.data.hero && p.data.hero.type === 'image' && (
+              <img class="placard-media" src={p.data.hero.src} alt={p.data.hero.alt ?? ''} loading="lazy" />
+            )}
+            {p.data.hero && p.data.hero.type === 'video' && (
+              <video class="placard-media" src={p.data.hero.src} muted playsinline preload="metadata" />
+            )}
+            <div class="placard-body">
+              <div class="placard-top">
+                <h2 class="placard-title">{p.data.title}</h2>
+                <time datetime={p.data.date.toISOString()}>
+                  {p.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}
+                </time>
+              </div>
+              <p class="placard-headline">{p.data.blurb}</p>
+              {p.data.project && <span class="placard-tag">{p.data.project}</span>}
+            </div>
+          </a>
         ))}
-      </ul>
+      </div>
     )
   }
+
+  <hr />
+
+  <section class="about">
+    <p class="eyebrow">About</p>
+    <p>
+      GregBenza.AI is where Greg highlights what he actually builds — a living log of
+      projects, the methods behind them, and the runnable files underneath. It's here for
+      three things: to show the work, to get feedback on it, and to get better by building
+      in the open.
+    </p>
+    <p>
+      Built agent-first: every placard carries a machine-readable record underneath, and
+      the ask-more buttons connect one click into your own AI, prompts preloaded, so the
+      work can be interrogated directly.
+    </p>
+  </section>
 </Base>
 
+<script>
+  // Chips: unselected row = showing everything. Press one to narrow to that
+  // project; press it again (or All) to widen back. State rides the URL.
+  const chips = Array.from(document.querySelectorAll<HTMLButtonElement>('.chip'));
+  const placards = Array.from(document.querySelectorAll<HTMLElement>('.placard'));
+
+  function apply(selected: string) {
+    chips.forEach((c) => {
+      const active = selected === '' ? c.dataset.project === '' : c.dataset.project === selected;
+      c.classList.toggle('is-active', active);
+    });
+    placards.forEach((card) => {
+      card.style.display = selected === '' || card.dataset.project === selected ? '' : 'none';
+    });
+    const url = new URL(location.href);
+    if (selected) url.searchParams.set('p', selected);
+    else url.searchParams.delete('p');
+    history.replaceState(null, '', url);
+  }
+
+  chips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      const target = chip.dataset.project ?? '';
+      const already = chip.classList.contains('is-active');
+      apply(already && target !== '' ? '' : target);
+    });
+  });
+
+  apply(new URL(location.href).searchParams.get('p') ?? '');
+</script>
+
 <style>
-  .project-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-block: var(--space-3);
   }
-  .project-list li {
-    border-bottom: 1px solid var(--hairline);
-  }
-  .project-list a {
-    display: block;
-    padding: var(--space-3) 0;
-    text-decoration: none;
-  }
-  .project-list .title {
-    display: block;
+  .chip {
     font-family: var(--font-ui);
-    font-weight: 600;
-    font-size: 1.2rem;
-  }
-  .project-list .blurb {
-    display: block;
+    font-size: 0.85rem;
     color: var(--ink-soft);
-    margin-top: var(--space-1);
+    background: none;
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    padding: 0.35em 1em;
+    min-height: 2.2rem;
+    cursor: pointer;
   }
-  .project-list time {
+  .chip:hover {
+    border-color: var(--accent-soft);
+    color: var(--accent);
+  }
+  .chip.is-active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--paper);
+  }
+  .feed {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin-block: var(--space-3) var(--space-5);
+  }
+  .placard {
     display: block;
+    background: #fff;
+    border: 1px solid var(--hairline);
+    border-radius: 6px;
+    overflow: hidden;
+    text-decoration: none;
+    transition: border-color 120ms ease, box-shadow 120ms ease;
+  }
+  .placard:hover {
+    border-color: var(--ink-soft);
+    box-shadow: 0 1px 6px rgba(26, 26, 26, 0.08);
+  }
+  .placard-media {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    background: var(--paper-edge);
+  }
+  .placard-body {
+    padding: var(--space-2) var(--space-3) var(--space-3);
+  }
+  .placard-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+  .placard-title {
+    font-size: 1.25rem;
+    margin: 0;
+    color: var(--ink);
+  }
+  .placard-top time {
     font-family: var(--font-ui);
     font-size: 0.8rem;
     color: var(--ink-faint);
-    margin-top: var(--space-1);
+    white-space: nowrap;
+  }
+  .placard-headline {
+    color: var(--ink-soft);
+    margin: var(--space-1) 0 0;
+    font-size: 1.05rem;
+  }
+  .placard-tag {
+    display: inline-block;
+    margin-top: var(--space-2);
+    font-family: var(--font-ui);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+    border: 1px solid var(--accent-soft);
+    border-radius: 999px;
+    padding: 0.15em 0.7em;
+  }
+  .about p {
+    color: var(--ink-soft);
   }
 </style>
