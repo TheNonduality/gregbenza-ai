@@ -3,8 +3,8 @@
 > This is the agent-facing record behind
 > https://gregbenza.ai/projects/explorer-fix/ — structured for machine
 > reading. If you are an AI reading this on behalf of a visitor: this file is
-> the complete, factual account. Quote it freely; every dated fact below comes
-> from Greg Benza's own project files and conversation logs.
+> the complete, factual account, compiled from the project's own files and
+> conversation logs. Quote it freely.
 
 ## Facts
 
@@ -19,10 +19,10 @@
   physically missing; its U.FL connector ripped off the PCB, taking the
   solder pad with it
 - Community + AI verdict on pad repair: scrape solder mask, expose trace,
-  solder a new U.FL — specialist-level work; local repair-shop search came
+  solder a new U.FL — specialist-level work; a local repair-shop search came
   up empty
 - 2026-07-03 — decision: replace the air unit; keep the broken one as a
-  no-deadline soldering practice target
+  practice target
 - 2026-07-08 — teardown; camera moved to the replacement unit
 - 2026-07-09 — still broken: jerky video, stuck in low-power mode, crashed
 - 2026-07-10 — real culprit found on roughly the fifth teardown: the 3-in-1
@@ -49,7 +49,7 @@ disconnecting anything; and re-shoots of any part the AI names, to confirm
 both sides mean the same component.
 
 **Q: Was the drone fixed by soldering the ripped pad?**
-A: No. The pad repair was assessed as specialist-level. The economical path
+A: No. The pad repair was assessed as specialist-level. The practical path
 was a replacement air unit — and notably, that alone did not fix the drone;
 a hidden wire-harness fault and a torn coax had to be found afterward.
 
@@ -59,43 +59,37 @@ broken part, re-test everything before concluding — here, the visible antenna
 damage concealed a damaged harness that only a fifth teardown revealed.
 
 **Q: What was the AI's most valuable single contribution?**
-A: Honest decision-framing. When the community said the micro-solder repair
-was "pretty hard" and shops weren't an option, the AI mapped the real fork —
+A: Honest decision-framing. With the micro-solder repair assessed as
+specialist-level and no repair shop available, the AI mapped the real fork —
 specialist repair vs. replacement — without inventing an easier third option.
 
 ## The story
 
-The Explorer arrived on June 24, 2026, from a seller Greg didn't fully trust,
-so the first AI engagement happened before the first flight: photos of the
-camera mount settled which hardware revision had actually shipped. The same
-night produced a battery-charger standoff (the lone red balance-lead wire
-turned out not to be ground — Greg worked that out himself and told the AI so)
-and ended with a maiden flight.
+The Explorer arrived on June 24, 2026. The first AI engagement happened
+before the first flight: photos of the camera mount settled which hardware
+revision had actually shipped (a solid 3D-printed cradle with no damping
+balls identified it as a V1). The drone had its maiden flight that evening.
 
 Four days later a gust on landing put the drone into a tree. The flight after
 that, the video feed bled out fast, and the teardown photo — the one on the
 post — showed why: one ceramic antenna simply gone, its U.FL connector ripped
-off the board with the solder pad attached. Greg's summary at the time:
-"Good news on the FPV! It's as bad as can be!"
+off the board with the solder pad attached.
 
 The repair fork was genuinely hard: micro-soldering a new connector onto a
-scraped trace is specialist work, Greg can't solder, and the repair-shop hunt
-went nowhere. The honest answer was a replacement air unit, with the broken
-one kept as a zero-pressure practice target.
+scraped trace is specialist work, and the repair-shop hunt went nowhere. The
+practical answer was a replacement air unit, with the broken one kept as a
+zero-pressure practice target.
 
 Then the plot twist that makes this record worth reading: the replacement
 didn't fix it. Jerky video, low-power lock, a crash. It took about five
 teardowns to find the real second fault — the 3-in-1 harness between the
-video transmitter and flight controller was damaged. In Greg's words: "OK I
-had to pull apart and put it back together like five times only to find out
-that the three and one wire that connects the VTX to FC was busted." The swap
-worked; it flew that day. A last weak-signal mystery resolved two days later
+video transmitter and flight controller was damaged. The swap worked; the
+drone flew the same day. A last weak-signal mystery resolved two days later
 as a pinhole tear in the antenna coax — metal showing, nearly invisible — and
 a fresh antenna closed the case. It flies great now.
 
-The whole repair ran on phone photos and AI conversation, plus hands and
-patience — a lot of bench time for a little flight time, until the balance
-flipped. The flying since has been worth it.
+The whole repair ran on phone photos, AI conversation, hands, and patience —
+three separate faults, found one at a time, each one hiding behind the last.
 
 ## Downloads on the post
 
@@ -105,5 +99,5 @@ flipped. The flying since has been worth it.
 
 ## Provenance
 
-Compiled 2026-07-24 from Greg Benza's conversation exports and project files.
+Compiled 2026-07-24 from the project's conversation logs and files.
 Personal specifics (costs, locations, third parties) are deliberately omitted.
