@@ -1,0 +1,119 @@
+---
+// "Offer guidance" — the feedback door. A quiet button that unfolds a small
+// Netlify form. Anonymous by default; the post slug rides along as a hidden
+// field so guidance arrives tagged with what it's about.
+// NOTE: Netlify Forms only deliver on the deployed site — the local preview
+// renders but cannot send. Live-fire test is on the pre-publish checklist.
+interface Props {
+  context?: string; // which page/post this guidance is about
+}
+const { context = 'site' } = Astro.props;
+---
+
+<details class="guidance">
+  <summary class="guidance-btn">Offer guidance</summary>
+  <form
+    name="guidance"
+    method="POST"
+    action="/thanks/"
+    data-netlify="true"
+    netlify-honeypot="bot-field"
+    class="guidance-form"
+  >
+    <input type="hidden" name="form-name" value="guidance" />
+    <input type="hidden" name="context" value={context} />
+    <p class="hp" aria-hidden="true">
+      <label>Don't fill this out: <input name="bot-field" /></label>
+    </p>
+    <label class="g-label">
+      What should be different?
+      <textarea name="message" rows="4" required placeholder="Poke a hole, point a direction, tell me what to build differently."></textarea>
+    </label>
+    <label class="g-label">
+      Name or contact <span class="g-optional">(optional — anonymous is fine)</span>
+      <input type="text" name="from" autocomplete="off" />
+    </label>
+    <button type="submit" class="g-send">Send it</button>
+  </form>
+</details>
+
+<style>
+  .guidance {
+    display: inline-block;
+  }
+  .guidance-btn {
+    list-style: none;
+    cursor: pointer;
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    padding: 0.35em 0.9em;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .guidance-btn::-webkit-details-marker {
+    display: none;
+  }
+  .guidance-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .guidance[open] .guidance-btn {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .guidance-form {
+    margin-top: var(--space-2);
+    padding: var(--space-2);
+    border: 1px solid var(--hairline);
+    border-radius: 6px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    max-width: 28rem;
+  }
+  .hp {
+    position: absolute;
+    left: -9999px;
+  }
+  .g-label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+  }
+  .g-optional {
+    color: var(--ink-faint);
+  }
+  .guidance-form textarea,
+  .guidance-form input[type='text'] {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    padding: 0.5em 0.7em;
+  }
+  .g-send {
+    align-self: flex-start;
+    font-family: var(--font-ui);
+    font-size: 0.9rem;
+    color: var(--paper);
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius);
+    padding: 0.5em 1.2em;
+    min-height: 44px;
+    cursor: pointer;
+  }
+  .g-send:hover {
+    background: var(--accent-soft);
+  }
+</style>

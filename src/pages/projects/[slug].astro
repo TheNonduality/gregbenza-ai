@@ -3,6 +3,7 @@ import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Media from '../../components/Media.astro';
 import AskButtons from '../../components/AskButtons.astro';
+import GuidanceForm from '../../components/GuidanceForm.astro';
 
 export async function getStaticPaths() {
   const projects = await getCollection('projects', ({ data }) => !data.draft);
@@ -57,6 +58,9 @@ const kindLabel: Record<string, string> = {
 
     {/* Ask-more: hand this post's markdown twin to the visitor's own AI. */}
     {data.agentMd && <AskButtons agentMd={data.agentMd} title={data.title} />}
+
+    {/* The feedback door — guidance arrives tagged with this post. */}
+    <GuidanceForm context={project.id} />
 
     {/* The AI record — dry, identical fields on every placard. */}
     {

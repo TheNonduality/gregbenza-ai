@@ -1,6 +1,8 @@
 ---
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
+import AskButtons from '../components/AskButtons.astro';
+import GuidanceForm from '../components/GuidanceForm.astro';
 
 const projects = (await getCollection('projects', ({ data }) => !data.draft)).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
@@ -33,28 +35,30 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     ) : (
       <div class="feed">
         {projects.map((p) => (
-          <a
-            class="placard"
-            href={`/projects/${p.id}/`}
-            data-project={p.data.project ? slugify(p.data.project) : ''}
-          >
-            {p.data.hero && p.data.hero.type === 'image' && (
-              <img class="placard-media" src={p.data.hero.src} alt={p.data.hero.alt ?? ''} loading="lazy" />
-            )}
-            {p.data.hero && p.data.hero.type === 'video' && (
-              <video class="placard-media" src={p.data.hero.src} muted playsinline preload="metadata" />
-            )}
-            <div class="placard-body">
-              <div class="placard-top">
-                <h2 class="placard-title">{p.data.title}</h2>
-                <time datetime={p.data.date.toISOString()}>
-                  {p.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}
-                </time>
+          <article class="placard" data-project={p.data.project ? slugify(p.data.project) : ''}>
+            <a class="placard-link" href={`/projects/${p.id}/`}>
+              {p.data.hero && p.data.hero.type === 'image' && (
+                <img class="placard-media" src={p.data.hero.src} alt={p.data.hero.alt ?? ''} loading="lazy" />
+              )}
+              {p.data.hero && p.data.hero.type === 'video' && (
+                <video class="placard-media" src={p.data.hero.src} muted playsinline preload="metadata" />
+              )}
+              <div class="placard-body">
+                <div class="placard-top">
+                  <h2 class="placard-title">{p.data.title}</h2>
+                  <time datetime={p.data.date.toISOString()}>
+                    {p.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}
+                  </time>
+                </div>
+                <p class="placard-headline">{p.data.blurb}</p>
+                {p.data.project && <span class="placard-tag">{p.data.project}</span>}
               </div>
-              <p class="placard-headline">{p.data.blurb}</p>
-              {p.data.project && <span class="placard-tag">{p.data.project}</span>}
+            </a>
+            <div class="placard-actions">
+              {p.data.agentMd && <AskButtons agentMd={p.data.agentMd} title={p.data.title} />}
+              <GuidanceForm context={p.id} />
             </div>
-          </a>
+          </article>
         ))}
       </div>
     )
@@ -143,17 +147,22 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     margin-block: var(--space-3) var(--space-5);
   }
   .placard {
-    display: block;
     background: #fff;
     border: 1px solid var(--hairline);
     border-radius: 6px;
     overflow: hidden;
-    text-decoration: none;
     transition: border-color 120ms ease, box-shadow 120ms ease;
   }
   .placard:hover {
     border-color: var(--ink-soft);
     box-shadow: 0 1px 6px rgba(26, 26, 26, 0.08);
+  }
+  .placard-link {
+    display: block;
+    text-decoration: none;
+  }
+  .placard-actions {
+    padding: 0 var(--space-3) var(--space-2);
   }
   .placard-media {
     display: block;
