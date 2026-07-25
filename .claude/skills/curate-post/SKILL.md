@@ -10,9 +10,9 @@ posts per project is normal; the filter chips group them.
 
 This skill exists because of a specific failure on 2026-07-25: a post was
 written with a caption describing footage that had never been opened. The
-caption came from a chat transcript's description of the video. The actual
-frame showed something completely different — including a person's face and a
-private residence. It reached a draft before it was caught.
+caption came from a chat transcript's description of the video. The real frame
+showed something entirely different, and contained material that should never
+have been published. It reached a draft before it was caught.
 
 The lesson is the spine of this whole skill: **a description of a source is
 not the source.** Transcripts, filenames, and prior summaries are leads. The
@@ -24,7 +24,7 @@ file itself is the evidence.
 
 Never write from memory or inference. Locate actual source material:
 
-- `C:\Users\gpben\Documents\Claude\Projects\<project>\` — notes, media, exports
+- `<user home>\Documents\Claude\Projects\<project>\` — notes, media, exports
 - Claude Code transcripts: `~/.claude/projects/*/*.jsonl`
 - claude.ai data export (`conversations.json`) if one has been downloaded
 - Greg himself — often the fastest and most reliable source
@@ -50,9 +50,9 @@ Non-negotiable, and the reason this skill exists.
   not "checked" because its first frame is fine.
 - **Full resolution for the final check.** A downscaled contact sheet is fine
   for a first pass at composition, but it will hide a face, a license plate,
-  or a house number. On 2026-07-25 a 300px-wide contact sheet showed "no
-  people"; the full-size poster from the same clip showed a person sitting by
-  a car and a readable plate.
+  or a house number. On 2026-07-25 a 300px-wide contact sheet of a clip read
+  as clear; the full-size frame from that same clip was not. Sampling small
+  is how you miss exactly the things this sweep exists to catch.
 - **Alt text and captions describe what is visibly in the frame** — nothing
   inferred from a filename, a transcript, or what the footage "should" show.
 
@@ -135,8 +135,8 @@ ffmpeg -y -i public/projects/<slug>/<name>.web.mp4 -frames:v 1 -q:v 3 \
 - Measure duration with `ffprobe` and put it in frontmatter as ISO 8601
   (`PT22S`). It feeds VideoObject structured data — a guessed number is a
   false claim to every crawler that reads it.
-- ffmpeg/ffprobe live under
-  `C:\Users\gpben\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg_*\ffmpeg-*\bin\`
+- ffmpeg/ffprobe are installed via winget and live under
+  `<user home>\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg_*\ffmpeg-*\bin\`
 
 ---
 

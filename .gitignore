@@ -17,3 +17,6 @@ dist/
 
 # Uncompressed preview media (swapped for web-ready versions before publish)
 *.RAW.*
+
+# Local Claude settings can accrue credentials — never commit them
+.claude/settings.local.json
