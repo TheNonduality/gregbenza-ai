@@ -196,12 +196,15 @@ const aboutPrompt =
     flex-wrap: nowrap;
     row-gap: 0.3rem;
   }
-  /* The gap between the two mobile breakpoints: the brand is still full size
-     (that shrinks at 640) but the viewport is narrower than the row needs, so
-     the header grew sideways past the screen. Let it grow a line instead — the
-     ask pill drops beneath the brand. Above 700 the row fits again and this
-     stops applying, so the header is one line everywhere else. */
-  @media (min-width: 641px) and (max-width: 700px) {
+  /* Two places the row genuinely cannot fit on one line, so it grows a line
+     instead and the ask pill drops beneath the brand.
+       Under 360: the brand name alone needs more room than what is left beside
+     the pill — measured, it runs out at 340 and the name starts overlapping
+     the pill. The extra margin is for devices whose fonts render wider.
+       641 to 700: the brand is still full size (that shrinks at 640) but the
+     viewport is narrower than the row needs.
+     Everywhere else the row fits and this does nothing. */
+  @media (max-width: 359px), (min-width: 641px) and (max-width: 700px) {
     .header-row {
       flex-wrap: wrap;
     }
@@ -213,7 +216,12 @@ const aboutPrompt =
     position: relative;
     flex: 0 0 auto;
   }
-  @media (max-width: 700px) {
+  /* The pill stays compact until the column is wide enough to hold the full
+     one. .wrap is clamped at the reading measure until 82vw overtakes it, so
+     between 700 and 835 the column sits at its minimum while the full-size
+     pill needs 12px more than it holds — the row used to hang over its own
+     padding there. Compact through 835, full size once there is room. */
+  @media (max-width: 835px) {
     .header-ask :global(.ask-summary) {
       font-size: 0.72rem;
       padding: 0.25em 0.7em;
