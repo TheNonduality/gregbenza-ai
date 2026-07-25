@@ -77,6 +77,18 @@ const aboutPrompt =
     {jsonLd && <JsonLd data={jsonLd} />}
   </head>
   <body>
+    {/* Ink-wash edge filter, defined once and used by anything that wants a
+        brushed outline instead of a ruled one. feTurbulence generates a noise
+        field; feDisplacementMap pushes the border along it so the line wanders
+        the way a loaded brush does on damp paper; the blur softens where it
+        bleeds. Zero-size SVG — it renders nothing itself. */}
+    <svg class="filter-defs" aria-hidden="true" focusable="false">
+      <filter id="ink-edge" x="-12%" y="-12%" width="124%" height="124%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.024" numOctaves="4" seed="11" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="7" xChannelSelector="R" yChannelSelector="G" result="wobble" />
+        <feGaussianBlur in="wobble" stdDeviation="0.7" />
+      </filter>
+    </svg>
     <header class="site-header">
       <div class="wrap header-row">
         {/* Seal-stamp mark — placeholder until Greg's personal logo lands. */}
@@ -110,11 +122,21 @@ const aboutPrompt =
 </html>
 
 <style>
+  .filter-defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
   .site-header {
     position: sticky;
     top: 0;
     z-index: 10;
-    background: var(--paper);
+    /* Same fixed-attachment paper as the body, so the grain lines up exactly
+       and the header reads as part of the sheet rather than a bar laid on it. */
+    background-color: var(--paper);
+    background-image: var(--paper-grain);
+    background-attachment: fixed;
   }
   .header-row {
     display: flex;

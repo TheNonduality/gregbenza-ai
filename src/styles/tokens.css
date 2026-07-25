@@ -34,4 +34,14 @@
 
   --measure: 42rem;      /* readable line length */
   --radius: 3px;
+
+  /* Rice paper (宣紙). Generated, not an image file — an SVG turbulence field
+     tinted to the paper colour, so it costs nothing to download, never
+     pixelates, and tiles seamlessly at any size. Two layers: fine grain for
+     tooth, and a long stretched layer for the fibres that run through real
+     xuan paper. Kept very low contrast; texture you notice is texture that
+     is too strong. */
+  --paper-grain:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23f)' opacity='0.055'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.006 0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23g)' opacity='0.035'/%3E%3C/svg%3E");
 }

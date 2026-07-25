@@ -12,14 +12,26 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/* The sheet the whole site sits on. `fixed` keeps the paper still while the
+   placards scroll over it — the page reads as ink arriving on one continuous
+   sheet rather than as cards on a moving surface. */
 body {
   margin: 0;
-  background: var(--paper);
+  background-color: var(--paper);
+  background-image: var(--paper-grain);
+  background-attachment: fixed;
+  background-repeat: repeat;
   color: var(--ink);
   font-family: var(--font-body);
   font-size: 1.125rem;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Painted texture is decoration, not information — drop it for anyone who has
+   asked the OS to reduce visual noise. */
+@media (prefers-contrast: more) {
+  body { background-image: none; }
 }
 
 /* The column breathes with the screen: readable on a phone, generous on a

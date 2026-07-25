@@ -39,16 +39,19 @@ const { context = 'site' } = Astro.props;
   .guidance {
     display: inline-block;
   }
+  /* The one solid red on the page. Everything else is outlined ink, so this
+     reads as the single thing the site is actually asking you to press. */
   .guidance-btn {
     list-style: none;
     cursor: pointer;
     font-family: var(--font-ui);
-    font-size: 0.8rem;
-    color: var(--ink-soft);
-    border: 1px solid var(--hairline);
+    font-size: 0.82rem;
+    color: var(--paper);
+    background: var(--accent);
+    border: 1px solid var(--accent);
     border-radius: 999px;
-    padding: 0.25em 0.8em;
-    min-height: 2.1rem;
+    padding: 0.35em 1.1em;
+    min-height: 2.2rem;
     display: inline-flex;
     align-items: center;
     white-space: nowrap;
@@ -61,20 +64,18 @@ const { context = 'site' } = Astro.props;
   .guidance-btn::-webkit-details-marker {
     display: none;
   }
-  .guidance-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
+  .guidance-btn:hover,
   .guidance[open] .guidance-btn {
-    border-color: var(--accent);
-    color: var(--accent);
+    background: var(--accent-soft);
+    border-color: var(--accent-soft);
   }
   .guidance-form {
     margin-top: var(--space-2);
     padding: var(--space-2);
     border: 1px solid var(--hairline);
     border-radius: 6px;
-    background: #fff;
+    /* Paper, not white — nothing else on the page is white any more. */
+    background: var(--paper);
     display: flex;
     flex-direction: column;
     gap: var(--space-2);

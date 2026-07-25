@@ -92,8 +92,14 @@ const jsonLd = graph([
                 {p.data.project && <span class="placard-tag">{p.data.project}</span>}
               </div>
             </a>
+            {/* Two rows on purpose: asking an AI about the work is a quiet
+                side-door, so those stay outlined and share one line. Offering
+                guidance is the loud one Greg actually wants pressed, so it
+                gets its own line and the only solid red on the page. */}
             <div class="placard-actions">
               {p.data.agentMd && <AskButtons agentMd={p.data.agentMd} title={p.data.title} />}
+            </div>
+            <div class="placard-guidance">
               <GuidanceForm context={p.id} />
             </div>
           </article>
@@ -102,22 +108,6 @@ const jsonLd = graph([
     )
   }
 
-  <hr />
-
-  <section class="about">
-    <p class="eyebrow">About</p>
-    <p>
-      GregBenza.AI is where Greg highlights what he actually builds — a living log of
-      projects, the methods behind them, and the runnable files underneath. It's here for
-      three things: to show the work, to get feedback on it, and to get better by building
-      in the open.
-    </p>
-    <p>
-      Built agent-first: every placard carries a machine-readable record underneath, and
-      the ask-more buttons connect one click into your own AI, prompts preloaded, so the
-      work can be interrogated directly.
-    </p>
-  </section>
 </Base>
 
 <script>
@@ -181,9 +171,15 @@ const jsonLd = graph([
     border-color: var(--accent-soft);
     color: var(--accent);
   }
+  .chip:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+  /* Pressed filter reads as ink, not seal. Red is reserved for the one button
+     on the page that asks the visitor to do something. */
   .chip.is-active {
-    background: var(--accent);
-    border-color: var(--accent);
+    background: var(--ink);
+    border-color: var(--ink);
     color: var(--paper);
   }
   .feed {
@@ -192,18 +188,31 @@ const jsonLd = graph([
     gap: var(--space-3);
     margin-block: var(--space-3) var(--space-5);
   }
+  /* The placard sits ON the paper rather than being a card laid over it: no
+     fill of its own, so the grain runs straight through, and the boundary is a
+     brushed ink line instead of a ruled border. */
   .placard {
-    background: #fff;
-    border: 1px solid var(--hairline);
-    border-radius: 6px;
+    position: relative;
+    background: transparent;
     /* Deliberately NOT overflow:hidden. It was clipping the ask-panel, which
-       drops ~174px below the card — the buttons rendered but were invisible.
-       The media rounds its own corners instead, so the card still looks sealed. */
-    transition: border-color 120ms ease, box-shadow 120ms ease;
+       drops ~174px below the card — the buttons rendered but were invisible. */
   }
-  .placard:hover {
-    border-color: var(--ink-soft);
-    box-shadow: 0 1px 6px rgba(26, 26, 26, 0.08);
+  /* The wash edge. A plain rectangle pushed around by the turbulence filter in
+     Base.astro, so every side wanders like a brush loaded with too much water.
+     It is a pseudo-element and not a real border so the displacement can spill
+     outside the box without shifting any layout. */
+  .placard::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1.5px solid var(--ink);
+    filter: url(#ink-edge);
+    opacity: 0.42;
+    pointer-events: none;
+    transition: opacity 160ms ease;
+  }
+  .placard:hover::before {
+    opacity: 0.68;
   }
   .placard-link {
     display: block;
@@ -222,8 +231,6 @@ const jsonLd = graph([
       width: 100%;
       aspect-ratio: 16 / 9;
       max-height: 190px;
-      /* Media sits on the left here, so it rounds the left corners. */
-      border-radius: 5px 0 0 5px;
     }
     .placard-body {
       padding: var(--space-2) var(--space-3);
@@ -240,18 +247,18 @@ const jsonLd = graph([
       margin-top: 0.6rem;
     }
   }
+  /* One line, always. The pills never wrap; on narrow screens AskButtons
+     collapses them into a single pill that unfolds, so the row stays one line
+     at every width rather than growing into a block of buttons. */
   .placard-actions {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: center;
     gap: 0.4rem;
-    padding: 0 var(--space-3) var(--space-2);
-    border-top: 1px solid var(--hairline);
-    padding-top: var(--space-2);
-    margin-inline: 0;
+    padding: var(--space-2) var(--space-3) 0;
   }
-  .placard-actions :global(.ask-more) {
-    display: contents;
+  .placard-guidance {
+    padding: var(--space-2) var(--space-3) var(--space-3);
   }
   .chip {
     white-space: nowrap;
@@ -262,9 +269,8 @@ const jsonLd = graph([
     aspect-ratio: 16 / 9;
     object-fit: cover;
     background: var(--paper-edge);
-    /* Stacked layout: media on top, so it rounds the top corners. 5px = the
-       card's 6px radius minus its 1px border. */
-    border-radius: 5px 5px 0 0;
+    /* Square. Rounded corners inside a hand-brushed outline read as two
+       different drawing tools arguing. */
   }
   .placard-body {
     padding: var(--space-2) var(--space-3) var(--space-3);
@@ -302,8 +308,5 @@ const jsonLd = graph([
     border: 1px solid var(--accent-soft);
     border-radius: 999px;
     padding: 0.15em 0.7em;
-  }
-  .about p {
-    color: var(--ink-soft);
   }
 </style>

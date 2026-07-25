@@ -61,7 +61,7 @@ const postUrl = `${SITE_URL}/projects/${project.id}/`;
 // upload date and duration belong to YouTube, and we don't assert what we
 // haven't measured. uploadDate is the post's date — when the clip went public
 // on this site, which is what the field means here.
-const videoNodes = [data.hero, data.outro]
+const videoNodes = [data.hero, data.outro, ...data.bodyMedia]
   .filter((m) => m?.type === 'video')
   .map((m) => ({
     '@type': 'VideoObject',

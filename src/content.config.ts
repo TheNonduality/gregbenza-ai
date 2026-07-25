@@ -76,6 +76,10 @@ const projects = defineCollection({
     technical: z.array(technicalInput).default([]),
     // Closing media — plays the post out after the record and downloads.
     outro: media.optional(),
+    // Media embedded in the markdown body (via <Media> in the MDX) that isn't
+    // the hero or outro — listed here ONLY so structured data knows it exists.
+    // The body still controls where it actually appears on the page.
+    bodyMedia: z.array(media).default([]),
     // Site-absolute path to this post's agent-facing markdown twin — the file
     // the ask-more buttons point a visitor's AI at.
     agentMd: z.string().optional(),
