@@ -15,7 +15,7 @@ record:
     option and neither were repair shops — the fix had to happen on a kitchen
     bench.
   wentIn:
-    - Photos of the opened air unit, board labels readable in frame — the actual diagnostic photos, one of them below.
+    - Photos of the opened air unit, board labels readable in frame — the actual diagnostic photos, one of them shown above.
     - Wide context photos of the whole airframe; the seller's listing photos earlier, to verify the hardware revision.
     - Plain-language symptom reports between test flights ("jerky, stuck in low-power").
   cameBack:
@@ -30,8 +30,8 @@ record:
 expandLabel: 'The full repair: inputs, outputs, and prompts'
 outro:
   type: video
-  src: /projects/explorer-fix/sick-explorer.RAW.mp4
-  caption: The Explorer in the air. (Preview encode — web-ready version ships with the design pass.)
+  src: /projects/explorer-fix/after-fix.RAW.mp4
+  caption: 'The outcome: the Explorer back in the air, July 10 — the flight right after the harness swap. (Preview encode — web-ready version ships with the design pass.)'
 agentMd: /projects/explorer-fix/explorer-fix.md
 technical:
   - label: diagnose-hardware-from-photos.md
@@ -45,11 +45,20 @@ technical:
 accent: '#a5322a'
 ---
 
+import Media from '../../../components/Media.astro';
+
 The method was one loop, repeated: **photograph the hardware → show the AI →
 get a hypothesis → test it → photograph the result.** The photos did the heavy
 lifting — board labels in frame let the AI identify exact parts and pull the
 right reference material; wide shots gave it context; re-shooting whatever the
 AI named confirmed both sides were looking at the same thing.
+
+<Media
+  type="image"
+  src="/projects/explorer-fix/diagnosis.jpg"
+  alt="The opened DJI O4 air unit with the gold U.FL antenna pigtail visibly detached from the board."
+  caption="One of the actual diagnostic photos — the gold U.FL connector with nothing left to plug into."
+/>
 
 What the photos and AI together got right: identifying the ripped U.FL
 connector and missing solder pad, framing the repair-vs-replace decision
@@ -61,3 +70,9 @@ fixing it.
 The full story — the wrong turns and the three-week timeline — is what the
 ask-more buttons below are for: click one and your AI reads the complete
 record, tells you the story, and answers what this page doesn't.
+
+<Media
+  type="video"
+  src="/projects/explorer-fix/sick-explorer.RAW.mp4"
+  caption="What was at stake: the Explorer over the trees at four days old, before the crash. (Preview encode — web-ready version ships with the design pass.)"
+/>
