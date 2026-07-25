@@ -208,31 +208,8 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
   .placard-actions :global(.ask-more) {
     display: contents;
   }
-  /* Phone: pills stay ONE line and scroll sideways — never stack. */
-  @media (max-width: 640px) {
-    .placard-actions {
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      scrollbar-width: none;
-      -webkit-overflow-scrolling: touch;
-    }
-    .placard-actions::-webkit-scrollbar {
-      display: none;
-    }
-  }
-  @media (max-width: 640px) {
-    .chips {
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-    .chips::-webkit-scrollbar {
-      display: none;
-    }
-    .chip {
-      white-space: nowrap;
-      flex: 0 0 auto;
-    }
+  .chip {
+    white-space: nowrap;
   }
   .placard-media {
     display: block;

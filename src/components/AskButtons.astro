@@ -1,16 +1,27 @@
 ---
-// The ask-more row: hands this post's agent-facing markdown to the visitor's
-// own AI, prompt preloaded. Data-driven on purpose — prefill support breaks
-// without notice (Copilot did), so a service is one edit to add or demote.
-// ChatGPT and Perplexity auto-submit on open; the prompt must stay short,
-// tame, and fully visible to the reader.
+// The ask-more row: hands a markdown record to the visitor's own AI, prompt
+// preloaded. Data-driven on purpose — prefill support breaks without notice
+// (Copilot did), so a service is one edit to add or demote. ChatGPT and
+// Perplexity auto-submit on open; the prompt stays short, tame, and visible.
+//
+// Two presentations, one prompt: pills inline on wide screens, and a single
+// pill that unfolds a panel on phones. No horizontal scrolling, ever.
 interface Props {
-  agentMd?: string; // site-absolute path to the target markdown
+  agentMd?: string;
   title?: string;
-  prompt?: string; // explicit prompt override (e.g. the header's about row)
+  prompt?: string;
   label?: string;
+  collapsed?: boolean; // always the single-pill presentation (used by the header)
+  summaryLabel?: string;
 }
-const { agentMd, title, prompt: promptOverride, label = 'Ask your AI about this' } = Astro.props;
+const {
+  agentMd,
+  title,
+  prompt: promptOverride,
+  label = 'Ask your AI about this',
+  collapsed = false,
+  summaryLabel = 'Ask your AI ↗',
+} = Astro.props;
 
 const SITE = 'https://gregbenza.ai';
 const prompt =
@@ -25,34 +36,51 @@ const services = [
 ];
 ---
 
-<div class="ask-more" data-prompt={prompt}>
-  <span class="ask-label">{label}</span>
-  {services.map((s) => (
-    <a class="ask-btn" href={s.href} target="_blank" rel="noopener">{s.name} ↗</a>
-  ))}
-  <button class="ask-btn ask-copy" type="button">Copy prompt</button>
+<div class:list={['ask', collapsed && 'ask-collapsed']} data-prompt={prompt}>
+  {!collapsed && (
+    <div class="ask-wide">
+      {label && <span class="ask-label">{label}</span>}
+      {services.map((s) => (
+        <a class="ask-btn" href={s.href} target="_blank" rel="noopener">{s.name} ↗</a>
+      ))}
+      <button class="ask-btn ask-copy" type="button">Copy prompt</button>
+    </div>
+  )}
+
+  <details class="ask-narrow">
+    <summary class="ask-btn ask-summary">{summaryLabel}</summary>
+    <div class="ask-panel">
+      {services.map((s) => (
+        <a class="ask-panel-item" href={s.href} target="_blank" rel="noopener">{s.name} ↗</a>
+      ))}
+      <button class="ask-panel-item ask-copy" type="button">Copy prompt</button>
+    </div>
+  </details>
 </div>
 
 <script>
-  // Copy-prompt fallback for AIs without a prefill URL (Gemini, Copilot, …).
-  document.querySelectorAll<HTMLElement>('.ask-more').forEach((row) => {
-    const btn = row.querySelector<HTMLButtonElement>('.ask-copy');
-    btn?.addEventListener('click', async () => {
-      await navigator.clipboard.writeText(row.dataset.prompt ?? '');
-      const old = btn.textContent;
-      btn.textContent = 'Copied';
-      setTimeout(() => (btn.textContent = old), 1500);
+  document.querySelectorAll<HTMLElement>('.ask').forEach((row) => {
+    row.querySelectorAll<HTMLButtonElement>('.ask-copy').forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        await navigator.clipboard.writeText(row.dataset.prompt ?? '');
+        const old = btn.textContent;
+        btn.textContent = 'Copied';
+        setTimeout(() => (btn.textContent = old), 1500);
+      });
     });
   });
 </script>
 
 <style>
-  .ask-more {
+  .ask {
+    display: contents;
+  }
+  .ask-wide {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 0.4rem;
-    margin-block: var(--space-2);
   }
   .ask-label {
     font-family: var(--font-ui);
@@ -80,9 +108,68 @@ const services = [
     border-color: var(--accent);
     color: var(--accent);
   }
-  @media (pointer: coarse) {
-    .ask-btn {
-      min-height: 2.75rem;
+  .ask-narrow {
+    display: none;
+    position: relative;
+  }
+  .ask-summary {
+    list-style: none;
+  }
+  .ask-summary::-webkit-details-marker {
+    display: none;
+  }
+  .ask-narrow[open] .ask-summary {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .ask-panel {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 0.35rem);
+    z-index: 20;
+    min-width: 11rem;
+    display: flex;
+    flex-direction: column;
+    background: var(--paper);
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    padding: 0.25rem;
+    box-shadow: 0 4px 14px rgba(26, 26, 26, 0.12);
+  }
+  .ask-panel-item {
+    font-family: var(--font-ui);
+    font-size: 0.9rem;
+    color: var(--ink);
+    background: none;
+    border: none;
+    border-radius: 6px;
+    text-align: left;
+    padding: 0.6rem 0.75rem;
+    min-height: 2.75rem;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .ask-panel-item:hover {
+    background: var(--paper-edge);
+    color: var(--accent);
+  }
+  /* The header asks in one pill at every width. */
+  .ask-collapsed .ask-narrow {
+    display: block;
+  }
+  .ask-collapsed .ask-panel {
+    left: auto;
+    right: 0;
+  }
+  /* Phones: one pill, panel unfolds. Nothing scrolls sideways. */
+  @media (max-width: 700px) {
+    .ask-wide {
+      display: none;
+    }
+    .ask-narrow {
+      display: block;
     }
   }
 </style>

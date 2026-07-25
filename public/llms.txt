@@ -16,7 +16,6 @@ a later phase — added when they are real, not before.
 ## Projects
 
 - [Diagnosing broken drone hardware from photos](https://gregbenza.ai/projects/explorer-fix/): a crashed FPV quad with a dying video signal, diagnosed and repaired through photo-driven AI conversation. Full machine-readable record: https://gregbenza.ai/projects/explorer-fix/explorer-fix.md
-- [Project goes here.](https://gregbenza.ai/projects/dummy-project/): a placeholder proving the three-part post model (blurb / technical details / full background story). Replaced when the first real story lands.
 
 ## How posts are structured
 
