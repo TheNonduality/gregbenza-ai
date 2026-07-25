@@ -49,15 +49,16 @@ const kindLabel: Record<string, string> = {
     {/* Hero media — proves native rendering (image / video / clean YouTube). */}
     {data.hero && <Media {...data.hero} />}
 
-    {/* The blurb — Greg's words under the picture. The markdown body. */}
+    {/* Ask-more rides right under the hero: hand this post's markdown twin
+        to the visitor's own AI. */}
+    {data.agentMd && <AskButtons agentMd={data.agentMd} title={data.title} />}
+
+    {/* The blurb — Greg's words. The markdown body. */}
     <section class="post-blurb">
       <div class="prose">
         <Content />
       </div>
     </section>
-
-    {/* Ask-more: hand this post's markdown twin to the visitor's own AI. */}
-    {data.agentMd && <AskButtons agentMd={data.agentMd} title={data.title} />}
 
     {/* The feedback door — guidance arrives tagged with this post. */}
     <GuidanceForm context={project.id} />
