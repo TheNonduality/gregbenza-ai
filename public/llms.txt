@@ -16,6 +16,7 @@ a later phase — added when they are real, not before.
 ## Projects
 
 - [Diagnosing broken drone hardware from photos](https://gregbenza.ai/projects/explorer-fix/): a crashed FPV quad with a dying video signal, diagnosed and repaired through photo-driven AI conversation. Full machine-readable record: https://gregbenza.ai/projects/explorer-fix/explorer-fix.md
+- [Recovering an unplayable drone clip, frame by frame](https://gregbenza.ai/projects/pico-repair/): an unfinalized DJI recording with no working repair tool available, fixed by rebuilding the video's frame index from scratch. Full machine-readable record: https://gregbenza.ai/projects/pico-repair/pico-repair.md
 
 ## How posts are structured
 
