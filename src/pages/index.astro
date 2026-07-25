@@ -196,7 +196,9 @@ const jsonLd = graph([
     background: #fff;
     border: 1px solid var(--hairline);
     border-radius: 6px;
-    overflow: hidden;
+    /* Deliberately NOT overflow:hidden. It was clipping the ask-panel, which
+       drops ~174px below the card — the buttons rendered but were invisible.
+       The media rounds its own corners instead, so the card still looks sealed. */
     transition: border-color 120ms ease, box-shadow 120ms ease;
   }
   .placard:hover {
@@ -220,6 +222,8 @@ const jsonLd = graph([
       width: 100%;
       aspect-ratio: 16 / 9;
       max-height: 190px;
+      /* Media sits on the left here, so it rounds the left corners. */
+      border-radius: 5px 0 0 5px;
     }
     .placard-body {
       padding: var(--space-2) var(--space-3);
@@ -258,6 +262,9 @@ const jsonLd = graph([
     aspect-ratio: 16 / 9;
     object-fit: cover;
     background: var(--paper-edge);
+    /* Stacked layout: media on top, so it rounds the top corners. 5px = the
+       card's 6px radius minus its 1px border. */
+    border-radius: 5px 5px 0 0;
   }
   .placard-body {
     padding: var(--space-2) var(--space-3) var(--space-3);
