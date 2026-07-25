@@ -51,31 +51,38 @@ const services = [
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--space-1);
+    gap: 0.4rem;
     margin-block: var(--space-2);
   }
   .ask-label {
     font-family: var(--font-ui);
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     color: var(--ink-faint);
-    margin-right: var(--space-1);
+    margin-right: 0.2rem;
+    white-space: nowrap;
   }
   .ask-btn {
     font-family: var(--font-ui);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: var(--ink);
     background: none;
     border: 1px solid var(--hairline);
-    border-radius: var(--radius);
-    padding: 0.35em 0.9em;
+    border-radius: 999px;
+    padding: 0.25em 0.8em;
     text-decoration: none;
     cursor: pointer;
-    min-height: 44px;
+    min-height: 2.1rem;
     display: inline-flex;
     align-items: center;
+    white-space: nowrap;
   }
   .ask-btn:hover {
     border-color: var(--accent);
     color: var(--accent);
+  }
+  @media (pointer: coarse) {
+    .ask-btn {
+      min-height: 2.75rem;
+    }
   }
 </style>

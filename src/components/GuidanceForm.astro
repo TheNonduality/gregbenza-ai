@@ -45,14 +45,20 @@ const { context = 'site' } = Astro.props;
     list-style: none;
     cursor: pointer;
     font-family: var(--font-ui);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: var(--ink-soft);
     border: 1px solid var(--hairline);
-    border-radius: var(--radius);
-    padding: 0.35em 0.9em;
-    min-height: 44px;
+    border-radius: 999px;
+    padding: 0.25em 0.8em;
+    min-height: 2.1rem;
     display: inline-flex;
     align-items: center;
+    white-space: nowrap;
+  }
+  @media (pointer: coarse) {
+    .guidance-btn {
+      min-height: 2.75rem;
+    }
   }
   .guidance-btn::-webkit-details-marker {
     display: none;
