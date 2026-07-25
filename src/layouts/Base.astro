@@ -31,7 +31,7 @@ const aboutPrompt =
         <a href="/" class="seal" aria-label="GregBenza.ai home">GB</a>
         <a href="/" class="brand">
           <span class="brand-name">GregBenza.ai</span>
-          <span class="tagline">where good ideas go to grow</span>
+          <span class="tagline">— where good ideas go to grow</span>
         </a>
         <div class="header-ask-row">
           <AskButtons prompt={aboutPrompt} label="Ask your AI about me" />
@@ -92,20 +92,28 @@ const aboutPrompt =
   }
   .brand {
     display: flex;
-    flex-direction: column;
+    align-items: baseline;
+    gap: 0.5rem;
+    flex-wrap: wrap;
     text-decoration: none;
     line-height: 1.25;
   }
   .brand-name {
     font-family: var(--font-body);
     font-weight: 700;
-    font-size: 1.15rem;
+    font-size: 1.35rem;
     color: var(--ink);
   }
   .tagline {
-    font-family: var(--font-ui);
-    font-size: 0.8rem;
-    color: var(--ink-faint);
+    font-family: var(--font-body);
+    font-style: italic;
+    font-size: 1.15rem;
+    color: var(--ink-soft);
+  }
+  @media (max-width: 560px) {
+    .tagline {
+      font-size: 0.95rem;
+    }
   }
   .header-ask-row {
     margin-left: auto;
