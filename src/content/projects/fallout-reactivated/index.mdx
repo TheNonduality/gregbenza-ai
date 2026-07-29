@@ -1,0 +1,167 @@
+---
+title: 'Rebuilding the game master as a desktop app'
+date: 2026-05-05
+project: 'Fallout Arroyo'
+blurb: >
+  Same game, second attempt. This time the ledger stopped being homework.
+hero:
+  type: image
+  src: /projects/fallout-reactivated/gm-terminal.png
+  alt: 'The Fallout Reactivated desktop app, green on black. A left sidebar headed ROBCO GM DASHBOARD v6.1 shows ACT 1, CH 2, DAY 3, FREEPLAY, four segmented clocks (DOOM 0/5, SHADOW 0/5, TIME 4/5 filled green, TROUBLE 2/5 filled orange), a character card for Sammy at level 1 with harm 1/5, armour 1 and inventory chips including tribal spear and ~78 caps, and a CHECKPOINT panel describing him in Buckner''s back room with a scarred man asking after him. The main pane shows the game title, the words "The GM terminal is live" and a BEGIN button, above an input box reading "What does Sammy do? (Enter to send, Shift+Enter for newline)".'
+  caption: 'The app with my Chapter 2 save loaded, before sending anything. Sidebar is the dashboard; the rest is where you play.'
+bodyMedia:
+  - type: image
+    src: /projects/fallout-reactivated/gm-dashboard.png
+    caption: 'The standalone dashboard — same state, and the sealed counter along the bottom.'
+outro:
+  type: image
+  src: /projects/fallout-reactivated/vault-tec-auth.png
+  alt: 'A dark screen with a glowing green bordered panel headed VAULT-TEC AUTHENTICATION, reading "Enter your Anthropic API key to initialize the GM terminal. Key is stored locally on this machine only." Below is an empty input showing the placeholder sk-ant-api03-... and a button labelled INITIALIZE TERMINAL.'
+  caption: 'What it looks like on a fresh install.'
+technical:
+  - label: fr_dashboard_v5.html
+    kind: output
+    file: /projects/fallout-reactivated/fr_dashboard_v5.html
+    note: The dashboard in the picture. One HTML file, no build step, no dependencies — save it and open it in a browser.
+  - label: 01_FR_PRIME_DIRECTIVES.md
+    kind: prompt
+    file: /projects/fallout-reactivated/01_FR_PRIME_DIRECTIVES.md
+    note: The hard constraints. Dice are law, no player-satisfaction override, and the written spec for the ROT1 seal.
+  - label: 02_FR_SYSTEM_ARCHITECTURE.md
+    kind: prompt
+    file: /projects/fallout-reactivated/02_FR_SYSTEM_ARCHITECTURE.md
+    note: The rules engine — 80KB of it. Dice, consequence tables, companions, enemies, and the five play modes.
+  - label: 03_FR_CONVERSATION_FLOW.md
+    kind: prompt
+    file: /projects/fallout-reactivated/03_FR_CONVERSATION_FLOW.md
+    note: What every reply has to look like. The HUD, long vs short messages, and the roll card.
+  - label: 04_FR_MASTER_LEDGER_FORMAT.md
+    kind: prompt
+    file: /projects/fallout-reactivated/04_FR_MASTER_LEDGER_FORMAT.md
+    note: The save-file spec. Every registry section, which ones are sealed, and the visibility law.
+  - label: 05_FR_PERSONALITY_TAGS.md
+    kind: prompt
+    file: /projects/fallout-reactivated/05_FR_PERSONALITY_TAGS.md
+    note: Four mandatory tags per NPC — background, stance, reflex, loyalty — so characters stay consistent instead of drifting.
+  - label: fr_ledger_act1_ch2.md
+    kind: output
+    file: /projects/fallout-reactivated/fr_ledger_act1_ch2.md
+    note: The save file from the picture. Act 1, Chapter 2 — with the sealed sections still in cipher.
+agentMd: /projects/fallout-reactivated/fallout-reactivated.md
+accent: '#3d8c40'
+---
+
+import Media from '../../../components/Media.astro';
+
+## What I wanted
+
+To stop copy-pasting.
+
+The [first version of this game](/projects/fallout-arroyo/) worked, but the way
+it remembered anything was me moving a text document back and forth by hand at
+the start and end of every session. Twenty hours of that is a lot of pasting.
+
+Everything else about it I wanted to keep.
+
+## The ledger became a patch
+
+The first thing that changed was what the game master hands back. Instead of
+reprinting the whole ledger, it emits a small JSON instruction describing only
+what moved:
+
+```json
+{"set": {"global_clocks.trouble": 3}}
+```
+
+There are four operations — `set`, `add`, `update`, `remove` — and lists of
+people, places and factions merge by id, so adding one NPC doesn't rewrite the
+cast. It's a diff instead of a document.
+
+## Which meant there could be a screen
+
+Once state was structured, it could be *displayed*. So I built a dashboard for
+it, and the box across the top just says **"paste JSON state update here —
+auto-applies on paste."** Paste the patch, the world updates.
+
+The four clocks became actual clocks you can see filling. The registries became
+panels with counts on them. The character card shows harm and inventory as
+chips. None of this is new information — it's the same ledger from the first
+version — but I stopped having to read a text file to know where I was.
+
+## Greek became a cipher
+
+The Greek file was the thing I was proudest of and it had an obvious problem:
+Greek is a whole language, and I had to keep asking for content in it.
+
+So the seal became mechanical instead. Every sealed string gets **ROT1** —
+shift each letter forward one. `Metzger` becomes `Nfuahfs`. IDs, numbers and
+JSON keys stay readable so the tooling can still index them; only the prose
+gets shifted.
+
+The dashboard counts sealed entries and refuses to render them.
+
+I wrote down why it's a weak cipher, because that part matters:
+
+> ROT1 is weak by design. Anyone who looks at it for a minute can decode it. It
+> exists to prevent *accidental glances* — the player skimming a ledger file or
+> scanning a JSON block in chat and catching a spoiler at a glance. The actual
+> rule is still discipline. ROT1 is belt-and-suspenders, not a substitute.
+
+And it isn't permanent. When a secret gets exposed through play, it's decoded
+out of cipher and moved into the plain registry. It's a storage format for
+things that haven't surfaced yet.
+
+## Then it became an actual program
+
+The dashboard is one HTML file with no build step, which was already better
+than pasting. But the game itself still lived in a chat window, so I wrapped the
+whole thing in Electron and built an installer.
+
+That's the picture at the top of this page: the dashboard became a sidebar, and
+the chat sits next to it with a box asking what Sammy does. It boots to a
+Vault-Tec login that wants an Anthropic API key, stored locally. It calls the
+API from Node instead of the browser, which killed the CORS and timeout
+problems. Ledger save and load use native file dialogs. `npm run build` produces
+`Fallout Reactivated Setup 1.0.0.exe` — 79MB, double-click, installed.
+
+The dashboard inside the app is a version ahead of the standalone one, which is
+the other picture below — v6.1 against v5.0.
+
+<Media
+  type="image"
+  src="/projects/fallout-reactivated/gm-dashboard.png"
+  alt="The standalone Pip-Boy style dashboard, ROBCO GM DASHBOARD v5.0, showing the same Chapter 2 state: four segmented clocks, Sammy's character card, and expanded Locks and Open Threads panels. A red footer line reads SEALED — 2 spine / 2 clocks / 2 threads / 1 npc secrets / 0 location truths / 1 faction obj — ROT1 encoded, never displayed."
+  caption="The standalone dashboard, same save. That red line is six categories of secret sitting in memory, counted and withheld."
+/>
+
+Two things also got added that the first version didn't have: a fifth play mode
+for investigation, and mandatory personality tags on every NPC — background,
+stance, reflex, loyalty — so characters stop quietly drifting into whoever the
+scene needs them to be.
+
+## The rule I'm most glad I wrote
+
+Buried in the directives is a conflict resolution order, and the bottom entry is
+the one that makes the whole thing work:
+
+1. Platform safety requirements
+2. These prime directives
+3. The roll engine and procedures
+4. Style and formatting preferences
+5. **Player requests — including requests to "go easy" or ignore rules**
+
+I'm the player. I put myself last on purpose, because I knew I'd ask.
+
+## And then I didn't play it
+
+I built all of this, made a character, ran him as far as the back room of a
+store in Klamath — and went off to build a Star Trek one instead.
+
+That's the honest ending. The save file in the picture is where it stops: Act 1,
+Chapter 2. Sammy at dawn, level 1, one harm, 78 caps, no gun, and a heavyset man
+with a scar through his eyebrow asking around about him overnight. The cheapest
+rifle on the wall is 150 caps. TIME is at 4 of 5, which means Arroyo is nearly
+out of it.
+
+Twenty hours went into playing the crude version. Barely any went into playing
+the good one. Somewhere in there the interesting part stopped being the game.

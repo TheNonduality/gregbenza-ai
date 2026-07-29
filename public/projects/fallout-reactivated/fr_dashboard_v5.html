@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FALLOUT: REACTIVATED — GM Dashboard v5</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body, html { margin: 0; padding: 0; background: #080e0a; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // ============================================================================
+    // FALLOUT: REACTIVATED — DASHBOARD v5.0 (standalone HTML)
+    // ============================================================================
+
+    const STORAGE_KEY = "fr_dashboard_state_v4";
+
+    const DEFAULT_STATE = {
+      meta: {
+        campaign: "Fallout: Reactivated",
+        setting: "Fallout 2 (2241)",
+        in_world_now: "",
+        in_world_day: 1,
+        act: 1,
+        chapter: 1,
+        last_checkpoint: "",
+        last_updated: "",
+      },
+      global_clocks: { doom: 0, shadow: 0, time: 0, trouble: 0 },
+      regionwide_events: [],
+      locks: [],
+      story_spine: [],
+      active_clocks: [],
+      factions: [],
+      people: [],
+      places: [],
+      open_threads: [],
+      pc_export: {
+        name: "Sammy",
+        lvl: 1,
+        xp: 0,
+        level_ready: false,
+        perks: [],
+        stats: { STR: 0, PER: 0, END: 0, CHA: 0, INT: 0, AGI: 0, LCK: 0 },
+        harm: 0,
+        armor: 0,
+        conditions: [],
+        inventory: [],
+        location_id: "",
+        party: [],
+        state: "FREEPLAY",
+        immediate_situation: "",
+        intent: "",
+      },
+      mode_state: {
+        combat: null,
+        travel: null,
+        talk: null,
+        investigation: null,
+      },
+      sealed: {
+        story_spine: [],
+        active_clocks: [],
+        hidden_threads: [],
+        npc_secrets: [],
+        location_truths: [],
+        faction_objectives: [],
+      },
+      checkpoint: {
+        situation: "",
+        pressure: "",
+        decision: "",
+        notes_sealed: "",
+      },
+      chapters: [],
+      acts: [],
+    };
+
+    // ============================================================================
+    // STORAGE — localStorage (standalone HTML, no window.storage needed)
+    // ============================================================================
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          return {
+            ...DEFAULT_STATE,
+            ...parsed,
+            pc_export: { ...DEFAULT_STATE.pc_export, ...(parsed.pc_export || parsed.pc || {}) },
+            mode_state: { ...DEFAULT_STATE.mode_state, ...(parsed.mode_state || {}) },
+            sealed: { ...DEFAULT_STATE.sealed, ...(parsed.sealed || {}) },
+            meta: { ...DEFAULT_STATE.meta, ...(parsed.meta || {}) },
+            global_clocks: { ...DEFAULT_STATE.global_clocks, ...(parsed.global_clocks || {}) },
+            checkpoint: { ...DEFAULT_STATE.checkpoint, ...(parsed.checkpoint || {}) },
+          };
+        }
+      } catch (e) { console.error("Load failed:", e); }
+      return DEFAULT_STATE;
+    }
+
+    function saveState(state) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+      catch (e) { console.error("Save failed:", e); }
+    }
+
+    // ============================================================================
+    // ROT1
+    // ============================================================================
+
+    function rot1Encode(str) {
+      return str.replace(/[a-zA-Z]/g, c => {
+        const base = c <= 'Z' ? 65 : 97;
+        return String.fromCharCode(((c.charCodeAt(0) - base + 1) % 26) + base);
+      });
+    }
+
+    function rot1Decode(str) {
+      return str.replace(/[a-zA-Z]/g, c => {
+        const base = c <= 'Z' ? 65 : 97;
+        return String.fromCharCode(((c.charCodeAt(0) - base + 25) % 26) + base);
+      });
+    }
+
+    function decodeDeep(value) {
+      if (typeof value === "string") return rot1Decode(value);
+      if (Array.isArray(value)) return value.map(decodeDeep);
+      if (value && typeof value === "object") {
+        const out = {};
+        for (const [k, v] of Object.entries(value)) out[k] = decodeDeep(v);
+        return out;
+      }
+      return value;
+    }
+
+    function decodeSealedFields(payload) {
+      const next = JSON.parse(JSON.stringify(payload));
+      const decodePath = (obj, op) => {
+        if (!obj[op]) return;
+        for (const key of Object.keys(obj[op])) {
+          if (key.startsWith("sealed") || key === "sealed") {
+            obj[op][key] = decodeDeep(obj[op][key]);
+          }
+        }
+      };
+      decodePath(next, "set");
+      decodePath(next, "add");
+      decodePath(next, "update");
+      return next;
+    }
+
+    // ============================================================================
+    // STATE UPDATES
+    // ============================================================================
+
+    function applyDeepSet(obj, path, value) {
+      const keys = path.split(".");
+      const result = { ...obj };
+      let cursor = result;
+      for (let i = 0; i < keys.length - 1; i++) {
+        const k = keys[i];
+        cursor[k] = Array.isArray(cursor[k]) ? [...cursor[k]] : { ...(cursor[k] || {}) };
+        cursor = cursor[k];
+      }
+      cursor[keys[keys.length - 1]] = value;
+      return result;
+    }
+
+    function applyUpdate(state, payload) {
+      payload = decodeSealedFields(payload);
+      let next = JSON.parse(JSON.stringify(state));
+      if (payload.set) {
+        for (const [path, value] of Object.entries(payload.set)) next = applyDeepSet(next, path, value);
+      }
+      if (payload.add) {
+        for (const [key, items] of Object.entries(payload.add)) {
+          const keys = key.split(".");
+          let target = next;
+          for (let i = 0; i < keys.length - 1; i++) {
+            target[keys[i]] = target[keys[i]] || {};
+            target = target[keys[i]];
+          }
+          const leafKey = keys[keys.length - 1];
+          const leaf = target[leafKey];
+          if (Array.isArray(leaf)) {
+            if (!Array.isArray(items)) continue;
+            for (const item of items) {
+              if (item && typeof item === "object" && item.id) {
+                const idx = leaf.findIndex((t) => t.id === item.id);
+                if (idx >= 0) leaf[idx] = { ...leaf[idx], ...item };
+                else leaf.push(item);
+              } else if (item && typeof item === "object" && item.number !== undefined) {
+                const idx = leaf.findIndex((t) => t.number === item.number);
+                if (idx >= 0) leaf[idx] = { ...leaf[idx], ...item };
+                else leaf.push(item);
+              } else leaf.push(item);
+            }
+            target[leafKey] = leaf;
+          }
+        }
+      }
+      if (payload.update) {
+        for (const [key, value] of Object.entries(payload.update)) {
+          if (Array.isArray(next[key]) && value && typeof value === "object" && !Array.isArray(value)) {
+            for (const [id, changes] of Object.entries(value)) {
+              const idx = next[key].findIndex((t) => t.id === id || String(t.number) === id);
+              if (idx >= 0) next[key][idx] = { ...next[key][idx], ...changes };
+            }
+          } else if (typeof next[key] === "object" && next[key] !== null) {
+            next[key] = { ...next[key], ...value };
+          }
+        }
+      }
+      if (payload.remove) {
+        for (const [key, ids] of Object.entries(payload.remove)) {
+          if (!Array.isArray(next[key]) || !Array.isArray(ids)) continue;
+          next[key] = next[key].filter((item, idx) => {
+            if (typeof ids[0] === "number") return !ids.includes(idx);
+            if (item && item.id) return !ids.includes(item.id);
+            if (item && item.number !== undefined) return !ids.includes(item.number);
+            return true;
+          });
+        }
+      }
+      next.meta = { ...next.meta, last_updated: new Date().toISOString().slice(0, 10) };
+      return next;
+    }
+
+    function applyChapterBreak(state, payload) {
+      let next = JSON.parse(JSON.stringify(state));
+      const ch = payload.chapter || {};
+      const hud = payload.hud_final || {};
+
+      if (ch.act !== undefined) next.meta.act = ch.act;
+      if (hud.in_world_now) next.meta.in_world_now = hud.in_world_now;
+      if (hud.in_world_day !== undefined) next.meta.in_world_day = hud.in_world_day;
+      next.meta.last_checkpoint = `End of Ch${ch.number ?? next.meta.chapter}`;
+      next.meta.last_updated = new Date().toISOString().slice(0, 10);
+
+      if (hud.global_clocks) next.global_clocks = { ...next.global_clocks, ...hud.global_clocks };
+
+      const pcFields = ["harm","xp","lvl","level_ready","location_id","party","state","immediate_situation","armor","conditions","intent","name","inventory"];
+      for (const f of pcFields) if (hud[f] !== undefined) next.pc_export[f] = hud[f];
+      if (hud.stats) next.pc_export.stats = { ...next.pc_export.stats, ...hud.stats };
+      if (hud.perks) next.pc_export.perks = hud.perks;
+
+      if (hud.story_spine_addition) {
+        const additions = Array.isArray(hud.story_spine_addition) ? hud.story_spine_addition : [hud.story_spine_addition];
+        next.story_spine = [...next.story_spine, ...additions];
+      }
+
+      const cp = payload.checkpoint || {};
+      next.checkpoint = {
+        situation: cp.situation || "",
+        pressure: cp.pressure || "",
+        decision: cp.decision || "",
+        notes_sealed: cp.notes_sealed ? rot1Decode(cp.notes_sealed) : "",
+      };
+
+      const offscreenIn = Array.isArray(payload.offscreen) ? payload.offscreen : [];
+      const chapterBlock = {
+        number: ch.number ?? next.meta.chapter,
+        title: ch.title || "",
+        act: ch.act ?? next.meta.act,
+        in_world_start: ch.in_world_start || "",
+        in_world_end: ch.in_world_end || "",
+        primary_locations: ch.primary_locations || [],
+        on_screen_cast: ch.on_screen_cast || [],
+        new_ids: ch.new_ids || { people: [], places: [], factions: [] },
+        log: Array.isArray(payload.log) ? payload.log : [],
+        mechanics: Array.isArray(payload.mechanics) ? payload.mechanics : [],
+        reveal: Array.isArray(payload.reveal) ? payload.reveal : [],
+        offscreen: offscreenIn.map(b => rot1Decode(b)),
+      };
+      const existing = next.chapters.findIndex((c) => c.number === chapterBlock.number);
+      if (existing >= 0) next.chapters[existing] = chapterBlock;
+      else next.chapters.push(chapterBlock);
+
+      next.meta.chapter = chapterBlock.number + 1;
+
+      return next;
+    }
+
+    // ============================================================================
+    // LEDGER EXPORT
+    // ============================================================================
+
+    function generateLedgerMarkdown(state) {
+      const m = state.meta;
+      const g = state.global_clocks;
+      const pc = state.pc_export;
+      const cp = state.checkpoint || { situation: "", pressure: "", decision: "", notes_sealed: "" };
+      const lines = [];
+
+      lines.push("# MASTER CAMPAIGN LEDGER", "", `*Generated: ${new Date().toISOString().slice(0, 10)}*`, "", "---", "");
+      lines.push("# REGISTRY", "", "---", "");
+
+      lines.push("## [CAMPAIGN META | UNSEALED]", "");
+      lines.push(`- Campaign: ${m.campaign || ""}`);
+      lines.push(`- Setting: ${m.setting || ""}`);
+      lines.push(`- In-world date/time (NOW): ${m.in_world_now || ""}`);
+      lines.push(`- Day: ${m.in_world_day ?? 1}`);
+      lines.push(`- Act: ${m.act}`);
+      const lastCompletedCh = state.chapters.length ? state.chapters[state.chapters.length - 1].number : (m.chapter > 1 ? m.chapter - 1 : 0);
+      if (lastCompletedCh > 0) {
+        lines.push(`- Chapter (just completed): Ch${lastCompletedCh}`);
+      } else {
+        lines.push(`- Chapter (just completed): (none yet — game start)`);
+      }
+      lines.push(`- Latest checkpoint: ${m.last_checkpoint || ""}`);
+      lines.push(`- Ledger last updated (real date): ${m.last_updated || ""}`, "");
+
+      lines.push("## [GLOBAL CLOCKS | UNSEALED]", "");
+      lines.push(`- CLK:DOOM ${g.doom}/5`);
+      lines.push(`- CLK:SHADOW ${g.shadow}/5`);
+      lines.push(`- CLK:TIME ${g.time}/5`);
+      lines.push(`- CLK:TROUBLE ${g.trouble}/5`, "");
+      lines.push("Regionwide Events triggered:");
+      if (!state.regionwide_events.length) lines.push("- None.");
+      else for (const e of state.regionwide_events) lines.push(`- ${e}`);
+      lines.push("", "Locks:");
+      if (!state.locks.length) lines.push("- None.");
+      else for (const l of state.locks) lines.push(`- ${l}`);
+      lines.push("");
+
+      lines.push("## [PC CARD | UNSEALED]", "");
+      lines.push(`- Name: ${pc.name || "Sammy"}`);
+      lines.push(`- LVL: ${pc.lvl} | XP: ${pc.xp}/10 | LEVEL READY: ${pc.level_ready ? "YES" : "NO"}`);
+      const s = pc.stats || {};
+      lines.push(`- Stats: STR ${s.STR ?? 0} | PER ${s.PER ?? 0} | END ${s.END ?? 0} | CHA ${s.CHA ?? 0} | INT ${s.INT ?? 0} | AGI ${s.AGI ?? 0} | LCK ${s.LCK ?? 0}`);
+      lines.push(`- Harm: ${pc.harm}/5 | Armor: ${pc.armor || 0}`);
+      if (pc.conditions && pc.conditions.length) {
+        for (const c of pc.conditions) lines.push(`- CONDITION: ${c}`);
+      } else {
+        lines.push("- Conditions: None.");
+      }
+      if (pc.perks && pc.perks.length) {
+        lines.push("- Perks:");
+        for (const p of pc.perks) lines.push(`  - ${p}`);
+      } else {
+        lines.push("- Perks: None.");
+      }
+      if (pc.inventory && pc.inventory.length) {
+        lines.push("- Inventory:");
+        for (const i of pc.inventory) lines.push(`  - ${i}`);
+      } else {
+        lines.push("- Inventory: None.");
+      }
+      lines.push("");
+
+      lines.push("## [STORY SPINE | UNSEALED]", "");
+      if (!state.story_spine.length) lines.push("- (none yet)");
+      else for (const beat of state.story_spine) lines.push(`- ${beat}`);
+      lines.push("");
+
+      lines.push("## [ACTIVE CLOCKS | UNSEALED]", "");
+      if (!state.active_clocks.length) lines.push("- None.");
+      else for (const c of state.active_clocks) lines.push(`- ${c.id} | ${c.name} | ${c.progress}/${c.max} | ${c.advances || ""}`);
+      lines.push("");
+
+      lines.push("## [FACTION REGISTRY | UNSEALED | ENCOUNTERED ONLY]", "");
+      if (!state.factions.length) lines.push("- None.");
+      else for (const f of state.factions) lines.push(`- ${f.id} | ${f.name || ""} | ${f.type || ""} | ${f.stance || ""} | Fame ${f.fame ?? 0}/5 | Infamy ${f.infamy ?? 0}/5 | ${f.notes || ""}`);
+      lines.push("");
+
+      lines.push("## [PEOPLE REGISTRY | UNSEALED]", "");
+      if (!state.people.length) lines.push("- None.");
+      else for (const p of state.people) {
+        const ptags = p.ptags ? `PTAGS{BG:${p.ptags.bg||"-"}; ST:${p.ptags.st||"-"}; RX:${p.ptags.rx||"-"}; LOY:${p.ptags.loy||"-"}; TABOO:${p.ptags.taboo||"-"}; TRUST:${p.ptags.trust??"-"}}` : "";
+        lines.push(`- ${p.id} | ${p.name||""} | ${p.role||""} | ${p.location_id||""} | ${p.status||""} | ${p.motivation||""} | ${p.notes||""} ${ptags}`);
+      }
+      lines.push("");
+
+      lines.push("## [PLACES REGISTRY | UNSEALED]", "");
+      if (!state.places.length) lines.push("- None.");
+      else for (const pl of state.places) lines.push(`- ${pl.id} | ${pl.name||""} | ${pl.region||""} | ${pl.control||""} | ${pl.situation||""} | ${pl.threats||""}`);
+      lines.push("");
+
+      lines.push("## [OPEN THREADS | UNSEALED]", "");
+      if (!state.open_threads.length) lines.push("- None.");
+      else for (const t of state.open_threads) lines.push(`- ${t}`);
+      lines.push("");
+
+      lines.push("---", "");
+      lines.push("## [STORY SPINE | SEALED — GM ONLY — DO NOT READ AS PLAYER]", "");
+      if (!state.sealed.story_spine.length) lines.push("- (none)");
+      else for (const sx of state.sealed.story_spine) lines.push(`- ${rot1Encode(sx)}`);
+      lines.push("");
+      lines.push("## [ACTIVE CLOCKS | SEALED — GM ONLY — DO NOT READ AS PLAYER]", "");
+      if (!state.sealed.active_clocks.length) lines.push("- None.");
+      else for (const c of state.sealed.active_clocks) lines.push(`- ${c.id||""} | ${rot1Encode(c.name||"")} | ${c.progress||0}/${c.max||5} | ${rot1Encode(c.notes||"")}`);
+      lines.push("");
+      lines.push("## [HIDDEN THREADS | SEALED — GM ONLY — DO NOT READ AS PLAYER]", "");
+      if (!state.sealed.hidden_threads.length) lines.push("- (none)");
+      else for (const h of state.sealed.hidden_threads) lines.push(`- ${rot1Encode(h)}`);
+      lines.push("");
+      lines.push("## [NPC SECRETS | SEALED — GM ONLY]", "");
+      if (!state.sealed.npc_secrets || !state.sealed.npc_secrets.length) lines.push("- (none)");
+      else for (const n of state.sealed.npc_secrets) lines.push(`- ${n.id||""} | ${n.name||""} | ${rot1Encode(n.secret||"")}`);
+      lines.push("");
+      lines.push("## [LOCATION TRUTHS | SEALED — GM ONLY]", "");
+      if (!state.sealed.location_truths || !state.sealed.location_truths.length) lines.push("- (none)");
+      else for (const l of state.sealed.location_truths) lines.push(`- ${l.id||""} | ${l.name||""} | ${rot1Encode(l.truth||"")}`);
+      lines.push("");
+      lines.push("## [FACTION OBJECTIVES | SEALED — GM ONLY]", "");
+      if (!state.sealed.faction_objectives || !state.sealed.faction_objectives.length) lines.push("- (none)");
+      else for (const f of state.sealed.faction_objectives) lines.push(`- ${f.id||""} | ${f.name||""} | ${f.obj_progress||0}/${f.obj_max||5} | ${rot1Encode(f.notes||"")}`);
+      lines.push("");
+
+      lines.push("---", "");
+      lines.push("# CHECKPOINT", "", "---", "");
+
+      lines.push("## [WHERE WE LEFT OFF | UNSEALED]", "");
+      lines.push(`- Current location: ${pc.location_id || ""}`);
+      lines.push(`- On-screen party: ${(pc.party || []).join(", ") || "—"}`);
+      lines.push(`- Time of day / weather: ${m.in_world_now || ""}`);
+      lines.push(`- Gameplay state at break: ${pc.state || "FREEPLAY"}`);
+
+      const ms = state.mode_state || {};
+      const modeLines = [];
+      if (ms.combat) modeLines.push(`- Combat: CCD ${ms.combat.ccd||0}/${ms.combat.ccd_max||6}`);
+      if (ms.travel) modeLines.push(`- Travel: TPC ${ms.travel.tpc||0}/${ms.travel.tpc_max||5} | TDC ${ms.travel.tdc||0}/${ms.travel.tdc_max||5}`);
+      if (ms.talk) modeLines.push(`- Talk: CGC ${ms.talk.cgc||0}/${ms.talk.cgc_max||6} | CPC ${ms.talk.cpc||0}/${ms.talk.cpc_max||6}`);
+      if (ms.investigation) modeLines.push(`- Investigation: IGC ${ms.investigation.igc||0}/${ms.investigation.igc_max||6} | IPC ${ms.investigation.ipc||0}/${ms.investigation.ipc_max||6}`);
+      if (modeLines.length) {
+        lines.push("");
+        lines.push("Mode clocks (active at break):");
+        for (const ml of modeLines) lines.push(ml);
+      }
+      lines.push("");
+
+      lines.push("## [SITUATION | UNSEALED]", "");
+      lines.push(cp.situation || "(none recorded)");
+      lines.push("");
+
+      lines.push("## [PRESSURE | UNSEALED]", "");
+      lines.push(cp.pressure || "(none recorded)");
+      lines.push("");
+
+      lines.push("## [DECISION POINT | UNSEALED]", "");
+      lines.push(cp.decision || "(none recorded)");
+      lines.push("");
+
+      if (cp.notes_sealed) {
+        lines.push("## [CHECKPOINT NOTES | SEALED — GM ONLY]", "");
+        lines.push(`- ${rot1Encode(cp.notes_sealed)}`);
+        lines.push("");
+      }
+
+      lines.push("---", "");
+      lines.push("# CHAPTER LOG ARCHIVE", "", "---", "");
+
+      for (const ch of state.chapters) {
+        lines.push(`=== CHAPTER ${ch.number} ===`, "");
+        lines.push(`Chapter title: ${ch.title || ""}`);
+        lines.push(`Act: ${ch.act ?? ""}`);
+        lines.push(`In-world start time: ${ch.in_world_start || ""}`);
+        lines.push(`In-world end time: ${ch.in_world_end || ""}`);
+        lines.push(`Primary location(s): ${(ch.primary_locations || []).join(", ")}`);
+        lines.push(`On-screen cast: ${(ch.on_screen_cast || []).join(", ")}`, "");
+
+        lines.push("## [NEW IDS INTRODUCED | UNSEALED]");
+        const nids = ch.new_ids || {};
+        const hasNew = (nids.people?.length || nids.places?.length || nids.factions?.length);
+        if (!hasNew) lines.push("- None.");
+        else {
+          if (nids.people?.length) for (const p of nids.people) lines.push(`- ${p}`);
+          if (nids.places?.length) for (const p of nids.places) lines.push(`- ${p}`);
+          if (nids.factions?.length) for (const f of nids.factions) lines.push(`- ${f}`);
+        }
+        lines.push("");
+
+        lines.push("## [LOG | UNSEALED]");
+        if (!ch.log || !ch.log.length) lines.push("- (none)");
+        else for (const entry of ch.log) lines.push(`- ${entry}`);
+        lines.push("");
+
+        lines.push("## [MECHANICS | UNSEALED]");
+        if (!ch.mechanics || !ch.mechanics.length) lines.push("- None.");
+        else for (const r of ch.mechanics) lines.push(`- ${r}`);
+        lines.push("");
+
+        lines.push("## [REVEAL | UNSEALED]");
+        if (!ch.reveal || !ch.reveal.length) lines.push("- None.");
+        else for (const r of ch.reveal) lines.push(`- ${r}`);
+        lines.push("");
+
+        lines.push("## [OFFSCREEN | SEALED — GM ONLY]");
+        if (!ch.offscreen || !ch.offscreen.length) lines.push("- (none)");
+        else for (const o of ch.offscreen) lines.push(`- ${rot1Encode(o)}`);
+        lines.push("");
+
+        lines.push(`=== END CHAPTER ===`, "", "");
+      }
+
+      return lines.join("\n");
+    }
+
+    function downloadLedger(state) {
+      const md = generateLedgerMarkdown(state);
+      const blob = new Blob([md], { type: "text/markdown" });
+      const url = URL.createObjectURL(blob);
+      const lastCh = state.chapters.length ? state.chapters[state.chapters.length - 1].number : state.meta.chapter;
+      const filename = `fr_ledger_act${state.meta.act}_ch${lastCh}.md`;
+      const a = document.createElement("a");
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      return filename;
+    }
+
+    // ============================================================================
+    // LEDGER PARSER
+    // ============================================================================
+
+    function parseLedger(md) {
+      const next = JSON.parse(JSON.stringify(DEFAULT_STATE));
+
+      const sectionRegex = /## \[([^\]]+)\]\s*\n([\s\S]*?)(?=\n## \[|\n=== |\n# |$)/g;
+      const sections = {};
+      let m;
+      while ((m = sectionRegex.exec(md)) !== null) sections[m[1].trim()] = m[2].trim();
+
+      const getBullets = (body) => body
+        .split("\n").map(l => l.trim())
+        .filter(l => l.startsWith("- "))
+        .map(l => l.slice(2).trim())
+        .filter(l => l && !l.toLowerCase().startsWith("none") && !l.startsWith("("));
+
+      const grab = (body, key) => {
+        const r = new RegExp(`-\\s*${key}:\\s*(.*)`, "i");
+        const mm = body.match(r);
+        return mm ? mm[1].trim() : "";
+      };
+
+      const sec = (...keys) => { for (const k of keys) if (sections[k] !== undefined) return sections[k]; return null; };
+
+      {
+        const b = sec("CAMPAIGN META | UNSEALED");
+        if (b) {
+          next.meta.campaign = grab(b, "Campaign") || next.meta.campaign;
+          next.meta.setting = grab(b, "Setting") || next.meta.setting;
+          next.meta.in_world_now = grab(b, "In-world date/time \\(NOW\\)");
+          const dayStr = grab(b, "Day");
+          if (dayStr) next.meta.in_world_day = parseInt(dayStr.replace(/\D/g, "")) || 1;
+          const actStr = grab(b, "Act");
+          const chStr = grab(b, "Chapter \\(just completed\\)") || grab(b, "Chapter");
+          if (actStr) next.meta.act = parseInt(actStr.replace(/\D/g, "")) || 1;
+          if (chStr) {
+            const parsed = parseInt(chStr.replace(/\D/g, ""));
+            if (Number.isInteger(parsed) && parsed > 0) next.meta.chapter = parsed;
+          }
+          next.meta.last_checkpoint = grab(b, "Latest checkpoint");
+          next.meta.last_updated = grab(b, "Ledger last updated \\(real date\\)");
+        }
+      }
+
+      {
+        const b = sec("GLOBAL CLOCKS | UNSEALED", "GLOBAL CLOCKS | UNSEALED | CAMPAIGN LAYER");
+        if (b) {
+          const gc = (name) => { const r = new RegExp(`CLK:${name}\\s+(\\d+)/5`, "i"); const mm = b.match(r); return mm ? parseInt(mm[1]) : 0; };
+          next.global_clocks.doom = gc("DOOM");
+          next.global_clocks.shadow = gc("SHADOW");
+          next.global_clocks.time = gc("TIME");
+          next.global_clocks.trouble = gc("TROUBLE");
+          const locksMatch = b.match(/Locks:\s*\n([\s\S]*)/i);
+          if (locksMatch) next.locks = getBullets(locksMatch[1]);
+        }
+      }
+
+      {
+        const b = sec("PC CARD | UNSEALED");
+        if (b) {
+          next.pc_export.name = grab(b, "Name") || "Sammy";
+          const lvlxp = b.match(/LVL:\s*(\d+)\s*\|\s*XP:\s*(\d+)\s*\/\s*\d+\s*\|\s*LEVEL READY:\s*(YES|NO)/i);
+          if (lvlxp) {
+            next.pc_export.lvl = parseInt(lvlxp[1]);
+            next.pc_export.xp = parseInt(lvlxp[2]);
+            next.pc_export.level_ready = lvlxp[3].toUpperCase() === "YES";
+          }
+          const statRx = /(STR|PER|END|CHA|INT|AGI|LCK)\s+(-?\d+)/g;
+          let sm; while ((sm = statRx.exec(b)) !== null) next.pc_export.stats[sm[1]] = parseInt(sm[2]);
+          const ha = b.match(/Harm:\s*(\d+)\/5\s*\|\s*Armor:\s*(\d+)/i);
+          if (ha) { next.pc_export.harm = parseInt(ha[1]); next.pc_export.armor = parseInt(ha[2]); }
+          const conds = b.split("\n").filter(l => l.trim().startsWith("- CONDITION:")).map(l => l.replace(/^-\s*CONDITION:\s*/i, "").trim());
+          if (conds.length) next.pc_export.conditions = conds;
+          const perksMatch = b.match(/-\s*Perks:\s*\n([\s\S]*?)(?=\n-\s|$)/i);
+          if (perksMatch) {
+            next.pc_export.perks = perksMatch[1].split("\n").map(l => l.trim()).filter(l => l.startsWith("- ")).map(l => l.slice(2).trim());
+          }
+          const invMatch = b.match(/-\s*Inventory:\s*\n([\s\S]*?)(?=\n-\s|$)/i);
+          if (invMatch) {
+            next.pc_export.inventory = invMatch[1].split("\n").map(l => l.trim()).filter(l => l.startsWith("- ")).map(l => l.slice(2).trim());
+          }
+        }
+      }
+
+      if (sections["HUD SNAPSHOT | UNSEALED | NOW"]) {
+        const b = sections["HUD SNAPSHOT | UNSEALED | NOW"];
+        if (!next.pc_export.name || next.pc_export.name === "Sammy") next.pc_export.name = grab(b, "PC") || "Sammy";
+        next.pc_export.location_id = grab(b, "Current location").split(" ")[0] || "";
+        const partyStr = grab(b, "On-screen party");
+        next.pc_export.party = partyStr && partyStr !== "—" ? partyStr.split(",").map(s => s.trim()).filter(Boolean) : [];
+        next.pc_export.immediate_situation = grab(b, "Immediate situation");
+        next.pc_export.intent = grab(b, "PC intent");
+        next.pc_export.state = grab(b, "Gameplay state NOW") || "FREEPLAY";
+      }
+      if (sections["PROGRESSION | UNSEALED"] && next.pc_export.lvl === 1 && next.pc_export.xp === 0) {
+        const b = sections["PROGRESSION | UNSEALED"];
+        const lvl = b.match(/LVL:\s*(\d+)/); if (lvl) next.pc_export.lvl = parseInt(lvl[1]);
+        const xp = b.match(/XP:\s*(\d+)/); if (xp) next.pc_export.xp = parseInt(xp[1]);
+        const ready = b.match(/LEVEL READY:\s*(YES|NO)/i); if (ready) next.pc_export.level_ready = ready[1].toUpperCase() === "YES";
+        const perksMatch = b.match(/Perks gained[^\n]*:\s*\n([\s\S]*)/i);
+        if (perksMatch) next.pc_export.perks = getBullets(perksMatch[1]);
+      }
+      if (sections["PC STATS + CONDITIONS | UNSEALED"]) {
+        const b = sections["PC STATS + CONDITIONS | UNSEALED"];
+        const statRx = /(STR|PER|END|CHA|INT|AGI|LCK)\s+(-?\d+)/g;
+        let sm; while ((sm = statRx.exec(b)) !== null) next.pc_export.stats[sm[1]] = parseInt(sm[2]);
+        const harm = b.match(/Harm\s+(\d+)\/5/i); if (harm) next.pc_export.harm = parseInt(harm[1]);
+        const armor = b.match(/Armor:\s*(\d+)/i); if (armor) next.pc_export.armor = parseInt(armor[1]);
+        const conds = b.split("\n").filter(l => l.trim().startsWith("- CONDITION:")).map(l => l.replace(/^-\s*CONDITION:\s*/i, "").trim());
+        if (conds.length) next.pc_export.conditions = conds;
+        const inv = b.match(/Inventory:\s*\n([\s\S]*)/i);
+        if (inv) next.pc_export.inventory = getBullets(inv[1]);
+      }
+
+      {
+        const wlo = sec("WHERE WE LEFT OFF | UNSEALED");
+        if (wlo) {
+          next.pc_export.location_id = grab(wlo, "Current location").split(" ")[0] || next.pc_export.location_id;
+          const partyStr = grab(wlo, "On-screen party");
+          if (partyStr) next.pc_export.party = partyStr !== "—" ? partyStr.split(",").map(s => s.trim()).filter(Boolean) : [];
+          next.pc_export.state = grab(wlo, "Gameplay state at break") || next.pc_export.state || "FREEPLAY";
+        }
+        const sit = sec("SITUATION | UNSEALED");
+        if (sit) next.checkpoint.situation = sit.replace(/^\(none recorded\)$/, "").trim();
+        const pre = sec("PRESSURE | UNSEALED");
+        if (pre) next.checkpoint.pressure = pre.replace(/^\(none recorded\)$/, "").trim();
+        const dec = sec("DECISION POINT | UNSEALED");
+        if (dec) next.checkpoint.decision = dec.replace(/^\(none recorded\)$/, "").trim();
+        const cpn = sec("CHECKPOINT NOTES | SEALED — GM ONLY");
+        if (cpn) {
+          const bullets = getBullets(cpn);
+          if (bullets.length) next.checkpoint.notes_sealed = rot1Decode(bullets[0]);
+        }
+        if (next.checkpoint.situation && !next.pc_export.immediate_situation) {
+          next.pc_export.immediate_situation = next.checkpoint.situation;
+        }
+      }
+
+      if (sections["STORY SPINE | UNSEALED"]) next.story_spine = getBullets(sections["STORY SPINE | UNSEALED"]);
+      if (sections["OPEN THREADS | UNSEALED"]) next.open_threads = getBullets(sections["OPEN THREADS | UNSEALED"]);
+
+      {
+        const b = sec("FACTION REGISTRY | UNSEALED | ENCOUNTERED ONLY", "FACTION REGISTRY | UNSEALED");
+        if (b) {
+          const bullets = getBullets(b);
+          next.factions = bullets.map(line => {
+            const p = line.split("|").map(s => s.trim());
+            const fameM = (p[4] || "").match(/(\d+)\/5/); const infM = (p[5] || "").match(/(\d+)\/5/);
+            return { id: p[0]||"", name: p[1]||"", type: p[2]||"", stance: p[3]||"", fame: fameM ? parseInt(fameM[1]) : 0, infamy: infM ? parseInt(infM[1]) : 0, notes: p[6]||"" };
+          });
+        }
+      }
+
+      if (sections["PEOPLE REGISTRY | UNSEALED"]) {
+        const bullets = getBullets(sections["PEOPLE REGISTRY | UNSEALED"]);
+        next.people = bullets.map(b => {
+          const ptagsM = b.match(/PTAGS\{([^}]*)\}/);
+          let ptags = null; let body = b;
+          if (ptagsM) {
+            body = b.replace(ptagsM[0], "").trim();
+            const t = ptagsM[1];
+            const tg = (k) => { const r = new RegExp(k + ":([^;}{]+)"); const mm = t.match(r); return mm ? mm[1].trim() : "-"; };
+            ptags = { bg: tg("BG"), st: tg("ST"), rx: tg("RX"), loy: tg("LOY"), taboo: tg("TABOO"), trust: tg("TRUST") };
+          }
+          const p = body.split("|").map(s => s.trim());
+          return { id: p[0]||"", name: p[1]||"", role: p[2]||"", location_id: p[3]||"", status: p[4]||"", motivation: p[5]||"", notes: p[6]||"", ...(ptags ? { ptags } : {}), bg: ptags?.bg, st: ptags?.st, rx: ptags?.rx, loy: ptags?.loy };
+        });
+      }
+
+      if (sections["PLACES REGISTRY | UNSEALED"]) {
+        const bullets = getBullets(sections["PLACES REGISTRY | UNSEALED"]);
+        next.places = bullets.map(b => {
+          const p = b.split("|").map(s => s.trim());
+          return { id: p[0]||"", name: p[1]||"", region: p[2]||"", control: p[3]||"", situation: p[4]||"", threats: p[5]||"" };
+        });
+      }
+
+      next.sealed.story_spine = sections["STORY SPINE | SEALED — GM ONLY — DO NOT READ AS PLAYER"]
+        ? getBullets(sections["STORY SPINE | SEALED — GM ONLY — DO NOT READ AS PLAYER"]).map(b => rot1Decode(b))
+        : [];
+      next.sealed.hidden_threads = sections["HIDDEN THREADS | SEALED — GM ONLY — DO NOT READ AS PLAYER"]
+        ? getBullets(sections["HIDDEN THREADS | SEALED — GM ONLY — DO NOT READ AS PLAYER"]).map(b => rot1Decode(b))
+        : [];
+
+      if (sections["ACTIVE CLOCKS | SEALED — GM ONLY — DO NOT READ AS PLAYER"]) {
+        next.sealed.active_clocks = getBullets(sections["ACTIVE CLOCKS | SEALED — GM ONLY — DO NOT READ AS PLAYER"]).map(b => {
+          const p = b.split("|").map(s => s.trim());
+          const pm = (p[2]||"").match(/(\d+)\/(\d+)/);
+          return { id: p[0]||"", name: rot1Decode(p[1]||""), progress: pm ? parseInt(pm[1]) : 0, max: pm ? parseInt(pm[2]) : 5, notes: rot1Decode(p[3]||"") };
+        });
+      }
+
+      const npcSecKey = Object.keys(sections).find(k => k.startsWith("NPC SECRETS | SEALED"));
+      if (npcSecKey) {
+        next.sealed.npc_secrets = getBullets(sections[npcSecKey]).map(b => {
+          const p = b.split("|").map(s => s.trim());
+          return { id: p[0]||"", name: p[1]||"", secret: rot1Decode(p[2]||"") };
+        });
+      }
+
+      const locTruthKey = Object.keys(sections).find(k => k.startsWith("LOCATION TRUTHS | SEALED"));
+      if (locTruthKey) {
+        next.sealed.location_truths = getBullets(sections[locTruthKey]).map(b => {
+          const p = b.split("|").map(s => s.trim());
+          return { id: p[0]||"", name: p[1]||"", truth: rot1Decode(p[2]||"") };
+        });
+      }
+
+      const facObjKey = Object.keys(sections).find(k => k.startsWith("FACTION OBJECTIVES | SEALED"));
+      if (facObjKey) {
+        next.sealed.faction_objectives = getBullets(sections[facObjKey]).map(b => {
+          const p = b.split("|").map(s => s.trim());
+          const pm = (p[2]||"").match(/(\d+)\/(\d+)/);
+          return { id: p[0]||"", name: p[1]||"", obj_progress: pm ? parseInt(pm[1]) : 0, obj_max: pm ? parseInt(pm[2]) : 5, notes: rot1Decode(p[3]||"") };
+        });
+      }
+
+      const chapterRegex = /=== CHAPTER (\d+) ===([\s\S]*?)=== END CHAPTER ===/g;
+      let cm;
+      while ((cm = chapterRegex.exec(md)) !== null) {
+        const num = parseInt(cm[1]); const body = cm[2];
+        const cGrab = (key) => { const r = new RegExp(`${key}:\\s*(.*)`, "i"); const mm = body.match(r); return mm ? mm[1].trim() : ""; };
+        const actStr = cGrab("Act");
+        const chBlock = {
+          number: num,
+          title: cGrab("Chapter title"),
+          act: actStr ? (parseInt(actStr.replace(/\D/g, "")) || next.meta.act) : next.meta.act,
+          in_world_start: cGrab("In-world start time"),
+          in_world_end: cGrab("In-world end time"),
+          primary_locations: cGrab("Primary location\\(s\\)").split(",").map(s => s.trim()).filter(Boolean),
+          on_screen_cast: cGrab("On-screen cast").split(",").map(s => s.trim()).filter(Boolean),
+          new_ids: { people: [], places: [], factions: [] },
+          log: [], mechanics: [], reveal: [], offscreen: [],
+        };
+        const subRegex = /## \[([^\]]+)\]\s*\n([\s\S]*?)(?=\n## \[|=== END CHAPTER|$)/g;
+        let sm;
+        while ((sm = subRegex.exec(body)) !== null) {
+          const sh = sm[1].trim(); const sb = sm[2].trim();
+          if (sh.startsWith("LOG |") || sh === "LOG | UNSEALED") chBlock.log = getBullets(sb);
+          else if (sh.startsWith("MECHANICS")) chBlock.mechanics = getBullets(sb);
+          else if (sh.startsWith("REVEAL |") || sh === "REVEAL | UNSEALED") chBlock.reveal = getBullets(sb);
+          else if (sh.startsWith("OFFSCREEN |") || sh === "OFFSCREEN | SEALED — GM ONLY") chBlock.offscreen = getBullets(sb).map(b => rot1Decode(b));
+          else if (sh.startsWith("PLAY LOG")) chBlock.log = getBullets(sb);
+          else if (sh.startsWith("ROLL")) chBlock.mechanics.push(...getBullets(sb));
+          else if (sh.startsWith("CONSEQUENCES")) chBlock.mechanics.push(...getBullets(sb));
+          else if (sh.startsWith("OFFSCREEN TRUTH")) chBlock.offscreen = getBullets(sb).map(b => rot1Decode(b));
+          else if (sh.startsWith("REVEAL LOG")) {
+            const reveals = sb.split("\n").map(l => l.trim()).filter(l => l.startsWith("REVEAL:"));
+            if (reveals.length) chBlock.reveal = reveals.map(r => r.replace(/^REVEAL:\s*/, ""));
+          }
+          else if (sh.startsWith("NEW IDS")) {
+            const bullets = getBullets(sb);
+            for (const b of bullets) {
+              if (b.startsWith("P:")) chBlock.new_ids.people.push(b);
+              else if (b.startsWith("L:")) chBlock.new_ids.places.push(b);
+              else if (b.startsWith("F:")) chBlock.new_ids.factions.push(b);
+            }
+          }
+        }
+        next.chapters.push(chBlock);
+      }
+
+      if (next.chapters.length) {
+        const sorted = [...next.chapters].sort((a, b) => a.number - b.number);
+        next.meta.chapter = sorted[sorted.length - 1].number + 1;
+      } else {
+        next.meta.chapter = 1;
+      }
+
+      next.meta.last_updated = new Date().toISOString().slice(0, 10);
+      return next;
+    }
+
+    // ============================================================================
+    // DESIGN TOKENS
+    // ============================================================================
+
+    const C = {
+      bg: "#080e0a",
+      bgPanel: "#0c1410",
+      bgPanelAlt: "#0f1a14",
+      green: "#1aff1a",
+      greenDim: "#1aff1a99",
+      greenFaint: "#1aff1a22",
+      greenBorder: "#1aff1a44",
+      amber: "#ffa500",
+      amberDim: "#ffa50088",
+      amberFaint: "#ffa50018",
+      red: "#ff4500",
+      redDim: "#ff450088",
+      redFaint: "#ff450018",
+      blue: "#4af",
+      blueFaint: "#4af2",
+      text: "#c8f0c8",
+      textDim: "#7aaa7a",
+      textFaint: "#3a6a3a",
+    };
+
+    const F = {
+      display: "'VT323', 'Courier New', monospace",
+      mono: "'IBM Plex Mono', 'Courier New', monospace",
+    };
+
+    // ============================================================================
+    // REUSABLE COMPONENTS
+    // ============================================================================
+
+    function ClockPips({ value, max, color = C.green }) {
+      return (
+        <span style={{ display: "inline-flex", gap: "3px", alignItems: "center" }}>
+          {Array.from({ length: max }).map((_, i) => (
+            <span key={i} style={{
+              width: "10px", height: "10px",
+              background: i < value ? color : "transparent",
+              border: `1px solid ${color}`,
+              boxShadow: i < value ? `0 0 4px ${color}` : "none",
+              display: "inline-block",
+            }} />
+          ))}
+        </span>
+      );
+    }
+
+    function ClockRow({ label, value, max, color = C.green, onChange }) {
+      return (
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "3px 0" }}>
+          <span style={{ fontFamily: F.display, fontSize: "15px", color: C.textDim, letterSpacing: "1px", minWidth: "80px" }}>{label}</span>
+          <ClockPips value={value} max={max} color={color} />
+          <span style={{ fontFamily: F.mono, fontSize: "11px", color: C.textDim, minWidth: "28px" }}>{value}/{max}</span>
+          {onChange && <>
+            <button onClick={() => onChange(Math.max(0, value - 1))} style={btnSmall}>−</button>
+            <button onClick={() => onChange(Math.min(max, value + 1))} style={btnSmall}>+</button>
+          </>}
+        </div>
+      );
+    }
+
+    function Section({ title, children, defaultOpen = true, color = C.green, badge }) {
+      const [open, setOpen] = useState(defaultOpen);
+      return (
+        <div style={{ borderTop: `1px solid ${C.greenBorder}`, marginTop: "10px", paddingTop: "8px" }}>
+          <div onClick={() => setOpen(!open)} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", marginBottom: open ? "8px" : 0, userSelect: "none" }}>
+            <span style={{ fontFamily: F.display, fontSize: "17px", color, letterSpacing: "1px", textShadow: `0 0 6px ${color}66` }}>
+              {open ? "▼" : "▶"} {title}
+            </span>
+            {badge !== undefined && (
+              <span style={{ fontFamily: F.mono, fontSize: "10px", color: C.textFaint, background: C.greenFaint, padding: "1px 6px", border: `1px solid ${C.greenBorder}` }}>
+                {badge}
+              </span>
+            )}
+          </div>
+          {open && <div>{children}</div>}
+        </div>
+      );
+    }
+
+    function Tag({ children, color = C.greenDim }) {
+      return (
+        <span style={{ fontFamily: F.mono, fontSize: "10px", color, border: `1px solid ${color}`, padding: "1px 5px", marginRight: "4px", display: "inline-block" }}>
+          {children}
+        </span>
+      );
+    }
+
+    function HarmBar({ value, max = 5 }) {
+      const colors = ["#1aff1a","#aaff00","#ffdd00","#ff8800","#ff2200"];
+      return (
+        <span style={{ display: "inline-flex", gap: "3px" }}>
+          {Array.from({ length: max }).map((_, i) => (
+            <span key={i} style={{
+              width: "14px", height: "14px",
+              background: i < value ? colors[i] : "transparent",
+              border: `1px solid ${i < value ? colors[i] : C.greenBorder}`,
+              boxShadow: i < value ? `0 0 5px ${colors[i]}` : "none",
+              display: "inline-block",
+            }} />
+          ))}
+        </span>
+      );
+    }
+
+    const btnSmall = {
+      background: "transparent", border: `1px solid ${C.greenBorder}`,
+      color: C.green, fontFamily: F.display, fontSize: "14px",
+      padding: "0 6px", cursor: "pointer", lineHeight: "18px",
+    };
+
+    const pipBtn = {
+      background: "transparent", border: `1px solid ${C.green}`,
+      color: C.green, fontFamily: F.display, fontSize: "15px",
+      padding: "3px 12px", cursor: "pointer", letterSpacing: "1px",
+      transition: "all 0.1s",
+    };
+
+    const tbl = { width: "100%", borderCollapse: "collapse", fontSize: "11px", fontFamily: F.mono };
+    const tblTh = { textAlign: "left", padding: "3px 8px", fontFamily: F.display, fontSize: "13px", color: C.textDim, letterSpacing: "1px", borderBottom: `1px solid ${C.greenBorder}` };
+    const tblTd = { padding: "3px 8px", verticalAlign: "top", color: C.text };
+    const tblTdDim = { ...tblTd, color: C.textDim };
+    const tblTr = { borderBottom: `1px solid ${C.greenFaint}` };
+
+    // ============================================================================
+    // MODE PANELS
+    // ============================================================================
+
+    function CombatPanel({ combat, onChange }) {
+      if (!combat) return null;
+      const { ccd = 0, ccd_max = 6, roster = [] } = combat;
+      return (
+        <div style={{ background: C.redFaint, border: `1px solid ${C.redDim}`, padding: "10px 12px", marginTop: "10px" }}>
+          <div style={{ fontFamily: F.display, fontSize: "20px", color: C.red, letterSpacing: "2px", textShadow: `0 0 8px ${C.red}`, marginBottom: "8px" }}>
+            💥 COMBAT
+          </div>
+          <ClockRow label="CCD" value={ccd} max={ccd_max} color={C.red}
+            onChange={(v) => onChange({ ...combat, ccd: v })} />
+          {roster.length > 0 && (
+            <div style={{ marginTop: "8px" }}>
+              <div style={{ fontFamily: F.display, fontSize: "14px", color: C.redDim, letterSpacing: "1px", marginBottom: "4px" }}>ROSTER</div>
+              <table style={tbl}>
+                <thead><tr>
+                  <th style={{ ...tblTh, color: C.redDim }}>Name</th>
+                  <th style={{ ...tblTh, color: C.redDim }}>Side</th>
+                  <th style={{ ...tblTh, color: C.redDim }}>Harm</th>
+                  <th style={{ ...tblTh, color: C.redDim }}>Position</th>
+                  <th style={{ ...tblTh, color: C.redDim }}>Notes</th>
+                </tr></thead>
+                <tbody>{roster.map((r, i) => (
+                  <tr key={i} style={tblTr}>
+                    <td style={tblTd}>{r.name}</td>
+                    <td style={{ ...tblTdDim, color: r.side === "enemy" ? C.red : r.side === "ally" ? C.green : C.amber }}>{r.side}</td>
+                    <td style={tblTd}><HarmBar value={r.harm || 0} max={r.harm_max || 5} /></td>
+                    <td style={tblTdDim}>{r.position}</td>
+                    <td style={tblTdDim}>{r.notes}</td>
+                  </tr>
+                ))}</tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function TravelPanel({ travel, onChange }) {
+      if (!travel) return null;
+      const { tpc = 0, tpc_max = 5, tdc = 0, tdc_max = 5, route = "" } = travel;
+      return (
+        <div style={{ background: C.amberFaint, border: `1px solid ${C.amberDim}`, padding: "10px 12px", marginTop: "10px" }}>
+          <div style={{ fontFamily: F.display, fontSize: "20px", color: C.amber, letterSpacing: "2px", textShadow: `0 0 8px ${C.amber}`, marginBottom: "8px" }}>
+            🛣️ TRAVEL {route && <span style={{ fontSize: "14px", opacity: 0.7 }}>— {route}</span>}
+          </div>
+          <ClockRow label="TPC" value={tpc} max={tpc_max} color={C.green} onChange={(v) => onChange({ ...travel, tpc: v })} />
+          <ClockRow label="TDC" value={tdc} max={tdc_max} color={C.amber} onChange={(v) => onChange({ ...travel, tdc: v })} />
+        </div>
+      );
+    }
+
+    function TalkPanel({ talk, onChange }) {
+      if (!talk) return null;
+      const { cgc = 0, cgc_max = 6, cpc = 0, cpc_max = 6, target = "", stakes = "" } = talk;
+      return (
+        <div style={{ background: C.blueFaint, border: `1px solid ${C.blue}44`, padding: "10px 12px", marginTop: "10px" }}>
+          <div style={{ fontFamily: F.display, fontSize: "20px", color: C.blue, letterSpacing: "2px", textShadow: `0 0 8px ${C.blue}`, marginBottom: "8px" }}>
+            🎙️ TALK {target && <span style={{ fontSize: "14px", opacity: 0.7 }}>— {target}</span>}
+          </div>
+          {stakes && <div style={{ fontFamily: F.mono, fontSize: "11px", color: C.textDim, marginBottom: "6px" }}>Stakes: {stakes}</div>}
+          <ClockRow label="CGC" value={cgc} max={cgc_max} color={C.green} onChange={(v) => onChange({ ...talk, cgc: v })} />
+          <ClockRow label="CPC" value={cpc} max={cpc_max} color={C.red} onChange={(v) => onChange({ ...talk, cpc: v })} />
+        </div>
+      );
+    }
+
+    function InvestigationPanel({ investigation, onChange }) {
+      if (!investigation) return null;
+      const { igc = 0, igc_max = 6, ipc = 0, ipc_max = 6, objective = "" } = investigation;
+      return (
+        <div style={{ background: "#4af1", border: `1px solid #4af4`, padding: "10px 12px", marginTop: "10px" }}>
+          <div style={{ fontFamily: F.display, fontSize: "20px", color: C.blue, letterSpacing: "2px", textShadow: `0 0 8px ${C.blue}`, marginBottom: "8px" }}>
+            🔎 INVESTIGATION
+          </div>
+          {objective && <div style={{ fontFamily: F.mono, fontSize: "11px", color: C.textDim, marginBottom: "6px" }}>Objective: {objective}</div>}
+          <ClockRow label="IGC" value={igc} max={igc_max} color={C.green} onChange={(v) => onChange({ ...investigation, igc: v })} />
+          <ClockRow label="IPC" value={ipc} max={ipc_max} color={C.red} onChange={(v) => onChange({ ...investigation, ipc: v })} />
+        </div>
+      );
+    }
+
+    // ============================================================================
+    // PC CARD
+    // ============================================================================
+
+    function PCCard({ pc }) {
+      const s = pc.stats || {};
+      const statKeys = ["STR","PER","END","CHA","INT","AGI","LCK"];
+      const lbl = { fontFamily: F.display, fontSize: "12px", color: C.textFaint, letterSpacing: "1px", marginRight: "4px" };
+      const val = { fontFamily: F.mono, fontSize: "11px", color: C.text };
+
+      return (
+        <div style={{ background: C.bgPanelAlt, border: `1px solid ${C.greenBorder}`, padding: "7px 10px" }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: "10px", marginBottom: "5px", flexWrap: "wrap" }}>
+            <span style={{ fontFamily: F.display, fontSize: "20px", color: C.green, letterSpacing: "2px", textShadow: `0 0 6px ${C.green}` }}>
+              {pc.name || "Sammy"}
+            </span>
+            <span style={{ fontFamily: F.display, fontSize: "14px", color: C.textDim }}>LVL {pc.lvl}</span>
+            <span style={{ fontFamily: F.mono, fontSize: "11px", color: C.textDim }}>XP {pc.xp}/10</span>
+            {pc.level_ready && <span style={{ fontFamily: F.display, fontSize: "13px", color: C.amber }}>★ LEVEL READY</span>}
+            <span style={{ marginLeft: "auto", fontFamily: F.mono, fontSize: "10px", color: C.textFaint }}>📍 {pc.location_id || "—"}</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap", marginBottom: "4px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+              <span style={lbl}>HARM</span>
+              <HarmBar value={pc.harm} max={5} />
+              <span style={{ fontFamily: F.mono, fontSize: "10px", color: C.textFaint }}>{pc.harm}/5</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+              <span style={lbl}>ARM</span>
+              <span style={val}>{pc.armor || 0}</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "5px", marginLeft: "4px" }}>
+              {statKeys.map(k => {
+                const v = s[k] ?? 0;
+                const col = v > 0 ? C.green : v < 0 ? C.red : C.textFaint;
+                return (
+                  <span key={k} style={{ fontFamily: F.mono, fontSize: "11px" }}>
+                    <span style={{ color: C.textFaint, fontSize: "10px" }}>{k} </span>
+                    <span style={{ color: col }}>{v > 0 ? `+${v}` : v}</span>
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+          {pc.conditions && pc.conditions.length > 0 && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "3px", marginBottom: "3px" }}>
+              {pc.conditions.map((c, i) => <Tag key={i} color={C.amber}>{c}</Tag>)}
+            </div>
+          )}
+          {pc.party && pc.party.length > 0 && (
+            <div style={{ fontFamily: F.mono, fontSize: "10px", color: C.textDim, marginBottom: "3px" }}>
+              <span style={lbl}>PARTY</span>{pc.party.join(", ")}
+            </div>
+          )}
+          {pc.inventory && pc.inventory.length > 0 && (
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "6px", marginTop: "4px", borderTop: `1px solid ${C.greenBorder}`, paddingTop: "4px", flexWrap: "wrap" }}>
+              <span style={lbl}>INV</span>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "3px" }}>
+                {pc.inventory.map((item, i) => <Tag key={i}>{item}</Tag>)}
+              </div>
+            </div>
+          )}
+          {pc.perks && pc.perks.length > 0 && (
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "6px", marginTop: "3px", flexWrap: "wrap" }}>
+              <span style={lbl}>PERKS</span>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "3px" }}>
+                {pc.perks.map((p, i) => <Tag key={i} color={C.amberDim}>{p}</Tag>)}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ============================================================================
+    // CHAPTER BREAK PANEL
+    // ============================================================================
+
+    function ChapterBreakPanel({ state, onApply }) {
+      const [open, setOpen] = useState(false);
+      const [json, setJson] = useState("");
+      const [err, setErr] = useState("");
+
+      const handleApply = () => {
+        try {
+          const payload = JSON.parse(json);
+          const next = applyChapterBreak(state, payload);
+          onApply(next);
+          const filename = downloadLedger(next);
+          setJson("");
+          setErr("");
+          setOpen(false);
+          alert(`✓ Chapter applied. Exported ${filename}`);
+        } catch (e) { setErr(e.message); }
+      };
+
+      return (
+        <div style={{ marginTop: "12px", border: `1px solid ${C.amberDim}`, padding: "8px 12px" }}>
+          <div onClick={() => setOpen(!open)} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", userSelect: "none" }}>
+            <span style={{ fontFamily: F.display, fontSize: "18px", color: C.amber, letterSpacing: "1px" }}>
+              {open ? "▼" : "▶"} 🎬 CHAPTER BREAK
+            </span>
+          </div>
+          {open && (
+            <div style={{ marginTop: "8px" }}>
+              <p style={{ fontFamily: F.mono, fontSize: "10px", color: C.textDim, margin: "0 0 6px 0" }}>
+                Paste GM chapter break JSON → applies state + exports ledger file.
+                Schema: {`{ chapter:{number,title,act,in_world_start,in_world_end,primary_locations,on_screen_cast,new_ids}, log:[], mechanics:[], reveal:[], offscreen:[ROT1], checkpoint:{situation,pressure,decision,notes_sealed:ROT1}, hud_final:{...} }`}
+              </p>
+              <textarea
+                value={json}
+                onChange={e => { setJson(e.target.value); setErr(""); }}
+                placeholder='{"chapter":{"number":2,"title":"Klamath, First Day","act":1,"in_world_start":"...","in_world_end":"...","primary_locations":["L:KL01"],"on_screen_cast":["P:KL01"],"new_ids":{"people":[],"places":[],"factions":[]}},"log":["..."],"mechanics":["..."],"reveal":[],"offscreen":["ROT1 string"],"checkpoint":{"situation":"...","pressure":"...","decision":"...","notes_sealed":""},"hud_final":{"harm":1,"xp":4,"location_id":"L:KL01","party":[],"state":"FREEPLAY","global_clocks":{"trouble":3}}}'
+                style={{ width: "100%", minHeight: "120px", background: C.bg, border: `1px solid ${C.amberDim}`, color: C.text, fontFamily: F.mono, fontSize: "11px", padding: "6px", boxSizing: "border-box", outline: "none" }}
+              />
+              {err && <div style={{ color: C.red, fontFamily: F.mono, fontSize: "11px", marginTop: "4px" }}>⚠ {err}</div>}
+              <div style={{ display: "flex", gap: "6px", marginTop: "6px" }}>
+                <button onClick={handleApply} style={{ ...pipBtn, borderColor: C.amber, color: C.amber }}>▶ APPLY + EXPORT</button>
+                <button onClick={() => setJson("")} style={pipBtn}>CLEAR</button>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ============================================================================
+    // MAIN DASHBOARD
+    // ============================================================================
+
+    function FRDashboard() {
+      const [state, setState] = useState(() => loadState());
+      const [updateJson, setUpdateJson] = useState("");
+      const [updateStatus, setUpdateStatus] = useState("idle");
+      const [toast, setToast] = useState("");
+      const fileInputRef = useRef(null);
+      const saveTimeout = useRef(null);
+
+      useEffect(() => {
+        if (saveTimeout.current) clearTimeout(saveTimeout.current);
+        saveTimeout.current = setTimeout(() => saveState(state), 400);
+        return () => clearTimeout(saveTimeout.current);
+      }, [state]);
+
+      const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(""), 2500); };
+
+      const tryApply = (raw) => {
+        if (!raw.trim()) return;
+        try {
+          const payload = JSON.parse(raw);
+          setState(prev => applyUpdate(prev, payload));
+          setUpdateJson("");
+          setUpdateStatus("ok");
+          showToast("Update applied.");
+          setTimeout(() => setUpdateStatus("idle"), 1500);
+        } catch (e) {
+          setUpdateStatus("err");
+          showToast(`Parse error: ${e.message}`);
+        }
+      };
+
+      const handlePaste = (e) => {
+        const pasted = e.clipboardData.getData("text");
+        setTimeout(() => tryApply(pasted), 10);
+        e.preventDefault();
+      };
+
+      const handleUpload = (e) => {
+        const file = e.target.files?.[0]; if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try {
+            const text = ev.target.result;
+            if (file.name.endsWith(".md") || file.name.endsWith(".txt")) {
+              const parsed = parseLedger(text);
+              setState(parsed);
+              showToast(`Loaded ${file.name}`);
+            } else {
+              const parsed = JSON.parse(text);
+              setState({ ...DEFAULT_STATE, ...parsed });
+              showToast(`Loaded ${file.name}`);
+            }
+          } catch (err) { showToast(`Load failed: ${err.message}`); }
+        };
+        reader.readAsText(file);
+        e.target.value = "";
+      };
+
+      const handleExport = () => {
+        const filename = downloadLedger(state);
+        showToast(`Exported ${filename}`);
+      };
+
+      const handleReset = () => {
+        if (!confirm("Wipe all state? This cannot be undone.")) return;
+        setState(DEFAULT_STATE);
+        showToast("State wiped.");
+      };
+
+      const updateModeState = (mode, value) => {
+        setState(prev => ({
+          ...prev,
+          mode_state: { ...prev.mode_state, [mode]: value }
+        }));
+      };
+
+      const updateGlobalClock = (key, value) => {
+        setState(prev => ({ ...prev, global_clocks: { ...prev.global_clocks, [key]: value } }));
+      };
+
+      const m = state.meta;
+      const g = state.global_clocks;
+      const pc = state.pc_export;
+      const ms = state.mode_state;
+      const activeMode = pc.state || "FREEPLAY";
+
+      const inboxBorder = updateStatus === "ok" ? C.green : updateStatus === "err" ? C.red : C.greenBorder;
+
+      return (
+        <>
+          <style>{`
+            @import url('https://fonts.googleapis.com/css2?family=VT323&family=IBM+Plex+Mono:wght@400;500;700&display=swap');
+            * { box-sizing: border-box; }
+            body, html { margin: 0; padding: 0; background: ${C.bg}; }
+            ::-webkit-scrollbar { width: 5px; }
+            ::-webkit-scrollbar-track { background: ${C.bg}; }
+            ::-webkit-scrollbar-thumb { background: ${C.greenBorder}; }
+            .pip-btn:hover { background: ${C.greenFaint} !important; box-shadow: 0 0 6px ${C.greenBorder}; }
+            .pip-btn-danger:hover { background: ${C.redFaint} !important; }
+            .scanline {
+              position: fixed; inset: 0; pointer-events: none; z-index: 999;
+              background: repeating-linear-gradient(0deg, transparent 0px, transparent 2px, rgba(0,0,0,0.08) 3px, transparent 4px);
+            }
+          `}</style>
+          <div className="scanline" />
+
+          <div style={{ fontFamily: F.mono, background: C.bg, color: C.text, minHeight: "100vh", padding: "14px 18px", fontSize: "12px", lineHeight: 1.5 }}>
+
+            {/* HEADER */}
+            <div style={{ borderBottom: `1px solid ${C.green}`, paddingBottom: "8px", marginBottom: "12px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+              <div>
+                <div style={{ fontFamily: F.display, fontSize: "28px", color: C.green, letterSpacing: "3px", textShadow: `0 0 10px ${C.green}` }}>
+                  FALLOUT: REACTIVATED
+                </div>
+                <div style={{ fontFamily: F.mono, fontSize: "10px", color: C.textFaint, letterSpacing: "2px" }}>
+                  ROBCO (TM) GM DASHBOARD v5.0
+                </div>
+              </div>
+              <div style={{ textAlign: "right", fontFamily: F.mono, fontSize: "10px", color: C.textDim }}>
+                <div>{m.in_world_now || "—"}</div>
+                <div style={{ color: C.amber, fontSize: "11px", letterSpacing: "1px" }}>ACT {m.act} · CH {m.chapter} · DAY {m.in_world_day ?? 1}</div>
+                <div style={{ color: activeMode === "FREEPLAY" ? C.green : activeMode === "COMBAT" ? C.red : C.amber }}>
+                  ● {activeMode}
+                </div>
+              </div>
+            </div>
+
+            {/* ACTION BAR + JSON INBOX */}
+            <div style={{ display: "flex", gap: "6px", alignItems: "stretch", marginBottom: "12px", flexWrap: "wrap" }}>
+              <input ref={fileInputRef} type="file" accept=".md,.json" onChange={handleUpload} style={{ display: "none" }} />
+              <button className="pip-btn" onClick={() => fileInputRef.current?.click()} style={{ ...pipBtn }}>▲ LOAD</button>
+              <button className="pip-btn" onClick={handleExport} style={{ ...pipBtn }}>▼ EXPORT</button>
+              <button className="pip-btn pip-btn-danger" onClick={handleReset} style={{ ...pipBtn, borderColor: C.red, color: C.red }}>✕ WIPE</button>
+              <textarea
+                value={updateJson}
+                onChange={e => { setUpdateJson(e.target.value); setUpdateStatus("idle"); }}
+                onPaste={handlePaste}
+                placeholder="paste JSON state update here — auto-applies on paste"
+                style={{
+                  flex: 1, minWidth: "240px", background: C.bg,
+                  border: `1px solid ${inboxBorder}`,
+                  color: C.text, fontFamily: F.mono, fontSize: "11px",
+                  padding: "5px 8px", outline: "none", resize: "none",
+                  maxHeight: "52px", minHeight: "32px",
+                  boxShadow: updateStatus === "ok" ? `0 0 6px ${C.green}` : updateStatus === "err" ? `0 0 6px ${C.red}` : "none",
+                }}
+                rows={1}
+              />
+              <button className="pip-btn" onClick={() => tryApply(updateJson)} style={pipBtn}>APPLY</button>
+            </div>
+
+            {/* TOAST */}
+            {toast && (
+              <div style={{
+                position: "fixed", bottom: "16px", right: "16px",
+                background: C.bgPanel, border: `1px solid ${C.green}`,
+                padding: "8px 16px", boxShadow: `0 0 12px ${C.green}66`,
+                zIndex: 1000, fontFamily: F.display, fontSize: "16px", letterSpacing: "1px", color: C.green,
+              }}>▶ {toast}</div>
+            )}
+
+            {/* GLOBAL CLOCKS */}
+            <div style={{ background: C.bgPanel, border: `1px solid ${C.greenBorder}`, padding: "5px 10px", marginBottom: "8px", display: "flex", alignItems: "center", gap: "14px", flexWrap: "wrap" }}>
+              <span style={{ fontFamily: F.display, fontSize: "13px", color: C.textFaint, letterSpacing: "1px" }}>CLOCKS</span>
+              {[
+                { label: "DOOM", key: "doom", color: C.red },
+                { label: "SHADOW", key: "shadow", color: C.amber },
+                { label: "TIME", key: "time", color: C.green },
+                { label: "TROUBLE", key: "trouble", color: C.amber },
+              ].map(({ label, key, color }) => (
+                <div key={key} style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                  <span style={{ fontFamily: F.display, fontSize: "13px", color: C.textDim, letterSpacing: "1px" }}>{label}</span>
+                  <ClockPips value={g[key]} max={5} color={color} />
+                  <span style={{ fontFamily: F.mono, fontSize: "10px", color: C.textFaint }}>{g[key]}/5</span>
+                  <button onClick={() => updateGlobalClock(key, Math.max(0, g[key]-1))} style={btnSmall}>−</button>
+                  <button onClick={() => updateGlobalClock(key, Math.min(5, g[key]+1))} style={btnSmall}>+</button>
+                </div>
+              ))}
+            </div>
+
+            {/* PC CARD */}
+            <PCCard pc={pc} />
+
+            {/* MODE PANELS */}
+            {ms.combat && <CombatPanel combat={ms.combat} onChange={v => updateModeState("combat", v)} />}
+            {ms.travel && <TravelPanel travel={ms.travel} onChange={v => updateModeState("travel", v)} />}
+            {ms.talk && <TalkPanel talk={ms.talk} onChange={v => updateModeState("talk", v)} />}
+            {ms.investigation && <InvestigationPanel investigation={ms.investigation} onChange={v => updateModeState("investigation", v)} />}
+
+            {/* LOCKS */}
+            <Section title="LOCKS" badge={state.locks.length} defaultOpen={state.locks.length > 0}>
+              {state.locks.length === 0
+                ? <div style={{ color: C.textFaint, fontStyle: "italic", fontSize: "11px" }}>No active locks.</div>
+                : <ul style={{ margin: 0, paddingLeft: "16px" }}>{state.locks.map((l, i) => <li key={i} style={{ marginBottom: "3px" }}>{l}</li>)}</ul>
+              }
+            </Section>
+
+            {/* OPEN THREADS */}
+            <Section title="OPEN THREADS" badge={state.open_threads.length} defaultOpen={state.open_threads.length > 0}>
+              {state.open_threads.length === 0
+                ? <div style={{ color: C.textFaint, fontStyle: "italic", fontSize: "11px" }}>No open threads.</div>
+                : <ul style={{ margin: 0, paddingLeft: "16px" }}>{state.open_threads.map((t, i) => <li key={i} style={{ marginBottom: "3px" }}>{t}</li>)}</ul>
+              }
+            </Section>
+
+            {/* STORY SPINE */}
+            <Section title="STORY SPINE" badge={state.story_spine.length} defaultOpen={false}>
+              {state.story_spine.length === 0
+                ? <div style={{ color: C.textFaint, fontStyle: "italic", fontSize: "11px" }}>No beats recorded.</div>
+                : <ul style={{ margin: 0, paddingLeft: "16px" }}>{state.story_spine.map((b, i) => <li key={i} style={{ marginBottom: "3px" }}>{b}</li>)}</ul>
+              }
+            </Section>
+
+            {/* FACTIONS */}
+            <Section title="FACTIONS" badge={state.factions.length} defaultOpen={false}>
+              {state.factions.length === 0
+                ? <div style={{ color: C.textFaint, fontStyle: "italic", fontSize: "11px" }}>No factions encountered.</div>
+                : (
+                  <table style={tbl}>
+                    <thead><tr>
+                      <th style={tblTh}>ID</th><th style={tblTh}>Name</th><th style={tblTh}>Type</th>
+                      <th style={tblTh}>Stance</th><th style={tblTh}>Fame</th><th style={tblTh}>Infamy</th><th style={tblTh}>Notes</th>
+                    </tr></thead>
+                    <tbody>{state.factions.map((f, i) => (
+                      <tr key={i} style={tblTr}>
+                        <td style={tblTdDim}>{f.id}</td><td style={tblTd}>{f.name}</td>
+                        <td style={tblTdDim}>{f.type}</td><td style={tblTdDim}>{f.stance}</td>
+                        <td style={tblTd}><ClockPips value={f.fame||0} max={5} /></td>
+                        <td style={tblTd}><ClockPips value={f.infamy||0} max={5} color={C.red} /></td>
+                        <td style={tblTdDim}>{f.notes}</td>
+                      </tr>
+                    ))}</tbody>
+                  </table>
+                )
+              }
+            </Section>
+
+            {/* PEOPLE */}
+            <Section title="PEOPLE" badge={state.people.length} defaultOpen={false}>
+              {state.people.length === 0
+                ? <div style={{ color: C.textFaint, fontStyle: "italic", fontSize: "11px" }}>No people logged.</div>
+                : (
+                  <table style={tbl}>
+                    <thead><tr>
+                      <th style={tblTh}>ID</th><th style={tblTh}>Name</th><th style={tblTh}>Role</th>
+                      <th style={tblTh}>Loc</th><th style={tblTh}>Status</th><th style={tblTh}>Motivation</th>
+                      <th style={tblTh}>BG/ST/RX/LOY</th>
+                    </tr></thead>
+                    <tbody>{state.people.map((p, i) => (
+                      <tr key={i} style={tblTr}>
+                        <td style={tblTdDim}>{p.id}</td><td style={tblTd}>{p.name}</td>
+                        <td style={tblTdDim}>{p.role}</td><td style={tblTdDim}>{p.location_id}</td>
+                        <td style={tblTdDim}>{p.status}</td><td style={tblTdDim}>{p.motivation}</td>
+                        <td style={{ ...tblTdDim, fontSize: "10px" }}>
+                          {p.bg || p.ptags?.bg || "—"}/{p.st || p.ptags?.st || "—"}/{p.rx || p.ptags?.rx || "—"}/{p.loy || p.ptags?.loy || "—"}
+                        </td>
+                      </tr>
+                    ))}</tbody>
+                  </table>
+                )
+              }
+            </Section>
+
+            {/* PLACES */}
+            <Section title="PLACES" badge={state.places.length} defaultOpen={false}>
+              {state.places.length === 0
+                ? <div style={{ color: C.textFaint, fontStyle: "italic", fontSize: "11px" }}>No places logged.</div>
+                : (
+                  <table style={tbl}>
+                    <thead><tr>
+                      <th style={tblTh}>ID</th><th style={tblTh}>Name</th><th style={tblTh}>Region</th>
+                      <th style={tblTh}>Control</th><th style={tblTh}>Situation</th><th style={tblTh}>Threats</th>
+                    </tr></thead>
+                    <tbody>{state.places.map((pl, i) => (
+                      <tr key={i} style={tblTr}>
+                        <td style={tblTdDim}>{pl.id}</td><td style={tblTd}>{pl.name}</td>
+                        <td style={tblTdDim}>{pl.region}</td><td style={tblTdDim}>{pl.control}</td>
+                        <td style={{ ...tblTdDim, fontSize: "10px" }}>{pl.situation}</td>
+                        <td style={{ ...tblTdDim, fontSize: "10px" }}>{pl.threats}</td>
+                      </tr>
+                    ))}</tbody>
+                  </table>
+                )
+              }
+            </Section>
+
+            {/* CHAPTER HISTORY */}
+            <Section title="CHAPTER HISTORY" badge={state.chapters.length} defaultOpen={false}>
+              {state.chapters.length === 0
+                ? <div style={{ color: C.textFaint, fontStyle: "italic", fontSize: "11px" }}>No chapters logged.</div>
+                : state.chapters.map((ch, i) => (
+                    <div key={i} style={{ borderLeft: `2px solid ${C.greenBorder}`, paddingLeft: "10px", marginBottom: "10px" }}>
+                      <div style={{ fontFamily: F.display, fontSize: "16px", color: C.green }}>Ch{ch.number}: {ch.title}</div>
+                      <div style={{ fontFamily: F.mono, fontSize: "10px", color: C.textDim }}>{ch.in_world_start} → {ch.in_world_end} | {(ch.primary_locations||[]).join(", ")}</div>
+                      {ch.log && ch.log.length > 0 && (
+                        <ul style={{ margin: "4px 0 0 0", paddingLeft: "14px", fontSize: "11px", color: C.textDim }}>
+                          {ch.log.slice(0, 4).map((p, j) => <li key={j}>{p}</li>)}
+                          {ch.log.length > 4 && <li style={{ color: C.textFaint }}>…{ch.log.length - 4} more</li>}
+                        </ul>
+                      )}
+                    </div>
+                  ))
+              }
+            </Section>
+
+            {/* CHAPTER BREAK */}
+            <ChapterBreakPanel state={state} onApply={setState} />
+
+            {/* JSON SCHEMA */}
+            <details style={{ marginTop: "12px" }}>
+              <summary style={{ fontFamily: F.display, fontSize: "15px", color: C.textDim, cursor: "pointer", letterSpacing: "1px" }}>
+                ▶ JSON SCHEMA REFERENCE
+              </summary>
+              <pre style={{ fontFamily: F.mono, fontSize: "10px", color: C.textDim, background: C.bgPanel, border: `1px solid ${C.greenBorder}`, padding: "8px", marginTop: "6px", overflow: "auto", whiteSpace: "pre-wrap" }}>
+{`OPERATIONS: set | add | update | remove
+
+set    { "path.dot.notation": value }        absolute assignment
+add    { "list": [items] }                   append; merges by id for keyed lists
+update { "list": { "id": { changes } } }     partial merge by id
+remove { "list": ["id1", "id2"] }            remove by id
+
+KEYED LISTS (merge by id):
+  people, places, factions, active_clocks, chapters
+
+PRIMITIVE LISTS (append):
+  locks, story_spine, open_threads, regionwide_events
+
+MODE STATE (set directly):
+  mode_state.combat    { ccd, ccd_max, roster: [{name, side, harm, harm_max, position, notes}] }
+  mode_state.travel    { tpc, tpc_max, tdc, tdc_max, route }
+  mode_state.talk      { cgc, cgc_max, cpc, cpc_max, target, stakes }
+  mode_state.investigation { igc, igc_max, ipc, ipc_max, objective }
+  (set to null to clear a mode panel)
+
+PC FIELDS (set via pc_export.*):
+  name, lvl, xp, level_ready, harm, armor, stats{STR,PER,END,CHA,INT,AGI,LCK}
+  conditions[], inventory[], perks[], party[], location_id, state, intent
+
+EXAMPLES:
+  Tick trouble:     {"set": {"global_clocks.trouble": 3}}
+  Add NPC:          {"add": {"people": [{"id":"P:KL01","name":"Maida","role":"trader","location_id":"L:KL01","status":"OK","motivation":"keep shop intact","bg":"settler","st":"watchful","rx":"probes","loy":"her business"}]}}
+  Set combat mode:  {"set": {"pc_export.state": "COMBAT", "mode_state.combat": {"ccd": 0, "ccd_max": 6, "roster": []}}}
+  Add roster entry: {"set": {"mode_state.combat": {"ccd": 2, "ccd_max": 6, "roster": [{"name":"Raider","side":"enemy","harm":1,"harm_max":3,"position":"NEAR","notes":"knife"}]}}}
+  Clear combat:     {"set": {"pc_export.state": "FREEPLAY", "mode_state.combat": null}}
+  Add lock:         {"add": {"locks": ["+1 leverage — high ground on the bridge"]}}
+  Replace locks:    {"set": {"locks": ["only the lock you want to keep"]}}
+  Add inventory:    {"add": {"inventory": ["tribal spear"]}} (use pc_export.inventory path)
+  Set harm:         {"set": {"pc_export.harm": 2}}
+  Add XP:           {"set": {"pc_export.xp": 3}}`}
+              </pre>
+            </details>
+
+            {/* SEALED INDICATOR */}
+            <div style={{ marginTop: "12px", padding: "4px 10px", border: `1px dashed ${C.redDim}`, color: C.redDim, fontFamily: F.mono, fontSize: "10px", opacity: 0.6 }}>
+              ⚠ SEALED — {state.sealed.story_spine.length} spine / {state.sealed.active_clocks.length} clocks / {state.sealed.hidden_threads.length} threads / {(state.sealed.npc_secrets||[]).length} npc secrets / {(state.sealed.location_truths||[]).length} location truths / {(state.sealed.faction_objectives||[]).length} faction obj — ROT1 encoded, never displayed
+            </div>
+
+            {/* FOOTER */}
+            <div style={{ marginTop: "16px", borderTop: `1px solid ${C.greenBorder}`, paddingTop: "6px", textAlign: "center", fontFamily: F.mono, fontSize: "9px", color: C.textFaint, letterSpacing: "1px" }}>
+              ROBCO INDUSTRIES (TM) UNIFIED OPERATING SYSTEM · COPYRIGHT 2075–2077 · WAR. WAR NEVER CHANGES.
+            </div>
+
+          </div>
+        </>
+      );
+    }
+
+    // Mount
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<FRDashboard />);
+  </script>
+</body>
+</html>
