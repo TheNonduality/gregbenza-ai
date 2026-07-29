@@ -17,6 +17,7 @@ a later phase — added when they are real, not before.
 
 - [Diagnosing broken drone hardware from photos](https://gregbenza.ai/projects/explorer-fix/): a crashed FPV quad with a dying video signal, diagnosed and repaired through photo-driven AI conversation. Full machine-readable record: https://gregbenza.ai/projects/explorer-fix/explorer-fix.md
 - [Recovering an unplayable drone clip, frame by frame](https://gregbenza.ai/projects/pico-repair/): an unfinalized DJI recording with no working repair tool available, fixed by rebuilding the video's frame index from scratch. Full machine-readable record: https://gregbenza.ai/projects/pico-repair/pico-repair.md
+- [Keeping secrets from yourself: an AI game master in Greek](https://gregbenza.ai/projects/fallout-arroyo/): a Fallout 2 tabletop campaign refereed by an AI, where the player also wrote the referee — solved by sealing the campaign's endgame and faction agendas in a language the author cannot read. Includes the full rules engine and a loadable save file. Full machine-readable record: https://gregbenza.ai/projects/fallout-arroyo/fallout-arroyo.md
 
 ## How posts are structured
 

@@ -1,0 +1,137 @@
+---
+title: 'Building an AI game master out of documents (one of them in Greek)'
+date: 2026-01-18
+project: 'Fallout Arroyo'
+blurb: >
+  First RPG I ever tried to build. The game was the easy part — I had no idea
+  how to make the AI remember anything.
+hero:
+  type: image
+  src: /projects/fallout-arroyo/sealed-file.png
+  alt: 'A dark terminal-style rendering of the sealed GM file, written in Greek, headed FOA SEAL v2.0 with a red warning line reading do not reveal, do not translate, do not quote to the player.'
+  caption: 'The sealed file. Written in Greek so the person who wrote it could not read it back.'
+technical:
+  - label: 02_FOA_SYSTEM_ARCHITECTURE_ROLL_ENGINE.md
+    kind: prompt
+    file: /projects/fallout-arroyo/02_FOA_SYSTEM_ARCHITECTURE_ROLL_ENGINE.md
+    note: The rules. Dice bands, consequence tables, and separate subsystems for combat, travel, and high-pressure conversation.
+  - label: 03_FOA_CONVERSATION_FLOW_PROTOCOL.md
+    kind: prompt
+    file: /projects/fallout-arroyo/03_FOA_CONVERSATION_FLOW_PROTOCOL.md
+    note: The output format. The HUD, when to go long vs short, and the roll card that forces the AI to show its dice.
+  - label: 05_FOA_NEW_GAME_START_PROTOCOL.md
+    kind: prompt
+    file: /projects/fallout-arroyo/05_FOA_NEW_GAME_START_PROTOCOL.md
+    note: How a new game opens. Stats get assigned by what NPCs ask you during the tutorial, so there's no character sheet to fill in.
+  - label: 06_FOA_SEALED_ARC_GREEK.md
+    kind: prompt
+    file: /projects/fallout-arroyo/06_FOA_SEALED_ARC_GREEK.md
+    note: The secrets, in Greek. Endgame, doom-clock meanings, and fifteen factions with their own agendas. Hand it over without translating it.
+  - label: 07_FOA_CURRENT_LEDGER.md
+    kind: output
+    file: /projects/fallout-arroyo/07_FOA_CURRENT_LEDGER.md
+    note: My actual save file at Chapter 14. Load it with the four above to take over my campaign instead of starting fresh.
+agentMd: /projects/fallout-arroyo/fallout-arroyo.md
+accent: '#a8761f'
+---
+
+## What I wanted
+
+A Fallout 2 campaign I could actually play, with an AI as the game master. Not
+a chatbot doing improv — a referee that rolled dice, tracked my injuries, and
+told me no.
+
+I'd never built anything like this. No game design background, no software
+background.
+
+## The part I didn't see coming
+
+I thought the hard part would be the rules. Rules are imaginable: dice, stats,
+what happens when you fail. I wrote those first and they were fine.
+
+The problem was that the AI forgot the entire world every time I closed the
+chat. A whole evening of story, every faction I'd annoyed, the guy I'd killed —
+gone. I didn't know the words for what I was missing. I just knew the game kept
+starting over.
+
+## So the whole thing became files
+
+The one thing I understood was that you could attach documents to a project and
+the AI would read them. That's it. That was my entire toolkit, so that's what
+the game got built out of — one numbered document per job:
+
+- **`02` the rules** — how dice work, what a failure costs
+- **`03` the format** — what every reply has to look like
+- **`05` the opening** — how a new character gets made
+- **`06` the secrets** — everything I wasn't allowed to know
+- **`07` the ledger** — where I actually was
+
+No database. No code. Five text files and a lot of pasting.
+
+## The Greek one
+
+Writing the secrets file is where it got stupid in a way I liked.
+
+I was building the game master *and* playing the game. So every twist I wrote
+down, I'd already read. The villain, the endgame, the clock that decides when
+the world tips — I'd spoiled all of it by typing it.
+
+So I had that one file written in Greek. I don't read Greek. The AI does. I put
+a line at the top telling it never to reveal, translate, or quote the file to
+me, and used it only for motivation and offscreen movement.
+
+It worked better than it should have. And it turned out to be load-bearing, not
+a gimmick — the four global clocks that drive the whole campaign are *only*
+defined in that file. You can't run this game properly without handing the AI a
+document you can't read.
+
+## Copy-pasting the ledger
+
+This is the unglamorous half, and it's most of the actual work.
+
+At the end of a session I'd type `SCENE BREAK` and the AI would print an updated
+ledger — where I was, who was with me, my injuries, every clock, every faction's
+opinion of me, a one-line summary of each chapter so far. I'd paste that back
+into the document. Next session, I'd paste the document back at the AI.
+
+That was the memory. Me, moving a text file back and forth by hand, every single
+time. Not elegant. But the world stopped resetting.
+
+The ledger picked up the same trick as the Greek file, which I hadn't planned:
+it split itself in two. `STORY SPINE | UNSEALED` for what my character knew,
+`STORY SPINE | SEALED | GM ONLY` for what was actually true, plus hidden threads
+and an offscreen-truth section. Same document, two audiences.
+
+## How I stopped it cheating
+
+The rules exist mostly to take away the AI's discretion.
+
+A roll is `2d6 + SPECIAL + situational`, banded 2–6 fail, 7–9 succeed-but-pay,
+10+ clean. When something goes wrong, the game master isn't allowed to *pick*
+what goes wrong — it rolls a d7 on a consequence table. No duplicates. It can
+reskin a result to fit the scene but it can't throw one out because it doesn't
+like it. Then it has to print the dice, the modifiers, the total, and the table
+result before it narrates a word.
+
+That last rule did more than anything else. A referee that has to show its
+arithmetic can't quietly decide the story went a nicer way.
+
+Combat, travel, and tense conversations each got their own subsystem with their
+own countdown clocks, added when I hit the thing a single roll couldn't handle.
+A conversation has two opposed clocks — what you're trying to get, and how close
+the room is to blowing up — and an explicit rule that no single roll, however
+good, ends it early.
+
+## It worked — about 20 hours of it
+
+Twenty hours of real play. Act II, Chapter 14 by the time I stopped.
+
+Sammy, the Chosen One of Arroyo: level 5, four perks, two companions. Ambushed
+and killed the slaver boss Metzger at a collapsed overpass. Broke a prisoner out
+of the Den. Rode a caravan into New Reno, ran an errand for the NCR, and bought
+a road north from a crime family by agreeing to three jobs I shouldn't have
+agreed to. Doom clock at 2 of 5. One body not yet connected to me.
+
+The files above are the real ones. Four specs plus my ledger should drop your AI
+into the campaign exactly where I left it — outside a bathhouse in New Reno, in
+some trouble.
