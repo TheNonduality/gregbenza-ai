@@ -20,16 +20,6 @@ const { data } = project;
 // Part 3 — the full background story is the markdown body.
 const { Content } = await render(project);
 
-// Icon/label per technical-input kind. Kept here so the three-part skeleton
-// renders identically for every project.
-const kindLabel: Record<string, string> = {
-  prompt: 'Prompt',
-  skill: 'Skill',
-  connector: 'Connector',
-  input: 'Input',
-  output: 'Output',
-};
-
 // Same flattening the layout does — folded YAML blurbs carry newlines, and
 // structured data should hold the clean sentence a crawler will quote.
 const blurb = data.blurb.replace(/\s+/g, ' ').trim();
@@ -101,6 +91,24 @@ const jsonLd = graph([
       : {}),
   },
   ...videoNodes,
+  // The Q&A pairs, machine-readable only. They were cut from the visible page
+  // on 2026-07-29 (a post is one article, not an article plus its own echo),
+  // but the extraction signal is the whole point of writing them — so they
+  // ship here and in the agent-facing markdown instead of twice on screen.
+  ...(qa.length
+    ? [
+        {
+          '@type': 'FAQPage',
+          '@id': `${postUrl}#faq`,
+          about: { '@id': `${postUrl}#post` },
+          mainEntity: qa.map((pair) => ({
+            '@type': 'Question',
+            name: pair.q,
+            acceptedAnswer: { '@type': 'Answer', text: pair.a },
+          })),
+        },
+      ]
+    : []),
 ]);
 ---
 
@@ -184,32 +192,24 @@ const jsonLd = graph([
       )
     }
 
-    {/* The Q&A — read from this post's markdown twin so humans see exactly
-        what agents read. Front-loaded answers, one question per heading. */}
-    {
-      qa.length > 0 && (
-        <section class="qa" aria-label="Questions and answers">
-          <h2>Questions this answers</h2>
-          {qa.map((pair) => (
-            <div class="qa-item">
-              <h3 class="qa-q">{pair.q}</h3>
-              <p class="qa-a">{pair.a}</p>
-            </div>
-          ))}
-        </section>
-      )
-    }
+    {/* The Q&A used to render here, restating the article a second time in a
+        different voice. Greg cut it from the page on 2026-07-29: a post is one
+        article, and the depth belongs in the markdown twin an AI fetches. The
+        pairs still ship — as FAQPage structured data above, and in full in the
+        agent-facing markdown the ask-buttons point at. */}
 
-    {/* Part 2 — technical details: the runnable inputs behind the work. */}
+    {/* Part 2 — the files. Just a filename and what it is. The Prompt/Input/
+        Output chips were cut on 2026-07-29: the taxonomy was furniture, and a
+        reader wants the file's name and a line telling them what it does. The
+        `kind` field stays in the schema — it still carries meaning for agents
+        reading the collection — it simply isn't rendered as a badge. */}
     {
       data.technical.length > 0 && (
-        <section class="technical" aria-label="Technical details">
-          <h2>Under the hood</h2>
-          <p class="section-note">The inputs behind this — clickable, downloadable, runnable today.</p>
+        <section class="technical" aria-label="Relevant files">
+          <h2>Relevant files</h2>
           <ul class="inputs">
             {data.technical.map((t) => (
               <li>
-                <span class={`tag tag-${t.kind}`}>{kindLabel[t.kind] ?? t.kind}</span>
                 <span class="input-body">
                   {t.file ? (
                     <a href={t.file} download>
@@ -306,32 +306,12 @@ const jsonLd = graph([
     margin-block: var(--space-3);
   }
   .technical h2 { margin-top: var(--space-1); }
-  .section-note {
-    font-family: var(--font-ui);
-    font-size: 0.9rem;
-    color: var(--ink-soft);
-    margin-top: 0;
-  }
   .inputs { list-style: none; padding: 0; margin: 0; }
   .inputs li {
     display: flex;
-    gap: var(--space-2);
-    align-items: baseline;
     padding: var(--space-1) 0;
     border-top: 1px solid var(--hairline);
   }
-  .tag {
-    flex: 0 0 auto;
-    font-family: var(--font-ui);
-    font-size: 0.7rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--paper);
-    background: var(--ink-soft);
-    padding: 0.15em 0.5em;
-    border-radius: var(--radius);
-  }
-  .tag-output { background: var(--accent); }
   .input-body { display: flex; flex-direction: column; }
   .input-note {
     font-family: var(--font-ui);
