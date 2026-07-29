@@ -3,84 +3,85 @@ title: 'Recovering an unplayable drone clip, frame by frame'
 date: 2026-06-20
 project: 'FPV Journey'
 blurb: >
-  A drone clip came back unplayable. Turned out fully recoverable — right
-  down to the frame of the crash that broke it.
+  A clip came back that wouldn't open. The footage was all still in there — the
+  file had just lost the map to it.
 hero:
   type: image
   src: /projects/pico-repair/hero.jpg
-  alt: 'A frame from the recovered footage: rows of vines running up a hillside toward a treeline, shot from the air by the Pavo Pico.'
-  caption: 'One frame of 16,351 recovered — this is the footage the broken file was hiding.'
-record:
-  problem: >
-    A DJI Pavo Pico clip came back the wrong size to be nothing, but wouldn't
-    open, wouldn't thumbnail, wouldn't play. No internet, no root, and no
-    package installer in the working environment — the standard recovery
-    tool couldn't even be installed. The fix had to be built from scratch.
-  wentIn:
-    - The broken 1.5GB clip and one healthy reference clip from the same air unit, so the analysis had known-good ground truth to check itself against.
-    - No off-the-shelf recovery tool available — the sandbox had no internet and no root, so the standard fix (untrunc) was never an option.
-  cameBack:
-    - Correct diagnosis on inspection — the raw video data was completely intact; only the index that tells a player how to read it was missing, because the camera lost power before it could write it.
-    - A hand-built frame-boundary detector, worked out by studying the healthy clip's exact byte layout, then proven against that same healthy clip — it reconstructed all 4,477 of its real frames exactly — before ever being trusted on the broken one.
-    - 16,351 frames recovered, about 4 minutes 33 seconds of real footage, with only 67KB — a single partial frame at the exact moment of the crash — unrecoverable.
-    - What the AI could NOT do off the shelf — the standard tool wasn't available at all, so the entire recovery method had to be engineered, not just applied.
-    - A second use two weeks later, on a different flight — the same skill, run again, with no reference clip needed the second time.
-  outcome: >
-    Footage fully recovered and decode-verified with zero errors across the
-    whole clip. The one-off fix became a reusable skill that repairs the same
-    failure on a fresh clip without needing a healthy reference file again —
-    and it has since been run on more than one clip.
-expandLabel: 'The full recovery: inputs, outputs, and the skill it became'
+  alt: 'A frame from the recovered footage: rows of vines running up a hillside toward a treeline, shot from the air.'
+  caption: 'One frame of 16,351 recovered. This is what the broken file was hiding.'
 bodyMedia:
-  - type: video
-    src: /projects/pico-repair/second-repair.web.mp4
-    caption: 'A later flight, recovered by the same skill — the second time it ran.'
-    duration: PT12S
   - type: video
     src: /projects/pico-repair/recovered.web.mp4
     caption: 'The first 22 seconds of the actual recovered footage.'
     duration: PT22S
-agentMd: /projects/pico-repair/pico-repair.md
+  - type: video
+    src: /projects/pico-repair/second-repair.web.mp4
+    caption: 'A later flight, recovered by the same script — the second time it ran.'
+    duration: PT12S
+outro:
+  type: video
+  src: /projects/pico-repair/second-repair.web.mp4
+  caption: 'A later flight, two weeks on, recovered the same way — no reference clip needed by then.'
+  duration: PT12S
 technical:
-  - label: fix-fpv-clip.md
-    kind: skill
-    file: /projects/pico-repair/fix-fpv-clip.md
-    note: The complete, reusable skill — diagnosis, the frame-recovery method, the segmented conversion that works around a sandboxed environment's limits, and delivery.
   - label: rebuild_moov.py
     kind: skill
     file: /projects/pico-repair/rebuild_moov.py
-    note: The actual recovery script on its own. Run it on your own broken DJI/Pavo Pico clip — tested against the real broken file behind this post the same day this post was written.
+    note: The recovery script. Point it at a broken DJI or Pavo Pico clip — re-run against the original broken file to write this post, same 16,351 frames.
+  - label: fix-fpv-clip.md
+    kind: skill
+    file: /projects/pico-repair/fix-fpv-clip.md
+    note: The whole thing as a reusable skill — diagnosis, the frame-recovery method, and the segmented conversion that works around a sandbox's time limits.
   - label: recovered.web.mp4
     kind: output
     file: /projects/pico-repair/recovered.web.mp4
-    note: A real excerpt of the recovered footage, decode-verified.
+    note: An excerpt of the recovered footage, decode-verified.
+agentMd: /projects/pico-repair/pico-repair.md
 ---
 
 import Media from '../../../components/Media.astro';
 
-**This has now been run more than once.** The footage below came off a later
-flight, two weeks after the one this post is about, and was recovered the
-same way — no reference clip needed the second time, because by then the fix
-had stopped being a one-off and become a skill.
+## What I wanted
 
-<Media
-  type="video"
-  src="/projects/pico-repair/second-repair.web.mp4"
-  caption="A later flight, recovered by the same skill — the second time it ran."
-/>
+The footage back.
 
-The file was the right size to hold a real clip. It just wouldn't open — no
-thumbnail, no preview, nothing. The standard fix for this exists
-(`untrunc`), but the environment doing the repair had no internet and no
-root, so it couldn't be installed. That ruled out reaching for the known
-tool and left one option: understand the file format well enough to rebuild
-it by hand.
+I pulled a 1.5GB clip off the Pico and it wouldn't open. No thumbnail, no
+preview, no playback. But the file size was right — too big to be nothing. There
+was clearly something in there.
 
-The diagnosis came first, and it was exact: the file's raw video data (the
-`mdat` atom) was completely intact. What was missing was the `moov` atom —
-the index that tells a player where every frame starts. The air unit lost
-power before it could write that index, so the footage existed but was
-unreadable. Nothing was lost; the map was just gone.
+## What was actually wrong
+
+An MP4 has two parts that matter here. The `mdat` is the video itself. The `moov`
+is the index — the table that tells a player where every single frame begins.
+
+The camera writes the index *last*, when you stop recording. I'd pulled the
+battery while it was still rolling, so it never got written. The footage was
+sitting in the file completely intact, and every player on earth was refusing it
+because the map was missing.
+
+Nothing was lost. It was unreadable, which is a different problem.
+
+## The easy fix wasn't available
+
+There's a known tool for exactly this — `untrunc`. The environment doing the work
+had no internet and no root, so it couldn't be installed. That left one option:
+understand the file format well enough to rebuild the index by hand.
+
+## How it got rebuilt
+
+Rebuilding an index means knowing precisely where each frame starts and stops
+inside a raw stream that has no markers you're allowed to assume.
+
+So a healthy clip from the same camera got read byte by byte first, to learn the
+exact layout — including how to tell real video frames apart from the camera's
+own metadata packets sitting between them. Then a frame-boundary detector was
+written from that.
+
+And here's the part I'd do again: **the detector was tested on the healthy file
+before it ever touched the broken one.** On a file where the right answer was
+already known, it reconstructed all 4,477 frames exactly. Only then was it
+trusted on the file where nobody knew the answer.
 
 <Media
   type="video"
@@ -88,34 +89,27 @@ unreadable. Nothing was lost; the map was just gone.
   caption="The first 22 seconds of the actual recovered footage."
 />
 
-Rebuilding a missing index means knowing exactly where each frame begins and
-ends inside the raw stream. A healthy reference clip from the same air unit
-made that possible: its layout was studied byte by byte, and a detector was
-written to find frame boundaries by walking the stream and telling real
-video frames apart from the camera's own metadata packets mixed in between
-them. Before that detector ever touched the broken file, it was run against
-the *healthy* one — and it reconstructed all 4,477 of its real frames
-exactly. Only once it proved itself on file where the right answer was
-already known did it get trusted on the file where it wasn't.
+## What came out
 
-Run against the broken clip, it recovered 16,351 frames — about four minutes
-thirty-three seconds of footage — and dropped only the final 67 kilobytes:
-one partial frame, right at the instant the recording stopped. Every
-recovered frame was then decode-checked across the whole clip. Zero errors.
+**16,351 frames. Four minutes thirty-three seconds.** Then a decode check across
+the entire clip: zero errors.
 
-The file wasn't corrupted by some random fault. It was cut off mid-write
-when the air unit lost power before it could finish — exactly the failure
-mode the diagnosis predicted from the very first look at the file, and
-exactly the kind of break that leaves the footage itself perfectly intact.
+One thing didn't survive — the last 67 kilobytes. A single partial frame, written
+at the exact instant the recording stopped. That's the frame where the battery
+came out, and it's the only thing in the file that was genuinely gone.
 
-The full record — the sandbox constraints that ruled out the easy fix, the
-segmented re-encode worked around a hard time limit per command, the
-false starts along the way — is what the ask-more buttons are for: click one
-and your AI reads the complete account.
+## Then it stopped being a one-off
 
-The fix became a **skill**, not a one-off: the same method now runs on any
-similarly broken DJI/Pavo Pico clip, with the camera's codec profile already
-baked in, so a healthy reference clip isn't needed a second time. Both files
-below are downloadable — the script was re-run against the original broken
-file to write this post, and it reproduced the same 16,351 frames, the same
-272.79 seconds, byte-for-byte the same result.
+Two weeks later I broke another clip the same way. By then the method had been
+written up as a skill with the camera's codec profile already baked in, so the
+second repair needed no healthy reference file at all — just the script.
+
+<Media
+  type="video"
+  src="/projects/pico-repair/second-repair.web.mp4"
+  caption="The later flight, recovered by the same script."
+/>
+
+Both files above are downloadable, and the script was re-run against the original
+broken clip while writing this post. Same 16,351 frames, same 272.79 seconds,
+byte-for-byte the same result.

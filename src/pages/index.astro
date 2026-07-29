@@ -89,14 +89,23 @@ const jsonLd = graph([
                   </time>
                 </div>
                 <p class="placard-headline">{p.data.blurb}</p>
-                {p.data.project && <span class="placard-tag">{p.data.project}</span>}
               </div>
             </a>
             {/* Two rows on purpose: asking an AI about the work is a quiet
                 side-door, so those stay outlined and share one line. Offering
                 guidance is the loud one Greg actually wants pressed, so it
-                gets its own line and the only solid red on the page. */}
+                gets its own line and the only solid red on the page.
+
+                The project pill leads that first row. It used to sit inside the
+                link under the blurb at 0.75rem, which read as a stray caption;
+                out here it's the same pill as everything else on the card and
+                it presses to filter the feed. */}
             <div class="placard-actions">
+              {p.data.project && (
+                <button class="placard-tag" type="button" data-filter={slugify(p.data.project)}>
+                  {p.data.project}
+                </button>
+              )}
               {p.data.agentMd && <AskButtons agentMd={p.data.agentMd} title={p.data.title} />}
             </div>
             <div class="placard-guidance">
@@ -115,11 +124,16 @@ const jsonLd = graph([
   // project; press it again (or All) to widen back. State rides the URL.
   const chips = Array.from(document.querySelectorAll<HTMLButtonElement>('.chip'));
   const placards = Array.from(document.querySelectorAll<HTMLElement>('.placard'));
+  // The project pill on each card is a second way into the same filter.
+  const tags = Array.from(document.querySelectorAll<HTMLButtonElement>('.placard-tag'));
 
   function apply(selected: string) {
     chips.forEach((c) => {
       const active = selected === '' ? c.dataset.project === '' : c.dataset.project === selected;
       c.classList.toggle('is-active', active);
+    });
+    tags.forEach((t) => {
+      t.classList.toggle('is-active', selected !== '' && t.dataset.filter === selected);
     });
     placards.forEach((card) => {
       card.style.display = selected === '' || card.dataset.project === selected ? '' : 'none';
@@ -135,6 +149,14 @@ const jsonLd = graph([
       const target = chip.dataset.project ?? '';
       const already = chip.classList.contains('is-active');
       apply(already && target !== '' ? '' : target);
+    });
+  });
+
+  tags.forEach((tag) => {
+    tag.addEventListener('click', () => {
+      const target = tag.dataset.filter ?? '';
+      apply(tag.classList.contains('is-active') ? '' : target);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   });
 
@@ -243,9 +265,6 @@ const jsonLd = graph([
       font-size: 0.98rem;
       margin-top: 0.3rem;
     }
-    .placard-tag {
-      margin-top: 0.6rem;
-    }
   }
   /* One line, always. The pills never wrap; on narrow screens AskButtons
      collapses them into a single pill that unfolds, so the row stays one line
@@ -298,15 +317,34 @@ const jsonLd = graph([
     margin: var(--space-1) 0 0;
     font-size: 1.05rem;
   }
+  /* Same pill geometry as .ask-btn and .guidance-btn, so the row reads as one
+     set of controls instead of three design ideas arguing.
+     Deliberately NOT red: this names the work, and red on this site belongs to
+     the single button that asks the visitor to do something. A filled ground
+     separates it from the outlined ask pills next to it, and pressing it goes
+     solid ink — the same language the filter chips above already speak. */
   .placard-tag {
-    display: inline-block;
-    margin-top: var(--space-2);
     font-family: var(--font-ui);
-    font-size: 0.75rem;
-    letter-spacing: 0.04em;
-    color: var(--accent);
-    border: 1px solid var(--accent-soft);
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+    color: var(--ink-soft);
+    background: var(--paper-edge);
+    border: 1px solid var(--hairline);
     border-radius: 999px;
-    padding: 0.15em 0.7em;
+    padding: 0.25em 0.9em;
+    min-height: 2.1rem;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .placard-tag:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+  .placard-tag.is-active {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
   }
 </style>

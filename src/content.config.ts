@@ -42,17 +42,6 @@ const media = z.object({
   duration: z.string().optional(),
 });
 
-// The AI record — the dry, repeatable heart of a placard. Each post documents
-// ONE engagement with AI: what the problem was, what went in, what came back
-// (including what the AI could NOT do), and the outcome. Identical fields on
-// every post; narrative lives only in the agent-facing markdown.
-const record = z.object({
-  problem: z.string(),
-  wentIn: z.array(z.string()),
-  cameBack: z.array(z.string()),
-  outcome: z.string(),
-});
-
 const projects = defineCollection({
   loader: glob({ pattern: '**/index.{md,mdx}', base: './src/content/projects' }),
   schema: z.object({
@@ -68,11 +57,8 @@ const projects = defineCollection({
     project: z.string().optional(),
     // Hero media proving native rendering (image / video / clean YouTube embed).
     hero: media.optional(),
-    // The AI record — inputs, outputs, outcome. See `record` above.
-    record: record.optional(),
-    // Per-post expand label: specific and technical, never generic.
-    expandLabel: z.string().optional(),
-    // Part 2 — technical details: the runnable inputs behind the work.
+    // Part 2 — the files behind the work. Rendered as a plain "Relevant files"
+    // list: filename plus a line on what it does.
     technical: z.array(technicalInput).default([]),
     // Closing media — plays the post out after the record and downloads.
     outro: media.optional(),
