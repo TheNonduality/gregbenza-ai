@@ -190,6 +190,7 @@ body:has(article.project[data-wing='cooking']) { --zone: var(--zone-cooking); }
   --radius-pill: 999px;
 
   --dur-reveal: 500ms;
-  --dur-zone: 600ms;
+  /* Long enough to read as the room changing around you rather than a cut. */
+  --dur-zone: 900ms;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }

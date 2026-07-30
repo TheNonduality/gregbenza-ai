@@ -85,6 +85,11 @@ const aboutPrompt =
     {jsonLd && <JsonLd data={jsonLd} />}
   </head>
   <body>
+    {/* The wall the whole exhibit hangs on, holding the wing tint. A real fixed
+        element and not the body background, because a body background gets
+        propagated to the page canvas and a canvas background does not animate —
+        the cross-fade between rooms was being dropped on the floor. */}
+    <div class="wall" aria-hidden="true"></div>
     {/* Full-bleed slot, outside the reading column. Anything that has to touch
         both walls goes here — the alternative is a child escaping .wrap with
         100vw, which counts the scrollbar the content box does not and leaves the
@@ -119,6 +124,17 @@ const aboutPrompt =
           <AskButtons prompt={aboutPrompt} collapsed summaryLabel="Ask your AI about me ↗" />
         </div>
       </div>
+      {/* The room list rides WITH the header rather than scrolling away up the
+          page, so you can change rooms from anywhere in the exhibit. Guarded on
+          the slot actually having content — otherwise every page without a room
+          list would grow an empty ruled strip under the brand. */}
+      {
+        Astro.slots.has('header-nav') && (
+          <div class="header-nav">
+            <slot name="header-nav" />
+          </div>
+        )
+      }
     </header>
     <main class="wrap">
       <slot />
@@ -131,6 +147,30 @@ const aboutPrompt =
     {/* Scroll progress. Pure garnish: a CSS scroll-driven animation where it is
         supported, and simply absent where it is not — nothing depends on it. */}
     <div class="scroll-progress" aria-hidden="true"></div>
+
+    <script is:inline>
+      // Publishes the sticky header's real height as --header-h, which
+      // global.css turns into scroll-padding-top so nothing you jump to lands
+      // underneath it. Measured rather than hard-coded because the header grows:
+      // the brand row rewraps under 360px, and the room list can take a second
+      // line once there are more rooms than fit. Watched, so it stays right
+      // through rotation and resize.
+      (() => {
+        const header = document.querySelector('.site-header');
+        if (!header) return;
+        const publish = () =>
+          document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
+        publish();
+        // The first measurement happens before the web fonts land, and the header
+        // grows a little when they do — so re-measure once they are ready and
+        // again at load. Without these the offset stays a stale ~13px short and
+        // the header still clips the top of whatever you jumped to.
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(publish);
+        addEventListener('load', publish);
+        if ('ResizeObserver' in window) new ResizeObserver(publish).observe(header);
+        else addEventListener('resize', publish, { passive: true });
+      })();
+    </script>
   </body>
 </html>
 
@@ -144,12 +184,25 @@ const aboutPrompt =
     z-index: 10;
     background-color: var(--ground);
     border-bottom: 1px solid var(--line);
+    /* Follows the wall when the room changes instead of stepping to the new
+       tint a beat ahead of it. */
+    transition: background-color var(--dur-zone) ease;
   }
   @supports (backdrop-filter: blur(8px)) {
     .site-header {
       background-color: color-mix(in oklab, var(--zone, var(--ground)) 82%, transparent);
       backdrop-filter: blur(10px) saturate(1.4);
     }
+  }
+  /* The room list, second row of the header. Its pills are styled by whichever
+     page supplies them; the header only draws the rule above the row and kills
+     the standalone margins those pills carry when they are not in a header. */
+  .header-nav {
+    border-top: 1px solid var(--line);
+  }
+  .header-nav :global(.chips) {
+    margin: 0;
+    padding-block: 0.55rem;
   }
   .header-row {
     display: flex;

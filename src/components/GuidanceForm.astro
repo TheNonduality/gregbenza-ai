@@ -43,26 +43,27 @@ const { context = 'site' } = Astro.props;
      reads as the single thing the site is actually asking you to press — and it
      gets there on contrast alone rather than on a colour, so it never argues
      with the room it happens to be standing in. */
+  /* Geometry deliberately IDENTICAL to .ask-btn — same type, same size, same
+     padding, same height, same radius. It was set in the display face a step
+     larger with wider ends, which next to a row of Inter pills read as a
+     different kind of object rather than the same object turned up. Only ONE
+     property distinguishes it now: it is filled. That is enough, because it is
+     the only filled control on the site.
+     Touch height is handled once for every pill in global.css. */
   .guidance-btn {
     list-style: none;
     cursor: pointer;
-    font-family: var(--font-display);
+    font-size: 0.8rem;
     font-weight: 600;
-    font-size: 0.85rem;
     color: var(--on-press);
     background: var(--press);
     border: 1.5px solid var(--press);
     border-radius: var(--radius-pill);
-    padding: 0.35em 1.1em;
-    min-height: 2.2rem;
+    padding: 0.25em 0.85em;
+    min-height: 2.1rem;
     display: inline-flex;
     align-items: center;
     white-space: nowrap;
-  }
-  @media (pointer: coarse) {
-    .guidance-btn {
-      min-height: 2.75rem;
-    }
   }
   .guidance-btn::-webkit-details-marker {
     display: none;
@@ -116,7 +117,6 @@ const { context = 'site' } = Astro.props;
   }
   .g-send {
     align-self: flex-start;
-    font-family: var(--font-display);
     font-weight: 600;
     font-size: 0.9rem;
     color: var(--on-press);

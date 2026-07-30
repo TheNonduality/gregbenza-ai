@@ -69,10 +69,12 @@ const jsonLd = graph([
   <DoorHero slot="bleed" wing={wings[0]?.slug ?? ''} />
 
   {/* Wayfinding. Each chip carries its wing's colour, so the row doubles as a
-      key to the rooms below it. */}
+      key to the rooms below it — and it rides in the header (see the header-nav
+      slot in Base.astro) so it is reachable from anywhere in the exhibit rather
+      than scrolling away at the top. `wrap` lines it up with the brand above it. */}
   {
     chipWings.length > 0 && (
-      <nav class="chips" aria-label="Filter by project">
+      <nav class="chips wrap" aria-label="Filter by project" slot="header-nav">
         <button class="chip chip-all is-active" data-project="">All</button>
         {chipWings.map((w) => (
           <button class="chip" data-project={w.slug} data-wing={w.slug}>
@@ -301,12 +303,14 @@ const jsonLd = graph([
 </script>
 
 <style>
-  /* ---- Wayfinding chips: the key to the rooms below ---- */
+  /* ---- Wayfinding chips: the key to the rooms below ----
+     These render into the header's second row, which owns their vertical
+     spacing; the margin here only applies if they are ever used inline. */
   .chips {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    margin-block: var(--space-4) var(--space-3);
+    margin-block: var(--space-3);
   }
   .chip {
     font-family: var(--font-body);

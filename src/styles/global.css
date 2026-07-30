@@ -16,20 +16,51 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  /* Keeps the sticky header from landing on top of whatever you just jumped to.
+     Every scroll-into-view and every #anchor on the site stops this far short of
+     the top instead — pressing a filter chip used to put the wing's plaque
+     underneath the header, hiding the room's name and its whole intro.
+     --header-h is measured at runtime in Base.astro because the header grows a
+     row when the chips wrap; the fallback covers the moment before that runs. */
+  scroll-padding-top: calc(var(--header-h, 7.5rem) + 0.75rem);
 }
 
-/* The gallery wall. --zone is plain --ground until a wing claims it; the
-   transition is what makes walking between wings feel like walking. */
+/* Form controls do not inherit type. <button> and <input> in particular fall
+   back to the browser's own default — which silently rendered 40 controls on
+   this site in Arial, including the project pill on every card. Any rule that
+   sets a control's font-size but not its family will do this again. */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+/* Body carries the base wall colour only. The wing TINT lives on .wall below —
+   it cannot live here. When <html> has no background of its own, the body's
+   background is propagated to the page canvas, and a canvas background is not
+   animated: the transition was declared, ignored, and the tint snapped between
+   rooms. Painting it on a real element restores the fade. */
 body {
   margin: 0;
   background-color: var(--ground);
-  background-color: var(--zone, var(--ground));
-  transition: background-color var(--dur-zone) ease;
   color: var(--text);
   font-family: var(--font-body);
   font-size: 1.0625rem;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
+}
+
+/* THE WALL. A fixed pane behind everything, holding the wing tint so it can
+   actually cross-fade as you walk from room to room (see the note on body).
+   Decorative and inert — it must never catch a click. */
+.wall {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--zone, var(--ground));
+  transition: background-color var(--dur-zone) ease;
 }
 
 /* The column breathes with the screen: readable on a phone, generous on a
@@ -115,6 +146,23 @@ code {
   background: var(--ground-sunken);
   padding: 0.1em 0.35em;
   border-radius: 4px;
+}
+
+/* One touch-target rule for every pill on the site. It used to live on the
+   guidance button alone, which made that one control 44px on a phone while the
+   ask pill beside it stayed 34px — the single biggest reason the loud button
+   read as a different shape from its neighbours. Applied to all of them it is
+   both consistent AND the accessible minimum. */
+@media (pointer: coarse) {
+  .chip,
+  .placard-tag,
+  .wing-pill,
+  .ask-btn,
+  .ask-summary,
+  .guidance-btn,
+  .g-send {
+    min-height: 2.75rem;
+  }
 }
 
 .eyebrow {
