@@ -1,0 +1,167 @@
+---
+title: 'The reskin that failed and the ruleset that stuck'
+date: 2026-05-09
+project: 'Games'
+blurb: >
+  Third campaign, second franchise. The engine I already had refused to wear
+  the uniform, so I stopped building engines.
+hero:
+  type: image
+  src: /projects/star-trek-reactivated/lcars-command.png
+  alt: 'An LCARS-style dashboard on a black background, amber and mauve rounded panels. A left rail of colored tab buttons reads COMMAND, VESSEL, CREW, CONTACTS, MISSION, REGISTRY, LIVE STATE, SEALED, CHAPTER LOG, LEDGER FILE, INPUT. The header shows USS PATHFINDER, CAPT. BENZA · CMD AUTH ALPHA, stardate 55013.1, and three meters reading MOMENTUM 0/6, THREAT 0, PLT 2/2. The main panel is a COMMAND OFFICER sheet for Greg Benza, Captain, Human: six attributes, six disciplines, focuses like Diplomacy and Reading People, four quoted Values, four Talents, Stress 14/14, Determination 3/3, and a personal kit ending in "personal padd". A status line along the bottom reads LEDGER LOADED · ACT 1 CH 3 · STARDATE 55013.1 · ALERT GREEN · AUTOSAVED.'
+  caption: 'The LCARS dashboard with my real Chapter 2 save loaded — my character sheet, exactly as the game tracked it.'
+bodyMedia:
+  - type: image
+    src: /projects/star-trek-reactivated/lcars-live-state.png
+    caption: 'The LIVE STATE tab: the freeze-frame the game resumes from. A senior staff dinner, a red alert drill scheduled for 0600, and every pending obligation with a time on it.'
+outro:
+  type: image
+  src: /projects/star-trek-reactivated/lcars-vessel.png
+  alt: 'The VESSEL tab of the same LCARS dashboard. Status tiles read SHIELDS 10/10 with Resistance 4, POWER 10/10 with Crew Support 2, BREACHES None. Below, a spec sheet for the USS Pathfinder NCC-75200, Intrepid class Voyager-refit: systems and department ratings, ship talents including Ablative Armor Generator marked prototype and restricted, phaser arrays and photon torpedoes, active traits like Newly Commissioned (untested crew), and a bolded known engineering flag about an armor generator thermal cascade risk on decks 11-12.'
+  caption: 'The ship itself — including the prototype armor generator that the game immediately flagged as a risk.'
+agentMd: /projects/star-trek-reactivated/star-trek-reactivated.md
+accent: '#cc6699'
+---
+
+import Media from '../../../components/Media.astro';
+
+## What I wanted
+
+A Star Trek campaign with the same referee discipline as
+[my Fallout games](/projects/fallout-reactivated/) — an AI game master that
+rolls real dice and lives with the results.
+
+I already had an engine. That was the problem.
+
+## The reskin
+
+In January I copied the Fallout rules document, renamed it *Star Trek:
+Aftershock*, and started swapping vocabulary. One two-and-a-half-hour design
+conversation produced a whole invented stat system: 2d6 plus modifiers with
+the classic story-game bands (2–6 failure, 7–9 mixed, 10+ full success),
+six command-domain "anchors" under the acronym A.N.C.H.O.R. — Authority,
+Navigation, Combat, Health, Operations, Research, hunted over six messages
+until the AI landed on a word that worked — and twelve consequence tables,
+a cost table and a fallout table per anchor, so a failed hail jams
+*communications* instead of pulling from a generic misfortune pile.
+
+Then it stalled. The last message in that conversation is the AI asking
+which document to write next. I never answered. The abandoned doc still
+says "FALLOUT ARROYO" in three places, because the reskin was never
+finished — the paint didn't take.
+
+## The restart
+
+Three months later I started over with a different premise: stop inventing
+the game. Star Trek already has a real tabletop ruleset — Modiphius's
+licensed 2d20 system. Proven mechanics, written by people who design games
+for a living. What it doesn't have is a way to be played solo, by one
+captain, with an AI running everything else. So that's the layer I built —
+eight spec documents in about fifty minutes one evening in May, loaded
+into a Claude Project as project knowledge with a startup protocol doc
+telling the AI how to boot a session.
+
+The mechanics, condensed enough to rebuild from:
+
+- **The roll.** 2d20 (up to 5 dice with bonuses) against a Target Number
+  of Attribute + Discipline. Each die at or under TN scores a success;
+  at or under the relevant Focus scores two. Natural 20s add
+  Complications. Successes beyond the Difficulty convert to Momentum.
+- **Four pools.** *Momentum* (player, cap 6, spent on bonus dice and
+  information). *Threat* (GM, uncapped, always visible — fed by my
+  shortcuts and complications, spent on reinforcements, hazards, twists).
+  *Determination* (max 3; spending one requires invoking one of my four
+  written Values out loud). And *PLT* — Player Loyalty Tokens, the piece
+  I actually invented: solo play deletes Star Trek's defining tension,
+  the captain versus the crew's principles, so the AI plays eight senior
+  officers with real convictions, and overruling an officer's objection
+  costs a token. Two per session. Overrule without paying, and the GM
+  banks +1 Threat.
+- **The anti-fudging law, again.** Complications resolve by rolling d20
+  on fixed, scene-scoped tables (General / Personal Combat / Ship Combat
+  / Social — twenty entries each), never by AI preference. The spec says
+  it plainly: the GM's job is to interpret the result and make it sing,
+  not to author the outcome.
+
+## The output contract
+
+The referee isn't trusted to freestyle its replies either. Every gameplay
+message has a fixed anatomy: a five-line mini HUD (stardate, clock,
+location, alert, pools) → prose → a Task Card if dice were rolled ("the
+card is non-optional; stealth resolution erodes player trust") → a
+Dashboard Input JSON block if state changed → the literal closing line
+🧭 WHAT DO YOU DO? — no prose after it, because the closer is the prompt.
+Behind that sit three silent checklists the AI must run every turn: a
+three-gate test for whether this beat even needs dice, a fourteen-item
+scan for mechanical triggers (traits, talents, directives, clocks), and a
+fourteen-item post-prose sweep whose default assumption is *something
+changed*. The HUD spec explains why all this rigidity exists in one line:
+"It anchors the LLM's context and gives the player at-a-glance state."
+
+## The save file is the database
+
+Campaign continuity is one markdown document — the ledger — with a
+structure strict enough to parse:
+
+- **REGISTRY** — full current state, replaced wholesale at each chapter
+  break: campaign meta, standing orders, captain card, ship card, the
+  economy pools, story spine (capped at 8–12 beats, oldest dropped),
+  active extended tasks, people, contacts, factions, reputation, ships,
+  places, species, open threads, an officer duty log, and per-officer
+  crew dossiers (1–3 sentences per officer per chapter, by law).
+- **CHECKPOINT** — a freeze-frame of the exact moment play stopped:
+  where we left off, the situation, the pressure, the decision point,
+  what's immediately pending. This is what the next session resumes from.
+- **CHAPTER LOG ARCHIVE** — append-only, never edited, never compressed.
+  Each chapter writes fixed sub-sections (summary, log capped at 6–14
+  bullets, key decisions, mechanics, reveals, a captain's log entry, and
+  a sealed offscreen section). The spec's phrase for the bloat policy:
+  "the chapter logs stay lean by being lean when written, not by being
+  deleted later."
+
+Everything gets a typed ID — `P:` people, `C:` contacts, `L:` places,
+`S:` ships, `F:` factions, `ET:` extended tasks, `ARC:` sealed arcs — so
+references survive rewrites. And GM-only truths live under a sealed
+umbrella encoded with ROT1: every letter shifted forward one, with IDs,
+numbers and headers left readable, so the *structure* of what's hidden is
+visible while the content is opaque. The spec is candid that this is "a
+barrier against accidental glances, not a substitute for discipline."
+When a sealed truth surfaces through play, it's decoded out into the
+plain registry and logged as a `[REVEAL]`.
+
+## Which meant there could be a screen
+
+Two days into playing it, the same trick as the Fallout dashboard got
+rebuilt in Star Trek colors — a single 57&nbsp;KB HTML file, ~850 lines of
+vanilla JavaScript, no dependencies beyond a webfont. It's a parser, not a
+database: upload the ledger, and it chops the document by section header,
+runs dedicated parsers for dossiers, contacts, tasks and threads, and
+renders eleven LCARS tabs — one per registry section. Three localStorage
+keys persist the ledger, its metadata, and a JSON overlay: mid-session,
+the GM's Dashboard Input blocks paste into the INPUT tab and deep-merge
+over the parsed state, so the screen stays current between chapter
+exports. Sealed input auto-detects — the parser tries plain JSON first
+and falls back to ROT1 — and the SEALED tab renders only counts, never
+contents.
+
+<Media type="image" src="/projects/star-trek-reactivated/lcars-live-state.png" caption="The LIVE STATE tab: the freeze-frame the game resumes from. A senior staff dinner, a red alert drill scheduled for 0600, and every pending obligation with a time on it." />
+
+The session loop, end to end: play in the Claude Project → at 🎬 CHAPTER
+BREAK the GM exports a fresh Registry + Checkpoint with sealed sections
+ROT1-encoded on the way out → save the ledger file → next session, upload
+it to the LEDGER FILE tab and hand it back to the GM, which reads the
+Checkpoint and resumes mid-scene.
+
+## Played, then revised
+
+Chapter 1 ("Shakedown") was played May 8. The morning after, the ledger
+format and the output format both got revised — the versions in the spec
+today are the post-contact versions, patched where real play found the
+gaps. Chapter 2 ("The Long Table") wrapped the next evening.
+
+Then the campaign did something the Fallout ones never did: it kept
+going. It's still alive — which is why, unlike the Fallout posts, this
+one ships no game files. The specs, the saves, and everything sealed stay
+private while I'm still playing. The story continues in the
+[pocket version](/projects/pathfinder-mobile/) and the
+[desktop app](/projects/pathfinder-desktop/).

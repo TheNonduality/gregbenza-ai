@@ -44,9 +44,11 @@
   `Fallout Reactivated Setup 1.0.0.exe`. The API call runs in Node rather than
   the browser, removing CORS and browser timeout problems. Ledger save/load uses
   native file dialogs. API key and game state persist in local storage
-- Added relative to the first version: a fifth play mode for investigation, and
-  four mandatory personality tags per NPC (background, stance, reflex, loyalty)
-  with optional taboo and trust tags
+- Promoted into the core spec set relative to the first version's published
+  files: a fifth play mode for investigation, and four mandatory personality
+  tags per NPC (background, stance, reflex, loyalty) with optional taboo and
+  trust tags. Both originated as late addenda during the first campaign and
+  were cleaned up and made mandatory here
 - The prime directives define a conflict resolution order in which player
   requests rank last, explicitly including requests to "go easy" or ignore rules
 - The dashboard embedded in the desktop app is one version ahead of the

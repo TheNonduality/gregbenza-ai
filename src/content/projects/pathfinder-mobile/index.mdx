@@ -1,0 +1,170 @@
+---
+title: 'The game master in one HTML file'
+date: 2026-07-27
+project: 'Games'
+blurb: >
+  The whole Star Trek campaign — rules, referee, and sealed secrets — folded
+  into a single web page that runs on my phone.
+hero:
+  type: video
+  src: /projects/pathfinder-mobile/pocket-gm.web.mp4
+  duration: PT10.6S
+  alt: 'A widescreen video with black bars either side of a phone-shaped app, black background, Star Trek LCARS styling. An orange header reads USS PATHFINDER with LCARS 47, NCC-75200, BUILD 6 above it, a yellow STARDATE 55013.1 tile and a green GREEN alert pill beside it. Tapping the header unfolds a status board of nine tiles — STRESS 14/14, DETERMINATION 3/3, PLT 2/2, MOMENTUM 0/6, THREAT 0, TIME 1858, SHIELDS 10/10, POWER 10/10, BREACHES none — plus a location line, a scene line about a senior staff dinner, and two timed task chips. Below, a game-master message describes the Officers'' Mess, ending in an amber WHAT DO YOU DO? prompt. The clip ends with an order being typed into a composer whose placeholder reads "Your move, Captain…" next to an orange SEND button.'
+  caption: 'The app on a demo save: tap the header and the full status board unfolds, then an order goes into the composer. The scene text here is a staged demo, not live play.'
+outro:
+  type: image
+  src: /projects/pathfinder-mobile/command-authorization.png
+  alt: 'A phone screen with a black background. An orange LCARS-style header reads STAR TREK · REACTIVATED, COMMAND AUTHORIZATION. Text below explains: Enter your Anthropic API key. It is stored only on this device and sent only to api.anthropic.com. This ship pays her own way — each turn costs a fraction of a cent on your key. An input labeled ANTHROPIC API KEY shows the placeholder sk-ant-…, above a large green button reading ASSUME COMMAND.'
+  caption: 'What a fresh install asks for. The key never touches a server of mine — there is no server.'
+technical:
+  - label: 'STR Pathfinder — the live app'
+    kind: output
+    url: 'https://str-pathfinder.netlify.app'
+    note: 'The actual deployed page. Bring your own Anthropic API key; it stays in your browser. Fair warning: it will run my campaign, sealed secrets included — encoded, never rendered.'
+agentMd: /projects/pathfinder-mobile/pathfinder-mobile.md
+accent: '#f0975a'
+---
+
+## What I wanted
+
+To play [the Star Trek campaign](/projects/star-trek-reactivated/) from my
+couch, my bed, an airport — without a laptop, without pasting save files
+into a chat window.
+
+The answer turned out to be one file. Literally one: a single HTML page,
+about 126&nbsp;KB, no server, no build step, no framework, no app store.
+Of that, roughly 97&nbsp;KB is the campaign itself — two giant string
+constants, one holding the unsealed rules and canon (~74&nbsp;KB), one
+holding the sealed GM material ROT1-encoded (~23&nbsp;KB), stitched in by
+a build comment that reads `EMBEDDED CANON (inserted by build script)`.
+The actual program is about three hundred lines: a storage layer, a
+prompt assembler, a streaming parser, a dice roller, and rendering.
+
+## The anatomy of a turn
+
+Every turn is one `fetch` from the phone straight to
+`api.anthropic.com/v1/messages` — no middleman. The request carries the
+header `anthropic-dangerous-direct-browser-access: true`, which is the
+API opting you into exactly what it sounds like; it's fine here because
+the key is the player's own and never leaves the device. The system
+prompt is rebuilt from scratch each turn in a fixed order:
+
+1. **Static block** — the 74&nbsp;KB canon constant, marked
+   `cache_control: ephemeral`. This is the first cache breakpoint: it
+   never changes, so after the first turn it's billed at cache-read
+   rates.
+2. **Semi-dynamic block** — the decoded sealed vault, plus every chapter
+   summary so far, plus the current checkpoint, plus the tracked-state
+   JSON. Second cache breakpoint: it only changes at chapter breaks and
+   state changes.
+3. **Messages** — the live transcript, never cached, kept short by
+   compression (below).
+
+Order is the whole trick: most-stable first, so the expensive prefix
+stays cache-hot. Replies stream (`stream: true`), are capped at 3,000
+tokens, and the GM model and archivist model are both plain text fields
+in settings — defaults `claude-sonnet-5` for the game master,
+`claude-haiku-4-5` for the archivist.
+
+Dice ride in with every player message. The app pre-rolls twelve d20s
+and eight d6s in JavaScript and appends a line the player never sees:
+
+```
+[SYSTEM DICE — consume in order, verbatim, never reroll:
+ d20: 14, 3, 19, … | d6: 2, 5, …]
+```
+
+Honest caveat: in this build that rule is enforced by instruction, not
+code — the [desktop version](/projects/pathfinder-desktop/) is where dice
+verification moved into the application layer.
+
+## How continuity works
+
+This is the part that makes it a campaign instead of a chat. The entire
+game lives in one JSON blob in the phone's IndexedDB (database
+`str-pathfinder`, one key–value store, one key: `save`). Its shape is
+the whole continuity model:
+
+- `settings` — API key, model names, and two tuning numbers: compress at
+  44 live messages, keep the last 12.
+- `hud` — the tracked state: stardate, clock, location, scene, alert
+  level, captain stress/determination, ship shields/power/breaches, the
+  momentum/threat/token economy, and active timed tasks. This is what
+  the collapsible status board renders.
+- `transcript` — the live message window the AI actually sees.
+- `archive` — every message ever, untouched. Compression never edits it;
+  it exists so nothing is ever truly lost.
+- `chapters` — the archivist's output: `{num, title, summary,
+  checkpoint}` per finished chapter.
+- `checkpoint` — a freeze-frame of where play stopped, so a fresh
+  session resumes mid-scene instead of re-explaining.
+- `vaultExtra` — sealed material generated *during* play, ROT1-encoded
+  on arrival.
+
+State changes are **patches, not rewrites**. When something changes, the
+GM's reply carries a `%%STATE%%` block with just the delta —
+`{"hud": {"alert": "YELLOW"}}` — which deep-merges into the saved state
+and re-renders the board. The model never re-prints the world; it nudges
+it.
+
+Chapter breaks are where memory gets cheap. When the GM emits a
+🎬 CHAPTER BREAK marker, or the transcript hits 44 messages or
+120&nbsp;KB, the archivist model gets the old messages and a hard
+contract: return *only* JSON of shape `{title, summary, checkpoint}`,
+and never include sealed information beyond what the player saw. The
+summarized messages drop out of the live window (cutting on a
+player-message boundary, so the API never sees a transcript that opens
+mid-answer), the summary joins the semi-dynamic block, and the full text
+retires to the archive. The context window holds the recent past
+verbatim and the deep past as summaries — forever, at roughly constant
+cost. That's the "cents per session" math: cached canon + capped output
++ compressed history.
+
+Settings has EXPORT and IMPORT buttons that move the whole blob as a
+file — the escape hatch, because browsers can and do evict local
+storage.
+
+## Keeping secrets on a device you carry
+
+Sealed GM material ships inside the file and accumulates during play,
+and none of it may ever hit the screen. Three independent layers enforce
+that:
+
+1. **Storage**: sealed text is ROT1-encoded (every letter shifted one)
+   at rest — in the embedded constant and in `vaultExtra`. Not
+   cryptography; a barrier against accidental glances, so I can't spoil
+   myself scrolling a save file.
+2. **Parsing**: `%%SEALED%%` blocks are stripped from the reply before
+   rendering and routed, re-encoded, into the vault.
+3. **Streaming**: mid-reply, the renderer truncates the visible stream
+   at the first `%%STATE` or `%%SEALED` prefix and even trims a dangling
+   `%` — so a half-arrived sealed marker can't flash on screen for a
+   frame.
+
+The decoded vault exists in exactly one place: the system prompt, on its
+way to the model.
+
+## Failure, and six builds in one evening
+
+If a turn errors, the app pops the transcript and archive back, restores
+my typed order into the composer, and shows "Turn failed — nothing was
+saved." A failed turn writes nothing — the same invariant as every app
+in this lineage.
+
+Build 1 came out of a session that crashed and took its own chat history
+with it — the file survived on disk. Builds 2 through 6 happened over
+about two and a half hours the same evening, all chasing one iPhone bug:
+added to the home screen with a translucent status bar, iOS handed the
+app a 793-point window on an 852-point screen — a dead 59-point strip at
+the bottom that no CSS could reach, because the window itself ended
+there. The fix was one meta tag (status bar style `black` instead of
+`black-translucent`) plus a `visualViewport` handler that detects the
+keyboard and re-pins the app to the visible area — and the discovery
+that iOS bakes the tag in at add-to-home-screen time, so the icon has to
+be deleted and re-added to pick it up. The campaign text never changed:
+Build 1 and Build 6 carry byte-identical canon.
+
+Deployment is its own joke: the sandboxed build environment can't run
+deployment tooling, so the pipeline is "session writes the file, I drag
+the folder onto the hosting dashboard." Takes seconds. The live page is
+verified byte-identical (SHA-256) to the file on disk.

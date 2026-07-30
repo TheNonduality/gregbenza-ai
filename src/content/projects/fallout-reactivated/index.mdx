@@ -1,6 +1,7 @@
 ---
 title: 'Rebuilding the game master as a desktop app'
 date: 2026-05-05
+updated: 2026-07-29
 project: 'Games'
 blurb: >
   Same game, second attempt. This time the ledger stopped being homework.
@@ -75,7 +76,19 @@ what moved:
 
 There are four operations — `set`, `add`, `update`, `remove` — and lists of
 people, places and factions merge by id, so adding one NPC doesn't rewrite the
-cast. It's a diff instead of a document.
+cast. It's a diff instead of a document. The schema is precise about which
+lists are which: keyed lists (people, places, factions, clocks, chapters)
+merge by id; primitive lists (locks, story spine, open threads, region-wide
+events) append. `set` walks a dotted path; `remove` takes ids. The save file
+itself kept the first version's three-part shape but got stricter about
+schedule: a **registry** replaced wholesale at each chapter break, a
+**checkpoint** freeze-frame replaced with it, and a **chapter log archive**
+that is append-only forever — the spec explicitly abolishes the first
+version's compress-old-chapters idea: *"the chapter logs stay lean by being
+lean when written, not by being deleted later."* Six to fourteen dry bullets
+per chapter, hard ceiling; story spine capped at 8–12 beats, oldest dropped;
+and a visibility law — encountered-only, revealed-only, and *"if unsure,
+write UNKNOWN. Don't improvise."*
 
 ## Which meant there could be a screen
 
@@ -83,10 +96,114 @@ Once state was structured, it could be *displayed*. So I built a dashboard for
 it, and the box across the top just says **"paste JSON state update here —
 auto-applies on paste."** Paste the patch, the world updates.
 
-The four clocks became actual clocks you can see filling. The registries became
-panels with counts on them. The character card shows harm and inventory as
-chips. None of this is new information — it's the same ledger from the first
-version — but I stopped having to read a text file to know where I was.
+The four clocks became actual clocks you can see filling. The registries
+became panels with counts on them. The character card shows harm and inventory
+as chips. Under the hood it's one HTML file with React loaded from a CDN — no
+build step — state persisted to browser localStorage with a debounced write,
+and the paste box intercepting the paste event and applying the patch a few
+milliseconds later, green border on success, red on parse error. Loading
+accepts either a markdown ledger (parsed by section header, cipher decoded on
+the way in) or raw JSON. None of this is new information — it's the same
+ledger from the first version — but I stopped having to read a text file to
+know where I was.
+
+## The engine grew a campaign layer
+
+The dice core is unchanged from the first version — `2d6 + SPECIAL +
+situational`, same bands, same only-roll-when-LIVE conditions, same d7
+consequence tables with no duplicates. What changed is that consequences now
+write directly to the campaign. The cost table's entries aren't generic
+anymore: one *is* "TIME +1," another *is* "TROUBLE +1, and faction infamy if a
+faction is involved." The dice got wired into the world.
+
+That world runs on a four-clock engine the spec calls a 25-tick campaign
+spine:
+
+- **TIME** (0/5) ticks at chapter ends, from consequences, and whenever *any*
+  other clock fills — "literally any." On rollover it resets, pushes every
+  known faction's objective clock forward, and ticks SHADOW.
+- **TROUBLE** (0/5) ticks on exposure and heat. When it fills: if enemies are
+  nearby they simply arrive — no table — otherwise a d7 decides how the heat
+  lands, from a shakedown to a faction seeking me out by name. Then it
+  resets, ticks SHADOW, and — since it's a clock — ticks TIME.
+- **SHADOW** (0/5) advances from exactly three inputs — TIME rollovers,
+  TROUBLE resolutions, and major-faction objective completions. *"No other
+  events advance Shadow."* Filling it resets the clock, ticks DOOM, and fires
+  one of five region-wide events, each of which can occur exactly once.
+- **DOOM** (0/5) never resets. Five ticks, five events fired, endgame — no
+  return to prior equilibrium.
+
+And the player-facing law that makes it sinister: TIME and TROUBLE are always
+visible in the HUD; DOOM and SHADOW live only in the ledger, recorded as bare
+notches — *"no explanation for what they mean or effect."* The meanings live
+in the sealed arc. I can watch the bookkeeping happen and still not know what
+it's counting down to.
+
+Factions got the same treatment: five majors with objective clocks and
+fame/infamy ladders, ten minors with reputations only. Before any
+faction-involved roll, the GM must lock a context — assisting, opposing, or
+neutral — which routes where reputation lands, and *"cannot be changed after
+the roll."*
+
+## Failing is how you level
+
+The progression system is ten XP per level, and the two XP sources are
+failed rolls and filled clocks. Not kills, not quests — failure and time.
+A cruel bargain accepted is still a failure band, still pays XP. Levels apply
+only at chapter breaks (no mid-combat bookkeeping): +1 to a SPECIAL, one perk
+from that stat's table — seventy perks, ten per stat, and every one obeys a
+design constraint written in the spec: *"perks never allow the GM to 'pick'
+RNG outcomes."* They bend probability at a price instead. Silver Tongue: after
+rolling a 7–9 on a persuasion, accept TROUBLE +1 to upgrade it to a 10+.
+Brute Force: take one harm to turn a failure into a mixed success. Miss
+Fortune: convert a rolled serious-harm result into gear loss instead — and if
+that result wasn't rolled, the perk does nothing.
+
+Even sleeping is a subsystem: one roll, `2d6 + SPECIAL + shelter bonus`,
+where the shelter ladder runs from +3 (a secure bed among people who trust
+you) to −2 (hunted, hostile ground), and the stat is chosen by *how you
+sleep* — crash hard on Endurance, sleep light on Perception, fortify on
+Intelligence. TIME ticks regardless of the result; a bad night can put a
+predator in camp or a contact from the sealed arc at my fire. The spec's own
+note on the math: with +3 shelter, failure is rare enough that a safe town
+bed mostly means you actually sleep — *"that's the point."*
+
+## Conversations got feelings; investigations got evidence
+
+The high-pressure conversation mode was rebuilt around a blunt admission:
+the first version treated every tense talk as a ticking bomb, and most
+aren't. The automatic pressure tick is gone (there's a VOLATILE dial to turn
+it back on for hostage situations), and the consequence tables were rewritten
+as *NPC emotional reactions* rather than prices. A good roll might land as
+the NPC being impressed — or helpfully limited, granting a named HANDLE (a
+want or fear I can press for +1 later). A cost might be them going apathetic,
+which records a TERM: the goal clock literally cannot fill until I offer
+something concrete. Blowups produce named, permanent outcomes — DOOR SHUT,
+HARD NO with a written condition for what could ever change it, a public
+position taken. *"Blowup is the endgame. It's not always violence. It's
+always irreversible."*
+
+Investigation mode (which didn't ship in the first version's published set)
+runs two opposed clocks — evidence versus pressure — and forces the GM to
+write *two* objectives at setup: the unsealed question I'm chasing, and the
+sealed truth in one sentence, spoken only when the evidence clock fills.
+Every point of progress must print as an Evidence Unit: a concrete,
+actionable statement that hints at the truth without revealing it — a
+timeline constraint, a confirmed motive, an identified lie. Hits let the GM
+draw on sealed material under three constraints: truthful on a hit, facts not
+meta, and identity gating preserved — unrevealed factions appear as symbols
+and tells, never names. The pressure clock filling rolls a flashpoint, and
+the entries have teeth: one of them removes the evidence permanently — this
+investigation, in this place, at this time, is no longer possible, ever.
+
+NPCs themselves got four mandatory personality tags — background (immutable),
+stance (the current mask), reflex (what they do under pressure), loyalty
+(what they won't sacrifice) — stored in a fixed one-line format in the
+ledger. Under an ultimatum, an NPC must choose whatever best preserves its
+loyalty — *"this rule overrides tone, rapport, and convenience."* And the
+tags never touch math; they shape how consequences manifest, not whether. The
+spec's diagnosis line: if a character feels generic, the issue is almost
+always missing or ignored tags.
 
 ## Greek became a cipher
 
@@ -96,9 +213,15 @@ Greek is a whole language, and I had to keep asking for content in it.
 So the seal became mechanical instead. Every sealed string gets **ROT1** —
 shift each letter forward one. `Metzger` becomes `Nfuahfs`. IDs, numbers and
 JSON keys stay readable so the tooling can still index them; only the prose
-gets shifted.
+gets shifted. The implementation is a six-line regex, and the protocol has a
+one-line rule for when it applies: *"the GM thinks in plaintext and encodes
+only when emitting."* Names already in the unsealed registry stay plaintext
+even inside sealed sections — the player already has them.
 
-The dashboard counts sealed entries and refuses to render them.
+The dashboard counts sealed entries and refuses to render them: the red
+footer line tracks six categories — story spine, clocks, hidden threads, NPC
+secrets, location truths, faction objectives — encoded, never displayed. The
+decode helpers exist in the code; the display path just never calls them.
 
 I wrote down why it's a weak cipher, because that part matters:
 
@@ -114,18 +237,37 @@ things that haven't surfaced yet.
 ## Then it became an actual program
 
 The dashboard is one HTML file with no build step, which was already better
-than pasting. But the game itself still lived in a chat window, so I wrapped the
-whole thing in Electron and built an installer.
+than pasting. But the game itself still lived in a chat window, so I wrapped
+the whole thing in Electron and built an installer.
 
-That's the picture at the top of this page: the dashboard became a sidebar, and
-the chat sits next to it with a box asking what Sammy does. It boots to a
-Vault-Tec login that wants an Anthropic API key, stored locally. It calls the
-API from Node instead of the browser, which killed the CORS and timeout
-problems. Ledger save and load use native file dialogs. `npm run build` produces
-`Fallout Reactivated Setup 1.0.0.exe` — 79MB, double-click, installed.
+That's the picture at the top of this page: the dashboard became a sidebar,
+and the chat sits next to it with a box asking what Sammy does. The entire
+backend is a 99-line main process exposing exactly three operations across
+the security bridge — call the AI, save the ledger, open the ledger — and
+nothing else crosses. The API call runs in Node instead of the browser
+(killing the CORS and timeout problems), the key lives in local storage
+behind a Vault-Tec login, and ledger save/load use native file dialogs.
+`npm run build` produces `Fallout Reactivated Setup 1.0.0.exe` — 79MB, a
+real installer with a directory picker.
 
-The dashboard inside the app is a version ahead of the standalone one, which is
-the other picture below — v6.1 against v5.0.
+The interesting part is the loop closing on itself. The app scans the game
+master's replies for fenced JSON blocks and applies any patch it finds — the
+paste box from the standalone dashboard still exists, but nothing needs
+pasting anymore. When a reply contains a chapter-break block, the app applies
+it and *immediately opens a save dialog* with the filename already computed.
+Loading a ledger auto-sends the AI a resume message built from the
+checkpoint. And the system prompt is reassembled from live dashboard state on
+every single turn — directives, both consequence tables, my stats, all four
+clocks, the last five story beats, the sealed arc — so the AI's memory *is*
+the dashboard, not the chat scrollback. One honest footnote found while
+writing this post: in the app build, the sealed arc is embedded in the source
+in plaintext, no cipher — the ROT1 discipline guarded the ledgers and the
+chat, and the app shipped with the secrets sitting readable in its guts. The
+seal was always about accidental glances, and that's exactly the kind of
+glance it couldn't guard.
+
+The dashboard inside the app is a version ahead of the standalone one, which
+is the other picture below — v6.1 against v5.0.
 
 <Media
   type="image"
@@ -134,15 +276,15 @@ the other picture below — v6.1 against v5.0.
   caption="The standalone dashboard, same save. That red line is six categories of secret sitting in memory, counted and withheld."
 />
 
-Two things also got added that the first version didn't have: a fifth play mode
-for investigation, and mandatory personality tags on every NPC — background,
-stance, reflex, loyalty — so characters stop quietly drifting into whoever the
-scene needs them to be.
+Two things also got promoted that the first version's published set didn't
+ship with: the investigation mode above, and the personality tags — both
+actually date to the first campaign's later addenda, cleaned up and made
+mandatory here.
 
 ## The rule I'm most glad I wrote
 
-Buried in the directives is a conflict resolution order, and the bottom entry is
-the one that makes the whole thing work:
+Buried in the directives is a conflict resolution order, and the bottom entry
+is the one that makes the whole thing work:
 
 1. Platform safety requirements
 2. These prime directives
@@ -150,18 +292,28 @@ the one that makes the whole thing work:
 4. Style and formatting preferences
 5. **Player requests — including requests to "go easy" or ignore rules**
 
-I'm the player. I put myself last on purpose, because I knew I'd ask.
+I'm the player. I put myself last on purpose, because I knew I'd ask. One
+deliberate escape hatch survives: I can contest the *modifiers* on a roll and
+demand a re-roll with better-chosen ones — but never the dice themselves. And
+the same document states the design thesis outright: *"the excitement in this
+game does not come from beautiful prose or a well-crafted story arc. It comes
+from mechanical pressure and release."* The directives even end with an
+eight-question self-check the GM must run before every reply — including "did
+I encode every sealed string?" — with the instruction that any "no" means
+revise before sending.
 
 ## And then I didn't play it
 
 I built all of this, made a character, ran him as far as the back room of a
-store in Klamath — and went off to build a Star Trek one instead.
+store in Klamath — and went off to build
+[a Star Trek one](/projects/star-trek-reactivated/) instead.
 
-That's the honest ending. The save file in the picture is where it stops: Act 1,
-Chapter 2. Sammy at dawn, level 1, one harm, 78 caps, no gun, and a heavyset man
-with a scar through his eyebrow asking around about him overnight. The cheapest
-rifle on the wall is 150 caps. TIME is at 4 of 5, which means Arroyo is nearly
-out of it.
+That's the honest ending. The save file in the picture is where it stops: Act
+1, Chapter 2. Sammy at dawn, level 1, one harm, 78 caps, no gun, and a
+heavyset man with a scar through his eyebrow asking around about him
+overnight. The cheapest rifle on the wall is 150 caps. TIME is at 4 of 5,
+which means Arroyo is nearly out of it.
 
-Twenty hours went into playing the crude version. Barely any went into playing
-the good one. Somewhere in there the interesting part stopped being the game.
+Twenty hours went into playing the crude version. Barely any went into
+playing the good one. Somewhere in there the interesting part stopped being
+the game.

@@ -1,0 +1,200 @@
+---
+title: 'A world that moves when the story looks away'
+date: 2026-07-29
+project: 'Games'
+blurb: >
+  The Star Trek campaign became a desktop app: real dice in the engine room,
+  a living world on a clock, and an AI that only gets to narrate.
+hero:
+  type: video
+  src: /projects/pathfinder-desktop/first-command.web.mp4
+  duration: PT30.5S
+  alt: 'A full-screen desktop app styled as a Star Trek LCARS bridge terminal, black with amber and lavender panels. It opens on a CAMPAIGN ARCHIVE screen where a new campaign named USS Pathfinder is confirmed with an ASSUME COMMAND button. The bridge loads: a header reads USS PATHFINDER, MAIN BRIDGE with stardate, QUOTA OK and CONDITION GREEN pills; a left rail holds drama meters for momentum, threat, determination and stress; a right stack shows ship status with shields and power at 10/10. Game-master narration streams into the center viewer, a captain''s log entry in amber among it. An order is typed into a composer reading "What do you do, Captain?" A roll card appears — Marek-Bao, Full sensor calibration sweep at maximum warp, Reason+Science, TN 16, difficulty 2 — with a glowing ROLL 2D20 button. Two dice land showing 10 and 20; a red FAILURE + COMPLICATION banner follows, with an explanation that the natural 20 adds a sensor-ghost complication.'
+  caption: 'A fresh campaign, played live: taking command, ordering a sensor sweep at maximum warp, and the dice saying no — a natural 20 turning one shortfall into a complication. Driven by the AI assistant that built the post; the game itself is real play.'
+outro:
+  type: image
+  src: /projects/pathfinder-desktop/dice-success.png
+  alt: 'The same LCARS bridge app after a successful roll. In the center viewer, a roll card reads KAREK — Push the ship to maximum warp for the fast run to Kellman''s Reach, Daring+Conn, TN 16, focus Starship Helm (4), difficulty 2, with two dice both showing 4 and the word SUCCESS. The right rail dissects the roll under headings LAST TASK, THE DICE, RESULT: each 4 counts as two successes because it is at or under the focus rating, four successes against difficulty 2, a green SUCCESS badge, and a line reading "2 spare successes banked as Momentum." Below it, AT STAKE explains what a failure would have cost.'
+  caption: 'An earlier roll from the same session, dissected in the right rail: which die scored what, why, and where the two spare successes went.'
+agentMd: /projects/pathfinder-desktop/pathfinder-desktop.md
+accent: '#ffaa2a'
+---
+
+## What I wanted
+
+*"Make this a video game but text-based — actual game code creates the
+world, AI is just part of it."* That's the instruction the whole build
+answers. The [pocket version](/projects/pathfinder-mobile/) proved the
+campaign could travel; this one is about what happens when the AI stops
+being the whole game and becomes one component of it.
+
+Three days, July 26 to 29. Same campaign, same
+[2d20 rules](/projects/star-trek-reactivated/) — new constitution.
+
+## How it was built: master plan first, spikes before code
+
+The build didn't start with code. It started with a master plan written in
+plan mode — the whole architecture on paper, phased 0 through 4, before the
+first file — and each phase shipped with its own verification layer so the
+next one stood on checked ground:
+
+- **Phase 0 was spikes.** Small throwaway scripts proving the risky ideas
+  before committing: one demonstrated that handing the AI a shared dice
+  cursor gets double-spent when the model isn't paying attention, and that
+  labeled slots get consumed honestly — which is why slots shipped. Two
+  more benchmarked prompt caching empirically: how much a cold cache write
+  costs (~49,600 billed input tokens) and how long the cache actually lives
+  (still hitting at seven minutes idle, and it survives app restarts,
+  because it's server-side and content-keyed — so no keep-warm pinger).
+- **Three test harnesses live in the app itself.** `--selftest` writes a
+  machine-readable health report. `--engine-checks` runs 13 offline checks
+  that cost nothing — including proving that advancing the world 21 days in
+  one call equals three 7-day calls exactly. `--playtest N` plays the real
+  engine against the real database with a scripted captain and prints a
+  JSON report: per-turn latency, cache reads and writes, roll-parity
+  mismatches, leaked sentinel frames, database row counts. A regression in
+  the dice or the stream parser shows up as a number, not a vibe.
+- The stack is deliberately thin: Electron 43 + Vite + TypeScript via
+  Electron Forge, and exactly **two** runtime dependencies — the Claude
+  Agent SDK and an installer helper. World storage is Node's built-in
+  `node:sqlite` (Electron 43 embeds Node 24), which means FTS5 full-text
+  search with zero native modules to compile.
+
+## No API key this time
+
+The app runs on my regular Claude subscription through the Agent SDK — the
+same plumbing that powers coding assistants, pointed at a starship. Setup
+is one terminal command (`claude setup-token`); the resulting OAuth token
+is encrypted with the OS's `safeStorage` and injected into the SDK's
+environment at launch. The SDK call itself is locked down to be a pure
+narrator: every tool disabled (`allowedTools: []`, `disallowedTools:
+['*']`), one turn max, streaming partials on, extended thinking off.
+
+That last flag is load-bearing: with thinking enabled, first token took a
+measured 57–92 **seconds**. Disabled: 2.2–3.1 seconds. A game turn runs
+17–24 seconds end to end, and the dice ceremony animation (3.6–4.5s,
+measured per die) hides the SDK's ~1.2-second subprocess spawn completely.
+
+## The app owns the dice
+
+In the phone version, dice honesty was a firmly worded instruction. Here
+it's architecture:
+
+- Dice come from `node:crypto` randomness in the Electron main process —
+  never `Math.random()`, and never the model.
+- Before the AI writes a word, the app pre-rolls d20s into **labeled
+  slots** (A through H, seven dice each — it was three until a playtest
+  showed that silently truncated bonus dice the player had paid for) and
+  renders them into the prompt with the rule: *never reuse a slot, never
+  take dice from another slot, never invent a die.*
+- When the reply arrives, the app re-resolves the entire roll from its own
+  allocation. If the AI's claimed dice don't match, the roll is flagged
+  `verified: false` — and the app's values are used regardless. The
+  narrator literally cannot fudge; the worst it can do is describe the
+  wrong number, and the record corrects it.
+- Modifiers run through a ledger that both the live stream parser and the
+  authoritative extractor consume as **separate copies in document order**,
+  so the dice you watch land on screen can never diverge from the dice
+  that get persisted.
+- The renderer process never sees the dice pool before a roll, the world
+  bible, or GM notes. The main process owns everything stateful; the
+  window is a display.
+
+## The living world: video-game code, not AI calls
+
+This is the part I care most about, and the design rule is straight out of
+game programming: **maximize memory, minimize compute — and spend AI on
+neither.** State is cheap rows in SQLite; simulation is deterministic
+arithmetic; the AI's only job is describing what the code already decided.
+
+**The clock.** In-game time is minutes since an epoch (stardate 55000 =
+January 1, 2378; one stardate = one day). It moves only forward, only by
+validated amounts: the GM reports elapsed time in a `%%TIME%%` block, and
+the app clamps it by scene mode — a conversation defaults to +10 minutes,
+a scene to +45, and nothing can jump past hard ceilings (24 hours in a
+scene, 90 days in downtime). A hallucinated `{d: 4000}` gets clamped
+rather than throwing the campaign a decade forward, because the clock
+never rewinds and a bad advance would be permanent.
+
+**The simulation.** The world-tick module's header reads *"Deliberately
+imports nothing."* It advances the world in 7-day intervals, and its
+randomness is derived from `campaign seed ⊕ entity ⊕ week` — a hash, not a
+random call. That one decision buys three properties video games have
+relied on for decades:
+
+- **Reproducibility.** The same week always computes the same way. Advance
+  21 days in one call or three 7-day calls — identical world, and one of
+  the 13 engine checks asserts it.
+- **Zero storage for the future.** Nothing about what *will* happen is
+  stored anywhere. The future is a pure function of seed and time, computed
+  on demand — infinite world, no bytes.
+- **Zero AI cost.** Pressing PASS TIME and skipping a month costs no
+  tokens at all. Faction clocks fill at hidden rates, situations spawn and
+  expire, injuries heal on schedule — all arithmetic.
+
+Caps keep it a story instead of a fire: at most 2 active situations per
+location, 12 globally — *"a world where every location is on fire reads as
+noise, not tension."* Pacing is deliberately geological: the fastest
+faction pressure fires after ~82 in-game days, the slowest ~364.
+
+**The filter.** None of the simulation is narrated as it happens. It
+surfaces through a news digest — Federation News Service, ship ops,
+lower-decks rumor — built by a module that names itself a *trust boundary*
+in its own header: it queries only rows marked `spoiler = 0` and returns a
+deliberately narrow shape rather than passing database rows through. A
+faction clock crossing its halfway point doesn't announce itself; it emits
+an oblique *tell* into the news, and I get to wonder. Even travel is a
+lookup table, not a guess: warp factors map to real lightyears-per-day
+(warp 4 ≈ 0.28, warp 9.6 ≈ 5.9), and the helm line the AI receives —
+`[HELM: X is 3 ly out — approx 2d 4h at warp 7]` — is computed, so the AI
+can't invent a travel time.
+
+## Memory: a database the AI can't hallucinate
+
+The prompt is split into two tiers with completely different economics:
+
+- **Tier 1 — the world bible.** ~101,000 characters ≈ 39,700 tokens of
+  canon, assembled in fixed order and prompt-cached. The function that
+  builds it takes **no arguments** — that signature is the enforcement
+  mechanism, because volatile state physically can't be appended to it and
+  silently break the cache. Measured effect: ~50,200 uncached input tokens
+  per turn naive, ~4,670 with the split. A 91% reduction.
+  (Fun measurement from the perf log: markdown with tables tokenizes at
+  ~2.5 characters per token, not the usual ~4 — never estimate by
+  character count.)
+- **Tier 2 — everything that changes.** NPCs, places, faction clocks,
+  grievances, habits, who-knows-what, seeded from JSON into SQLite at
+  campaign creation. Recall is app-side code over FTS5, not a model tool
+  call: when a scene involves a character or a place, the app queries for
+  relevant rows and injects at most 6 NPCs, 3 places, 2 verbatim excerpts,
+  4,500 characters total. The rationale, quoted from the perf log:
+  *"App-side retrieval costs no round trip and cannot hallucinate a lookup
+  it didn't perform."* The tools-based alternative was tried and rejected —
+  the model must also *choose* to look things up, and when it doesn't, it
+  invents.
+- **The transcript is deliberately NOT cached.** Measurement showed billed
+  input climbing from 4,759 to 15,894 tokens per turn — the mutable
+  transcript was being cache-*written* at a 1.25× premium every turn and
+  never read back. Caching it cost more than not caching it.
+
+New information becomes memory through a three-tier cost rule the design
+doc states as *"derive before you ask"*: derived in code (free), carried by
+a `%%WORLD%%` op riding a turn that's already happening (nearly free), or
+extracted by a separate archivist model (expensive — a Haiku-class pass
+that compresses the transcript when it exceeds a 20,000-character budget
+into structured JSON: summary, checkpoint, NPCs, events, threads,
+relationships, quests). Push work down the tiers, never up. Code decides
+what becomes campaign truth, not the archivist — a failed pass leaves the
+transcript alone — and every sixth compression folds the oldest summaries
+into an era digest, so the context holds three zoom levels of the past:
+just-now verbatim, recent summarized, ancient digested.
+
+Two judgment calls keep all this machinery invisible at the table:
+*presence is generous, not forensic* — being named in a turn counts as
+being there — and *knowledge is guidance, not a gate*, because a character
+who's occasionally too well-informed reads better than a scene that smells
+of bookkeeping.
+
+## Contact with reality
+
+I haven't been sleeping enough. I just keep "play testing" 🙂
