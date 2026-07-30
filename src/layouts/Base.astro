@@ -204,6 +204,12 @@ const aboutPrompt =
     margin: 0;
     padding-block: 0.55rem;
   }
+  /* Tighter on a phone, where this row is a permanent tenant of a small screen. */
+  @media (max-width: 640px) {
+    .header-nav :global(.chips) {
+      padding-block: 0.35rem;
+    }
+  }
   .header-row {
     display: flex;
     align-items: center;

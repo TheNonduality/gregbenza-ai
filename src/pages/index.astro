@@ -305,12 +305,26 @@ const jsonLd = graph([
 <style>
   /* ---- Wayfinding chips: the key to the rooms below ----
      These render into the header's second row, which owns their vertical
-     spacing; the margin here only applies if they are ever used inline. */
+     spacing; the margin here only applies if they are ever used inline.
+
+     ONE LINE, ALWAYS — nowrap plus a scrollable overflow rather than wrapping.
+     The row lives in a sticky header, so a second line of chips would
+     permanently cost every screen ~44px more. Three rooms fit today (281px of
+     358 available at 390px), but a fourth would wrap and push the header past
+     150px. Scrolling sideways keeps the header a fixed height no matter how many
+     rooms Greg adds. Safe to make this a scroll container: the ask panel that
+     must never be clipped lives in the brand row above, not in here. */
   .chips {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 0.5rem;
     margin-block: var(--space-3);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+  .chips::-webkit-scrollbar {
+    display: none;
   }
   .chip {
     font-family: var(--font-body);

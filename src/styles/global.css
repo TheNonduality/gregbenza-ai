@@ -163,6 +163,13 @@ code {
   .g-send {
     min-height: 2.75rem;
   }
+  /* The one exception, and a deliberate one. The room list is a compact
+     navigation row pinned to a small screen for the whole visit, so 44px there
+     costs more than it buys. 36px is still half again the 24px minimum WCAG
+     2.5.8 asks for at AA, and these pills are wide targets horizontally. */
+  .header-nav .chip {
+    min-height: 2.25rem;
+  }
 }
 
 .eyebrow {
