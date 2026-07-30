@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import AskButtons from '../components/AskButtons.astro';
+import ContactForm from '../components/ContactForm.astro';
 import JsonLd from '../components/JsonLd.astro';
 
 interface Props {
@@ -120,8 +121,14 @@ const aboutPrompt =
           <span class="brand-name">GregBenza<span class="brand-ai">.AI</span></span>
           <span class="tagline">— where good ideas go to grow</span>
         </a>
-        <div class="header-ask">
-          <AskButtons prompt={aboutPrompt} collapsed summaryLabel="Ask your AI about me ↗" />
+        {/* The two doors, side by side: one for the visitor's AI, one for the
+            visitor. Contact carries the page it was pressed from, so a message
+            arrives knowing what the sender was looking at. */}
+        <div class="header-actions">
+          <div class="header-ask">
+            <AskButtons prompt={aboutPrompt} collapsed summaryLabel="Ask your AI ↗" />
+          </div>
+          <ContactForm context={Astro.url.pathname} />
         </div>
       </div>
       {/* The room list rides WITH the header rather than scrolling away up the
@@ -258,10 +265,13 @@ const aboutPrompt =
     .brand-name {
       font-size: 1.05rem;
     }
+    /* The tagline goes on phones. With two pills on the right the brand had
+       roughly 168px to work with, which wrapped this to a second line and grew
+       the sticky header from 94px to 107px — 13px charged to every screen for a
+       line the door already says on arrival, in much bigger type. The brand name
+       carries the identity on its own at this size. */
     .tagline {
-      font-size: 0.72rem;
-      white-space: normal;
-      max-width: 100%;
+      display: none;
     }
   }
   .header-row {
@@ -284,10 +294,16 @@ const aboutPrompt =
       flex-wrap: wrap;
     }
   }
-  /* One quiet button in the header; the platform pills unfold beneath it, so
-     the top of a phone screen stays for the brand and the work. */
-  .header-ask {
+  /* Both header doors, pushed to the right end of the brand row. Each pill
+     anchors its own overlay panel, so neither can grow the header in flow. */
+  .header-actions {
     margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex: 0 0 auto;
+  }
+  .header-ask {
     position: relative;
     flex: 0 0 auto;
   }
@@ -297,7 +313,8 @@ const aboutPrompt =
      pill needs 12px more than it holds — the row used to hang over its own
      padding there. Compact through 835, full size once there is room. */
   @media (max-width: 835px) {
-    .header-ask :global(.ask-summary) {
+    .header-ask :global(.ask-summary),
+    .header-actions :global(.contact-btn) {
       font-size: 0.72rem;
       padding: 0.25em 0.7em;
       min-height: 1.9rem;

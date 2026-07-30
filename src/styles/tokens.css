@@ -21,6 +21,7 @@
 :root {
   --lin-fpv: #ff5f1f; /* FPV Journey — aerial orange */
   --lin-games: #7c5cff; /* Games — arcade violet */
+  --lin-app: #2f6bff; /* The App — working blue */
   --lin-woods: #2fa36b; /* reserved */
   --lin-cook: #e0398c; /* reserved */
 
@@ -90,6 +91,7 @@
 } /* unknown / missing lineage degrades to neutral */
 [data-wing='fpv-journey'] { --wing: var(--lin-fpv); }
 [data-wing='games'] { --wing: var(--lin-games); }
+[data-wing='the-app'] { --wing: var(--lin-app); }
 [data-wing='woods'] { --wing: var(--lin-woods); }
 [data-wing='cooking'] { --wing: var(--lin-cook); }
 
@@ -119,11 +121,13 @@
   --zone: var(--ground);
   --zone-fpv: color-mix(in oklab, var(--lin-fpv) var(--wing-tint-pct), var(--ground));
   --zone-games: color-mix(in oklab, var(--lin-games) var(--wing-tint-pct), var(--ground));
+  --zone-app: color-mix(in oklab, var(--lin-app) var(--wing-tint-pct), var(--ground));
   --zone-woods: color-mix(in oklab, var(--lin-woods) var(--wing-tint-pct), var(--ground));
   --zone-cooking: color-mix(in oklab, var(--lin-cook) var(--wing-tint-pct), var(--ground));
 }
 body[data-zone='fpv-journey'] { --zone: var(--zone-fpv); }
 body[data-zone='games'] { --zone: var(--zone-games); }
+body[data-zone='the-app'] { --zone: var(--zone-app); }
 body[data-zone='woods'] { --zone: var(--zone-woods); }
 body[data-zone='cooking'] { --zone: var(--zone-cooking); }
 
@@ -134,6 +138,7 @@ body[data-zone='cooking'] { --zone: var(--zone-cooking); }
    colour forever, killing the scroll-driven tint outright. */
 body:has(article.project[data-wing='fpv-journey']) { --zone: var(--zone-fpv); }
 body:has(article.project[data-wing='games']) { --zone: var(--zone-games); }
+body:has(article.project[data-wing='the-app']) { --zone: var(--zone-app); }
 body:has(article.project[data-wing='woods']) { --zone: var(--zone-woods); }
 body:has(article.project[data-wing='cooking']) { --zone: var(--zone-cooking); }
 

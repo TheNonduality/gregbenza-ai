@@ -159,8 +159,8 @@ code {
   .wing-pill,
   .ask-btn,
   .ask-summary,
-  .guidance-btn,
-  .g-send {
+  .contact-btn,
+  .c-send {
     min-height: 2.75rem;
   }
   /* The one exception, and a deliberate one. The room list is a compact

@@ -6,6 +6,30 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 4321
+    },
+    {
+      "name": "navigator-demo-worker",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "wrangler", "dev",
+        "--config", "C:\\Users\\gpben\\Documents\\Claude\\Projects\\Nimble Navigator\\nimble-navigator\\worker\\wrangler.toml",
+        "--persist-to", "C:\\Users\\gpben\\Claude\\GregBenza.AI\\navigator-demo-seed\\wrangler-state",
+        "--var", "SESSION_SECRET:navigator-demo-session-secret",
+        "--var", "APP_PASSCODE:navigator-demo-passcode",
+        "--var", "SEED_TOKEN:navigator-demo-disabled",
+        "--var", "MARJIN_VENDOR_KEY:demo-not-a-real-key",
+        "--var", "MARJIN_SELLER_KEY:demo-not-a-real-key",
+        "--var", "ANTHROPIC_API_KEY:demo-not-a-real-key"
+      ],
+      "port": 8787
+    },
+    {
+      "name": "navigator-demo-app",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "C:\\Users\\gpben\\Documents\\Claude\\Projects\\Nimble Navigator\\nimble-navigator\\dev-server.js"
+      ],
+      "port": 8137
     }
   ]
 }

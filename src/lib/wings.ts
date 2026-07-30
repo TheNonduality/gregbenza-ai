@@ -27,6 +27,8 @@ const INTROS: Record<string, string> = {
     'Learning to fly, and to fix. Drones diagnosed from photographs, footage rescued from corrupted files, and the methods that got there.',
   games:
     'Games run by AI. Game masters built out of documents, secrets kept in dead languages, and a wasteland that remembers what you did.',
+  'the-app':
+    'A CRM platform a real business runs on, built with AI. What it does and how it is shaped — the secrets stay home.',
   woods: 'Time spent outside, and what it takes to spend it well.',
   cooking: 'Cooking as a build: a process, a result, and notes for the next attempt.',
 };

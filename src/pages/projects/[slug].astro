@@ -3,7 +3,6 @@ import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Media from '../../components/Media.astro';
 import AskButtons from '../../components/AskButtons.astro';
-import TalkBack from '../../components/TalkBack.astro';
 import { readQa } from '../../lib/qa';
 import { slugify } from '../../lib/wings';
 import { SITE_URL, PERSON_ID, BLOG_ID, abs, person, blog, graph } from '../../lib/schema';
@@ -218,11 +217,11 @@ const jsonLd = graph([
       )
     }
 
-    {/* Outro media — the post plays out on the work itself. */}
+    {/* Outro media — the post plays out on the work itself. A post now ENDS on
+        the work. The closing feedback panel was removed on 2026-07-30; the way
+        in is the Contact pill in the header, reachable from any point on the
+        page rather than only after the scroll. */}
     {data.outro && <Media {...data.outro} />}
-
-    {/* The feedback door, last: read the whole record, then say something. */}
-    <TalkBack context={project.id} />
   </article>
 </Base>
 

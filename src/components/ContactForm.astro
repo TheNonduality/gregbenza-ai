@@ -1,0 +1,172 @@
+---
+// "Contact me" — the one way in, living in the header on every page.
+//
+// Replaced the old "Offer guidance" arrangement on 2026-07-30, which put a
+// button on all seven cards, every post, and a closing panel besides — nine of
+// them on the homepage alone. One door, always within reach, reads as an
+// invitation; nine read as nagging.
+//
+// Posts to our own function at /api/guidance, NOT to Netlify Forms. Netlify
+// Forms accepted every submission and stored none of them — confirmed
+// 2026-07-25 across four tests including Greg's own phone. See
+// netlify/functions/guidance.mjs for the full account.
+//
+// The field NAMES are unchanged from the form this replaces (message, from,
+// context, bot-field). The function and the stored history keep working; only
+// the wording and the placement moved.
+interface Props {
+  /** Where the visitor was standing. Stored with the message. */
+  context?: string;
+}
+const { context = 'site' } = Astro.props;
+---
+
+<details class="contact">
+  <summary class="contact-btn">
+    <span class="contact-label-long">Contact me</span>
+    <span class="contact-label-short">Contact</span>
+  </summary>
+  <div class="contact-panel">
+    <form name="guidance" method="POST" action="/api/guidance" class="contact-form">
+      <input type="hidden" name="context" value={context} />
+      {/* Honeypot: off-screen rather than display:none, because bots skip what
+          is hidden outright. tabindex and autocomplete keep real people — and
+          their password managers — from ever landing in it by accident. */}
+      <p class="hp" aria-hidden="true">
+        <label>Don't fill this out: <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
+      </p>
+      <label class="c-label">
+        Message
+        <textarea
+          name="message"
+          rows="4"
+          required
+          placeholder="Say hello, poke a hole, or tell me what to build differently."></textarea>
+      </label>
+      <label class="c-label">
+        Email or handle <span class="c-optional">(optional, but I can't reply without it)</span>
+        <input type="text" name="from" autocomplete="off" />
+      </label>
+      <button type="submit" class="c-send">Send it</button>
+    </form>
+  </div>
+</details>
+
+<style>
+  .contact {
+    position: relative;
+    flex: 0 0 auto;
+  }
+  /* Geometry identical to .ask-btn beside it — same type, size, padding, height
+     and radius, so the pair reads as two of the same object. The ONLY thing
+     that separates them is that this one is filled: it is the single filled
+     control on the site, which is how it stays the loudest thing in the header
+     without wearing a colour that would argue with whichever room you are in. */
+  .contact-btn {
+    list-style: none;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--on-press);
+    background: var(--press);
+    border: 1.5px solid var(--press);
+    border-radius: var(--radius-pill);
+    padding: 0.25em 0.85em;
+    min-height: 2.1rem;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    transition:
+      background-color 140ms ease,
+      border-color 140ms ease;
+  }
+  .contact-btn::-webkit-details-marker {
+    display: none;
+  }
+  .contact-btn:hover,
+  .contact[open] .contact-btn {
+    background: var(--press-hover);
+    border-color: var(--press-hover);
+  }
+  /* The short label only below 480px, where the brand, the ask pill and this
+     one are all competing for a single row. */
+  .contact-label-short {
+    display: none;
+  }
+  @media (max-width: 480px) {
+    .contact-label-long {
+      display: none;
+    }
+    .contact-label-short {
+      display: inline;
+    }
+  }
+
+  /* Unfolds as an overlay, never inline. Anything that grew the header in flow
+     would change its height, and the header's height is what the whole site's
+     scroll offset is calculated from (see --header-h in Base.astro) — the page
+     would shift under the visitor the moment they pressed Contact.
+     Right-aligned and width-capped so it cannot run off a phone screen. */
+  .contact-panel {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.35rem);
+    z-index: 20;
+    width: min(22rem, calc(100vw - 1.5rem));
+    background: var(--ground-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: var(--space-3);
+    box-shadow: var(--shadow);
+  }
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .hp {
+    position: absolute;
+    left: -9999px;
+  }
+  .c-label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-soft);
+  }
+  .c-optional {
+    font-weight: 400;
+    color: var(--text-faint);
+  }
+  .contact-form textarea,
+  .contact-form input[type='text'] {
+    font-size: 1rem;
+    color: var(--text);
+    background: var(--ground);
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    padding: 0.55em 0.7em;
+    width: 100%;
+  }
+  .contact-form textarea:focus,
+  .contact-form input[type='text']:focus {
+    border-color: var(--press);
+  }
+  .c-send {
+    align-self: flex-start;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--on-press);
+    background: var(--press);
+    border: none;
+    border-radius: var(--radius-pill);
+    padding: 0.5em 1.4em;
+    min-height: 44px;
+    cursor: pointer;
+  }
+  .c-send:hover {
+    background: var(--press-hover);
+  }
+</style>

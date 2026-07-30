@@ -2,10 +2,8 @@
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import AskButtons from '../components/AskButtons.astro';
-import GuidanceForm from '../components/GuidanceForm.astro';
 import DoorHero from '../components/DoorHero.astro';
 import AskMoment from '../components/AskMoment.astro';
-import TalkBack from '../components/TalkBack.astro';
 import { slugify, wingFor, type Wing } from '../lib/wings';
 import { SITE_URL, PERSON_ID, BLOG_ID, person, blog, graph } from '../lib/schema';
 
@@ -147,9 +145,6 @@ const jsonLd = graph([
                     )}
                     {p.data.agentMd && <AskButtons agentMd={p.data.agentMd} title={p.data.title} />}
                   </div>
-                  <div class="placard-guidance">
-                    <GuidanceForm context={p.id} />
-                  </div>
                 </article>
               ))}
             </div>
@@ -163,8 +158,6 @@ const jsonLd = graph([
       ))
     )
   }
-
-  <TalkBack context="site" />
 </Base>
 
 <script>
@@ -493,9 +486,8 @@ const jsonLd = graph([
     flex-wrap: nowrap;
     align-items: center;
     gap: 0.4rem;
-    padding: var(--space-2) var(--space-3) 0;
-  }
-  .placard-guidance {
+    /* Closes the card now that the guidance row that used to carry the bottom
+       padding is gone. */
     padding: var(--space-2) var(--space-3) var(--space-3);
   }
   .placard-media {
@@ -539,7 +531,7 @@ const jsonLd = graph([
     margin: var(--space-1) 0 0;
     font-size: 1.02rem;
   }
-  /* Same pill geometry as .ask-btn and .guidance-btn, so the row reads as one
+  /* Same pill geometry as .ask-btn and .contact-btn, so the row reads as one
      set of controls instead of three design ideas arguing.
      Wears its wing's colour rather than the guidance red: this names the room
      the piece hangs in, and red on this site belongs to the single button that
