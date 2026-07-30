@@ -1,7 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="5" fill="#faf8f4"/>
-  <!-- A single ink brushstroke over a seal-red ground mark. -->
-  <rect x="6" y="6" width="20" height="20" rx="3" fill="#a5322a" opacity="0.12"/>
-  <path d="M9 21c3-9 5-12 7-12s2 4 4 4 3-2 3-2" fill="none" stroke="#1a1a1a" stroke-width="2.4" stroke-linecap="round"/>
-  <circle cx="22" cy="10" r="2" fill="#a5322a"/>
+  <!-- The spark: the site's one repeated mark (see AskButtons.astro), the same
+       glyph that sits on every "ask your AI" control. Not a logo — Greg does not
+       have one and does not want one; this is the handshake mark standing in.
+
+       Carries its own dark tile rather than a transparent ground: a favicon has
+       to read on a light tab bar and a dark one, and only one file gets served,
+       so the tile supplies the contrast instead of hoping for it.
+
+       Two departures from the inline version, both for legibility at 16px:
+       the star is filled rather than stroked (a stroked 8px star turns to mush),
+       and it is scaled up relative to the brackets so it does not read as a dot. -->
+  <rect width="32" height="32" rx="6" fill="#121216"/>
+  <g fill="none" stroke="#00b8d9" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10.25 6.8 5.65 16l4.6 9.2"/>
+    <path d="M21.75 6.8 26.35 16l-4.6 9.2"/>
+  </g>
+  <path d="M16 10.75 17.95 14.05 21.25 16 17.95 17.95 16 21.25 14.05 17.95 10.75 16 14.05 14.05Z" fill="#00b8d9"/>
 </svg>

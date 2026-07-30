@@ -42,3 +42,12 @@ const posterSrc = poster ?? (src.endsWith('.web.mp4') ? src.replace(/\.web\.mp4$
     </figure>
   )
 }
+
+<style>
+  /* Everything hung on this wall shares one corner radius. */
+  figure img,
+  figure video {
+    border-radius: var(--radius);
+    background: var(--ground-sunken);
+  }
+</style>

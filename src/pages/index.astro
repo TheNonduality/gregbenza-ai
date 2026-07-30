@@ -3,19 +3,39 @@ import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import AskButtons from '../components/AskButtons.astro';
 import GuidanceForm from '../components/GuidanceForm.astro';
+import DoorHero from '../components/DoorHero.astro';
+import AskMoment from '../components/AskMoment.astro';
+import TalkBack from '../components/TalkBack.astro';
+import { slugify, wingFor, type Wing } from '../lib/wings';
 import { SITE_URL, PERSON_ID, BLOG_ID, person, blog, graph } from '../lib/schema';
 
 const projects = (await getCollection('projects', ({ data }) => !data.draft)).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
 );
 
-// Filter chips come from the posts themselves — one chip per project lineage.
-const lineages = [...new Set(projects.map((p) => p.data.project).filter(Boolean))] as string[];
-const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+// THE WINGS. The log is still one reverse-chronological list underneath — it is
+// grouped into rooms so walking down the page reads as walking through a
+// building. Wing order follows the newest post in each wing, so the room with
+// the freshest work is the first one you enter, and because `projects` is
+// already sorted newest-first, insertion order gives that for free.
+type WingGroup = Wing & { posts: typeof projects };
+const wings: WingGroup[] = [];
+for (const p of projects) {
+  const w = wingFor(p.data.project);
+  const existing = wings.find((g) => g.slug === w.slug);
+  if (existing) existing.posts.push(p);
+  else wings.push({ ...w, posts: [p] });
+}
+
+// Filter chips come from the wings themselves, in the same order as the rooms.
+// A post with no `project` is schema-legal, so it lands in an unnamed wing that
+// gets no chip (nothing to filter to) but still shows its work.
+const chipWings = wings.filter((w) => w.slug !== '');
 
 // Structured data: who made this (Person), what this page is (Blog), and what
 // it holds (the post list). Posts repeat the same @ids so crawlers stitch the
-// graph together across pages.
+// graph together across pages. Wings are presentation only and appear nowhere
+// in here — the machine-readable record is the flat list, unchanged.
 const jsonLd = graph([
   person,
   {
@@ -43,86 +63,123 @@ const jsonLd = graph([
 ---
 
 <Base title="GregBenza.ai — where good ideas go to grow" jsonLd={jsonLd}>
-  {/* The page's one h1. Words borrowed from the header and <title> — no new
-      voice invented here; the design pass owns how loud this reads. */}
-  <h1 class="page-title">GregBenza.AI — where good ideas go to grow</h1>
+  {/* The entrance. Owns the page's one h1, and renders full-bleed via Base's
+      `bleed` slot. One line to swap for a different hero — see the contract
+      comment in DoorHero.astro. */}
+  <DoorHero slot="bleed" wing={wings[0]?.slug ?? ''} />
 
-  {/* Filter chips — quiet by default (showing everything); ink when pressed. */}
+  {/* Wayfinding. Each chip carries its wing's colour, so the row doubles as a
+      key to the rooms below it. */}
   {
-    lineages.length > 0 && (
+    chipWings.length > 0 && (
       <nav class="chips" aria-label="Filter by project">
         <button class="chip chip-all is-active" data-project="">All</button>
-        {lineages.map((name) => (
-          <button class="chip" data-project={slugify(name)}>
-            {name}
+        {chipWings.map((w) => (
+          <button class="chip" data-project={w.slug} data-wing={w.slug}>
+            <span class="chip-swatch" aria-hidden="true" />
+            {w.name}
           </button>
         ))}
       </nav>
     )
   }
 
-  {/* THE LOG — every post is a placard, newest first. */}
   {
     projects.length === 0 ? (
       <p>Nothing here yet — the census fills this in.</p>
     ) : (
-      <div class="feed">
-        {projects.map((p) => (
-          <article class="placard" data-project={p.data.project ? slugify(p.data.project) : ''}>
-            <a class="placard-link" href={`/projects/${p.id}/`}>
-              {p.data.hero && p.data.hero.type === 'image' && (
-                <img class="placard-media" src={p.data.hero.src} alt={p.data.hero.alt ?? ''} loading="lazy" />
-              )}
-              {p.data.hero && p.data.hero.type === 'video' && (
-                <img
-                  class="placard-media"
-                  src={p.data.hero.src.replace(/\.web\.mp4$/, '.poster.jpg')}
-                  alt={p.data.hero.caption ?? ''}
-                  loading="lazy"
-                />
-              )}
-              <div class="placard-body">
-                <div class="placard-top">
-                  <h2 class="placard-title">{p.data.title}</h2>
-                  <time datetime={p.data.date.toISOString()}>
-                    {p.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}
-                  </time>
-                </div>
-                <p class="placard-headline">{p.data.blurb}</p>
+      wings.map((w, wingIndex) => (
+        <Fragment>
+          <section class="wing" id={`wing-${w.slug}`} data-wing={w.slug}>
+            {/* The plaque by the door of the room. */}
+            <header class="wing-plaque reveal">
+              <span class="wing-swatch" aria-hidden="true" />
+              <div class="wing-words">
+                <h2 class="wing-name">{w.name}</h2>
+                {w.intro && <p class="wing-intro">{w.intro}</p>}
               </div>
-            </a>
-            {/* Two rows on purpose: asking an AI about the work is a quiet
-                side-door, so those stay outlined and share one line. Offering
-                guidance is the loud one Greg actually wants pressed, so it
-                gets its own line and the only solid red on the page.
+              <span class="wing-count">
+                {w.posts.length} {w.posts.length === 1 ? 'piece' : 'pieces'}
+              </span>
+            </header>
 
-                The project pill leads that first row. It used to sit inside the
-                link under the blurb at 0.75rem, which read as a stray caption;
-                out here it's the same pill as everything else on the card and
-                it presses to filter the feed. */}
-            <div class="placard-actions">
-              {p.data.project && (
-                <button class="placard-tag" type="button" data-filter={slugify(p.data.project)}>
-                  {p.data.project}
-                </button>
-              )}
-              {p.data.agentMd && <AskButtons agentMd={p.data.agentMd} title={p.data.title} />}
+            <div class="wing-feed">
+              {w.posts.map((p, i) => (
+                <article class="placard reveal" style={`--i:${i}`} data-project={p.data.project ? slugify(p.data.project) : ''}>
+                  <a class="placard-link" href={`/projects/${p.id}/`}>
+                    {p.data.hero && p.data.hero.type === 'image' && (
+                      <img class="placard-media" src={p.data.hero.src} alt={p.data.hero.alt ?? ''} loading="lazy" />
+                    )}
+                    {p.data.hero && p.data.hero.type === 'video' && (
+                      <img
+                        class="placard-media"
+                        src={p.data.hero.src.replace(/\.web\.mp4$/, '.poster.jpg')}
+                        alt={p.data.hero.caption ?? ''}
+                        loading="lazy"
+                      />
+                    )}
+                    <div class="placard-body">
+                      <div class="placard-top">
+                        <h3 class="placard-title">{p.data.title}</h3>
+                        <time datetime={p.data.date.toISOString()}>
+                          {p.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}
+                        </time>
+                      </div>
+                      <p class="placard-headline">{p.data.blurb}</p>
+                    </div>
+                  </a>
+                  {/* Two rows on purpose: asking an AI about the work is a quiet
+                      side-door, so those stay outlined and share one line. Offering
+                      guidance is the loud one Greg actually wants pressed, so it
+                      gets its own line and the only solid red on the page.
+
+                      The project pill leads that first row. It used to sit inside the
+                      link under the blurb at 0.75rem, which read as a stray caption;
+                      out here it's the same pill as everything else on the card and
+                      it presses to filter the feed. */}
+                  <div class="placard-actions">
+                    {p.data.project && (
+                      <button class="placard-tag" type="button" data-filter={slugify(p.data.project)}>
+                        {p.data.project}
+                      </button>
+                    )}
+                    {p.data.agentMd && <AskButtons agentMd={p.data.agentMd} title={p.data.title} />}
+                  </div>
+                  <div class="placard-guidance">
+                    <GuidanceForm context={p.id} />
+                  </div>
+                </article>
+              ))}
             </div>
-            <div class="placard-guidance">
-              <GuidanceForm context={p.id} />
-            </div>
-          </article>
-        ))}
-      </div>
+          </section>
+
+          {/* The handshake gets explained once, after the first room — late
+              enough that the visitor has seen real work, early enough that they
+              have most of the exhibit left to try it on. */}
+          {wingIndex === 0 && <AskMoment />}
+        </Fragment>
+      ))
     )
   }
 
+  <TalkBack context="site" />
 </Base>
 
 <script>
+  // ---------------------------------------------------------------------------
+  // Wayfinding: filter, zone tint, and reveals. One script, three small jobs.
+  // ---------------------------------------------------------------------------
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // --- 1. Filter -------------------------------------------------------------
   // Chips: unselected row = showing everything. Press one to narrow to that
   // project; press it again (or All) to widen back. State rides the URL.
+  //
+  // It now hides whole WINGS rather than individual cards, but the ?p= contract
+  // is unchanged: same slugs, same param, so every link ever shared still lands
+  // where it did.
   const chips = Array.from(document.querySelectorAll<HTMLButtonElement>('.chip'));
+  const wingSections = Array.from(document.querySelectorAll<HTMLElement>('.wing'));
   const placards = Array.from(document.querySelectorAll<HTMLElement>('.placard'));
   // The project pill on each card is a second way into the same filter.
   const tags = Array.from(document.querySelectorAll<HTMLButtonElement>('.placard-tag'));
@@ -135,110 +192,251 @@ const jsonLd = graph([
     tags.forEach((t) => {
       t.classList.toggle('is-active', selected !== '' && t.dataset.filter === selected);
     });
-    placards.forEach((card) => {
-      card.style.display = selected === '' || card.dataset.project === selected ? '' : 'none';
+    wingSections.forEach((wing) => {
+      wing.style.display = selected === '' || wing.dataset.wing === selected ? '' : 'none';
     });
+    // A hidden wing can never cross the viewport, so the observer below would
+    // have nothing to report and the wall would keep whatever tint it had.
+    // While a filter is on, the filter owns the tint.
+    if (selected) document.body.dataset.zone = selected;
+    else delete document.body.dataset.zone;
     const url = new URL(location.href);
     if (selected) url.searchParams.set('p', selected);
     else url.searchParams.delete('p');
     history.replaceState(null, '', url);
   }
 
+  // Cards in a wing that was hidden when the observer ran never got marked
+  // seen, so they would arrive invisible when the wing comes back. Any filter
+  // press settles that for every card at once.
+  function revealAll() {
+    placards.forEach((c) => c.classList.add('is-seen'));
+    document.querySelectorAll('.wing-plaque').forEach((el) => el.classList.add('is-seen'));
+  }
+
   chips.forEach((chip) => {
     chip.addEventListener('click', () => {
       const target = chip.dataset.project ?? '';
       const already = chip.classList.contains('is-active');
-      apply(already && target !== '' ? '' : target);
+      const next = already && target !== '' ? '' : target;
+      apply(next);
+      revealAll();
+      if (next) {
+        document
+          .getElementById(`wing-${next}`)
+          ?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+      }
     });
   });
 
   tags.forEach((tag) => {
     tag.addEventListener('click', () => {
       const target = tag.dataset.filter ?? '';
-      apply(tag.classList.contains('is-active') ? '' : target);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      const next = tag.classList.contains('is-active') ? '' : target;
+      apply(next);
+      revealAll();
+      const anchor = next ? document.getElementById(`wing-${next}`) : null;
+      if (anchor) anchor.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+      else window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
     });
   });
 
   apply(new URL(location.href).searchParams.get('p') ?? '');
+
+  // --- 2. Zone tint ----------------------------------------------------------
+  // The wall tints toward whichever room you are standing in. The tint itself
+  // still changes under reduced motion (it is wayfinding, not decoration) —
+  // what gets dropped there is the fade between tints, handled in global.css.
+  if ('IntersectionObserver' in window) {
+    const zoneObserver = new IntersectionObserver(
+      (entries) => {
+        // Only act while nothing is filtered; a filter pins the tint itself.
+        if (new URL(location.href).searchParams.get('p')) return;
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const slug = (entry.target as HTMLElement).dataset.wing ?? '';
+          if (slug) document.body.dataset.zone = slug;
+          else delete document.body.dataset.zone;
+        }
+      },
+      // A room claims the wall once it holds the middle fifth of the screen,
+      // so the tint changes as you arrive rather than as an edge peeks in.
+      { rootMargin: '-40% 0px -40% 0px' }
+    );
+    wingSections.forEach((w) => zoneObserver.observe(w));
+
+    // --- 3. Reveals --------------------------------------------------------
+    // Plaques and cards rise in as they arrive. The hidden state they rise from
+    // only exists under html.js and only when motion is allowed (see
+    // global.css), so this is purely additive: if it never runs, everything is
+    // already visible.
+    if (!reduced) {
+      const revealObserver = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            entry.target.classList.add('is-seen');
+            revealObserver.unobserve(entry.target);
+          }
+        },
+        { threshold: 0.12 }
+      );
+      document.querySelectorAll('.reveal').forEach((el) => revealObserver.observe(el));
+
+      // Safety net. The hidden-until-revealed state means a reveal that never
+      // arrives leaves real content invisible — the worst failure this page has
+      // available to it. Once the page has finished loading, anything already on
+      // screen gets shown whether the observer reported it or not. Cards further
+      // down are untouched, so the walk down the page still reveals as you go.
+      addEventListener('load', () => {
+        document.querySelectorAll<HTMLElement>('.reveal:not(.is-seen)').forEach((el) => {
+          const r = el.getBoundingClientRect();
+          if (r.top < innerHeight && r.bottom > 0) el.classList.add('is-seen');
+        });
+      });
+    }
+  } else {
+    revealAll();
+  }
 </script>
 
 <style>
-  /* Quiet by design: the header already carries the brand, so the h1 states
-     the page for machines and readers without shouting over the log. */
-  .page-title {
-    font-size: 1.15rem;
-    font-weight: 600;
-    color: var(--ink-soft);
-    margin-block: var(--space-3) 0;
-  }
+  /* ---- Wayfinding chips: the key to the rooms below ---- */
   .chips {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    margin-block: var(--space-3);
+    margin-block: var(--space-4) var(--space-3);
   }
   .chip {
-    font-family: var(--font-ui);
+    font-family: var(--font-body);
     font-size: 0.85rem;
-    color: var(--ink-soft);
+    font-weight: 500;
+    color: var(--text-soft);
     background: none;
-    border: 1px solid var(--hairline);
-    border-radius: 999px;
+    border: 1.5px solid var(--line);
+    border-radius: var(--radius-pill);
     padding: 0.35em 1em;
     min-height: 2.2rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    white-space: nowrap;
     cursor: pointer;
+    transition:
+      background-color 140ms ease,
+      border-color 140ms ease,
+      color 140ms ease;
+  }
+  .chip-swatch {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--wing, var(--text));
+    flex: 0 0 auto;
   }
   .chip:hover {
-    border-color: var(--accent-soft);
-    color: var(--accent);
+    border-color: var(--wing, var(--text));
+    color: var(--text);
   }
-  .chip:hover {
-    border-color: var(--ink);
-    color: var(--ink);
-  }
-  /* Pressed filter reads as ink, not seal. Red is reserved for the one button
-     on the page that asks the visitor to do something. */
+  /* Pressed chip goes solid in its own room's colour — the chip and the wing
+     plaque then match, which is the whole point of colour-coding the rooms.
+     --wing-solid, not --wing: the raw wing colours are too luminous to carry a
+     white label (see tokens.css). "All" has no wing and falls back to the loud
+     button's fill, which is the same ink everywhere. */
   .chip.is-active {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--wing-solid);
+    border-color: var(--wing-solid);
+    color: var(--on-solid);
   }
-  .feed {
+  /* "All" is the one chip with no room, so it wears the loud button's inverting
+     ink instead. It needs --on-press and NOT --on-solid: the ink fill is
+     near-WHITE in dark mode, and a white label on it disappears completely. */
+  .chip-all.is-active {
+    background: var(--press);
+    border-color: var(--press);
+    color: var(--on-press);
+  }
+  .chip.is-active .chip-swatch {
+    background: var(--on-solid);
+  }
+
+  /* ---- The room ---- */
+  .wing {
+    margin-block: var(--space-5);
+    /* Never overflow:hidden — cards inside open ask panels and guidance forms
+       that must be free to spill past the section box. */
+  }
+  .wing-plaque {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    padding-bottom: var(--space-2);
+    border-bottom: 2px solid var(--wing-line);
+    margin-bottom: var(--space-3);
+  }
+  /* The colour of the room, stated once at its door. */
+  .wing-swatch {
+    flex: 0 0 auto;
+    width: 6px;
+    align-self: stretch;
+    min-height: 2.75rem;
+    border-radius: 3px;
+    background: var(--wing);
+  }
+  .wing-words {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .wing-name {
+    margin: 0;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    color: var(--wing-strong);
+  }
+  .wing-intro {
+    margin: 0.35rem 0 0;
+    color: var(--text-soft);
+    font-size: 0.98rem;
+    max-width: 42rem;
+  }
+  .wing-count {
+    flex: 0 0 auto;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    white-space: nowrap;
+    padding-top: 0.4rem;
+  }
+  .wing-feed {
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
-    margin-block: var(--space-3) var(--space-5);
   }
-  /* The placard sits ON the paper rather than being a card laid over it: no
-     fill of its own, so the grain runs straight through, and the boundary is a
-     brushed ink line instead of a ruled border. */
+
+  /* ---- The plaque: one piece hung on the wall ---- */
   .placard {
     position: relative;
-    background: transparent;
+    background: var(--ground-raised);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--wing);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    transition: box-shadow 180ms ease;
     /* Deliberately NOT overflow:hidden. It was clipping the ask-panel, which
-       drops ~174px below the card — the buttons rendered but were invisible. */
+       drops ~174px below the card — the buttons rendered but were invisible.
+       The image gets its own rounded corners instead. */
   }
-  /* The wash edge. A plain rectangle pushed around by the turbulence filter in
-     Base.astro, so every side wanders like a brush loaded with too much water.
-     It is a pseudo-element and not a real border so the displacement can spill
-     outside the box without shifting any layout. */
-  .placard::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border: 1.5px solid var(--ink);
-    filter: url(#ink-edge);
-    opacity: 0.42;
-    pointer-events: none;
-    transition: opacity 160ms ease;
-  }
-  .placard:hover::before {
-    opacity: 0.68;
+  .placard:hover {
+    box-shadow:
+      0 2px 4px rgb(0 0 0 / 0.08),
+      0 14px 34px rgb(0 0 0 / 0.1);
   }
   .placard-link {
     display: block;
     text-decoration: none;
+    color: inherit;
   }
   /* Compact placards on wide screens: media rides left, words right, several
      placards per screen. Stacks back to media-on-top on phones. */
@@ -252,17 +450,20 @@ const jsonLd = graph([
       height: 100%;
       width: 100%;
       aspect-ratio: 16 / 9;
-      max-height: 190px;
+      max-height: 200px;
+      border-radius: 0;
+      border-top-left-radius: calc(var(--radius) - 1px);
+      border-bottom-left-radius: calc(var(--radius) - 1px);
     }
     .placard-body {
       padding: var(--space-2) var(--space-3);
       align-self: center;
     }
     .placard-title {
-      font-size: 1.1rem;
+      font-size: 1.35rem;
     }
     .placard-headline {
-      font-size: 0.98rem;
+      font-size: 1rem;
       margin-top: 0.3rem;
     }
   }
@@ -279,17 +480,14 @@ const jsonLd = graph([
   .placard-guidance {
     padding: var(--space-2) var(--space-3) var(--space-3);
   }
-  .chip {
-    white-space: nowrap;
-  }
   .placard-media {
     display: block;
     width: 100%;
     aspect-ratio: 16 / 9;
     object-fit: cover;
-    background: var(--paper-edge);
-    /* Square. Rounded corners inside a hand-brushed outline read as two
-       different drawing tools arguing. */
+    background: var(--ground-sunken);
+    border-top-left-radius: calc(var(--radius) - 1px);
+    border-top-right-radius: calc(var(--radius) - 1px);
   }
   .placard-body {
     padding: var(--space-2) var(--space-3) var(--space-3);
@@ -302,49 +500,56 @@ const jsonLd = graph([
     flex-wrap: wrap;
   }
   .placard-title {
-    font-size: 1.25rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.3rem;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
     margin: 0;
-    color: var(--ink);
+    color: var(--text);
   }
   .placard-top time {
-    font-family: var(--font-ui);
-    font-size: 0.8rem;
-    color: var(--ink-faint);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-faint);
     white-space: nowrap;
   }
   .placard-headline {
-    color: var(--ink-soft);
+    color: var(--text-soft);
     margin: var(--space-1) 0 0;
-    font-size: 1.05rem;
+    font-size: 1.02rem;
   }
   /* Same pill geometry as .ask-btn and .guidance-btn, so the row reads as one
      set of controls instead of three design ideas arguing.
-     Deliberately NOT red: this names the work, and red on this site belongs to
-     the single button that asks the visitor to do something. A filled ground
-     separates it from the outlined ask pills next to it, and pressing it goes
-     solid ink — the same language the filter chips above already speak. */
+     Wears its wing's colour rather than the guidance red: this names the room
+     the piece hangs in, and red on this site belongs to the single button that
+     asks the visitor to do something. */
   .placard-tag {
-    font-family: var(--font-ui);
-    font-size: 0.8rem;
+    font-size: 0.78rem;
+    font-weight: 600;
     letter-spacing: 0.02em;
-    color: var(--ink-soft);
-    background: var(--paper-edge);
-    border: 1px solid var(--hairline);
-    border-radius: 999px;
+    color: var(--wing-strong);
+    background: var(--wing-fill);
+    border: 1.5px solid var(--wing-line);
+    border-radius: var(--radius-pill);
     padding: 0.25em 0.9em;
     min-height: 2.1rem;
     display: inline-flex;
     align-items: center;
     white-space: nowrap;
     cursor: pointer;
+    transition:
+      background-color 140ms ease,
+      color 140ms ease;
   }
   .placard-tag:hover {
-    border-color: var(--ink);
-    color: var(--ink);
+    border-color: var(--wing);
   }
   .placard-tag.is-active {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--wing-solid);
+    border-color: var(--wing-solid);
+    color: var(--on-solid);
   }
 </style>

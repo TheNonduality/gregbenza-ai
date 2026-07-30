@@ -1,0 +1,304 @@
+---
+/**
+ * THE DOOR — the entrance to the exhibit.
+ *
+ * Two panels meet in the middle under the name. Scrolling parts them and you
+ * walk into the first room. It is one continuous move: no cuts, no sections.
+ *
+ * SWAP CONTRACT: this component owns the whole first screen and takes nothing
+ * from the page but two strings. If the hero is ever replaced with rendered
+ * video (a scroll-scrubbed camera flight, say), replacing this one file is the
+ * entire job — index.astro renders it as a single line.
+ *
+ * THE IMPORTANT PART — the default state is the door already OPEN.
+ * A visitor with JavaScript off, or an old browser, or reduced motion turned on
+ * gets a still photograph of an open doorway in a single screen, with every word
+ * legible. The closed door and the 220vh run are the *enhancement*, switched on
+ * only once we know the browser can actually animate it. Built the other way
+ * round — closed by default, opened by script — a script that never runs leaves
+ * the visitor staring at a wall.
+ *
+ * Two ways it animates, and it picks one:
+ *   1. CSS scroll-driven animation, tied to the document scroll position. No
+ *      JavaScript at all, runs off the main thread. Chrome and Edge today.
+ *   2. A ~15-line rAF-throttled scroll handler that writes one custom property.
+ *      Safari and Firefox, until they ship the first option.
+ * The script checks for support and stands down if CSS has it covered, so the
+ * two never drive the same property at once.
+ */
+interface Props {
+  name?: string;
+  line?: string;
+  /** Lineage slug of the first wing, so the room beyond the door is already
+   *  wearing the colour of the room you are about to walk into. */
+  wing?: string;
+}
+const {
+  name = 'GREG BENZA',
+  line = 'Where good ideas go to grow. A proof-of-work exhibit.',
+  wing = '',
+} = Astro.props;
+---
+
+<section class="door" data-wing={wing} aria-label="Welcome">
+  <div class="door-stage">
+    {/* The room beyond, tinted with the first wing's colour. */}
+    <div class="door-room" aria-hidden="true"></div>
+
+    {/* The two halves of the door. Decorative: the doorway is a picture of an
+        idea, and a screen reader gets the words instead. */}
+    <div class="door-panel door-panel-left" aria-hidden="true"></div>
+    <div class="door-panel door-panel-right" aria-hidden="true"></div>
+
+    {/* The page's one h1. The full descriptive title stays in <title>, the meta
+        description, and the JSON-LD; here the name gets to be the size it is. */}
+    <div class="door-title">
+      <h1 class="door-name">{name}</h1>
+      <p class="door-line">{line}</p>
+      <p class="door-hint" aria-hidden="true">Step inside <span class="door-arrow">↓</span></p>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Fallback driver: writes scroll progress (0 to 1) onto the section as
+  // --door-p, which the CSS reads. Stands down entirely when CSS scroll-driven
+  // animations are available (they do this better, off the main thread) or when
+  // the visitor has asked for reduced motion (the door then stays open, still).
+  (() => {
+    const door = document.querySelector<HTMLElement>('.door');
+    if (!door) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (CSS.supports('animation-timeline: scroll()')) return;
+
+    const stage = door.querySelector<HTMLElement>('.door-stage');
+    if (!stage) return;
+    door.classList.add('door-live');
+
+    let queued = false;
+    const update = () => {
+      queued = false;
+      // How far into the sticky run we are. The run is the section's height
+      // minus the one screen the stage occupies, so this stays correct at every
+      // viewport size without hard-coding a number.
+      const run = door.offsetHeight - stage.offsetHeight;
+      const p = run > 0 ? Math.min(1, Math.max(0, -door.getBoundingClientRect().top / run)) : 1;
+      door.style.setProperty('--door-p', p.toFixed(4));
+    };
+    const onScroll = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(update);
+    };
+
+    update();
+    addEventListener('scroll', onScroll, { passive: true });
+    addEventListener('resize', onScroll, { passive: true });
+  })();
+</script>
+
+<style>
+  /* ---- The still photograph: what everyone sees before any enhancement ----
+     One screen tall, door standing open, slivers of it left at the edges to
+     frame the name. */
+  .door {
+    --door-p: 0.92;
+    --door-run: 120vh; /* length of the sticky run, once it is switched on */
+    position: relative;
+    height: 100svh;
+    min-height: 30rem;
+    /* Already the full width of the page: this renders into Base's `bleed`
+       slot, outside the reading column, so it needs no 100vw escape hatch. */
+  }
+  .door-stage {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    min-height: 30rem;
+    display: grid;
+    place-items: center;
+    /* Safe here and ONLY here: the panels slide out through these edges and
+       there is no ask-panel or form anywhere inside the stage to clip. */
+    overflow: hidden;
+  }
+
+  /* The room beyond the door. */
+  .door-room {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(
+        120% 90% at 50% 100%,
+        color-mix(in oklab, var(--wing, var(--ask)) 22%, var(--ground)) 0%,
+        var(--ground) 70%
+      );
+  }
+
+  /* The two halves. Each is a full-height slab of the recessed surface with a
+     hairline down its inner edge, so closed they read as one seam. */
+  .door-panel {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50%;
+    z-index: 1;
+    background: var(--ground-sunken);
+    will-change: transform;
+  }
+  .door-panel-left {
+    left: 0;
+    border-right: 2px solid var(--line);
+    transform: translateX(calc(var(--door-p) * -104%));
+  }
+  .door-panel-right {
+    right: 0;
+    border-left: 2px solid var(--line);
+    transform: translateX(calc(var(--door-p) * 104%));
+  }
+
+  .door-title {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding-inline: var(--space-2);
+    max-width: 46rem;
+  }
+  .door-name {
+    font-family: var(--font-display);
+    font-weight: 800;
+    /* Big enough to be the loudest thing on the site, capped so it never
+       outgrows a phone in portrait. */
+    font-size: clamp(2.75rem, 13vw, 7rem);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    margin: 0;
+    color: var(--text);
+  }
+  .door-line {
+    font-size: clamp(1rem, 2.2vw, 1.3rem);
+    color: var(--text-soft);
+    max-width: 32rem;
+    margin: var(--space-2) auto 0;
+    text-wrap: balance;
+  }
+  .door-hint {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-top: var(--space-4);
+  }
+  .door-arrow {
+    display: inline-block;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .door-arrow {
+      animation: nudge 2.4s var(--ease-out) infinite;
+    }
+    @keyframes nudge {
+      0%,
+      60%,
+      100% {
+        transform: translateY(0);
+      }
+      80% {
+        transform: translateY(4px);
+      }
+    }
+  }
+
+  /* ---- Enhancement 1: the JS-driven run (Safari, Firefox) ----
+     The script adds .door-live only when it is actually going to drive it. */
+  .door.door-live {
+    --door-p: 0;
+    height: calc(100svh + var(--door-run));
+  }
+  .door-live .door-title {
+    /* Fades out over the last third of the run, as the room takes over. */
+    opacity: clamp(0, calc((0.86 - var(--door-p)) / 0.3), 1);
+    transform: scale(calc(1 + var(--door-p) * 0.06));
+  }
+  .door-live .door-room {
+    opacity: clamp(0, calc((var(--door-p) - 0.35) / 0.45), 1);
+  }
+
+  /* ---- Enhancement 2: CSS scroll-driven animation (Chrome, Edge) ----
+     Tied to the document's own scroll position over the exact length of the
+     sticky run, so the door finishes opening precisely as the run ends. */
+  @supports (animation-timeline: scroll()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .door {
+        height: calc(100svh + var(--door-run));
+      }
+      .door-panel-left,
+      .door-panel-right,
+      .door-title,
+      .door-room {
+        animation-timeline: scroll(root block);
+        animation-fill-mode: both;
+        animation-timing-function: linear;
+      }
+      .door-panel-left {
+        animation-name: part-left;
+        animation-range: 0 var(--door-run);
+      }
+      .door-panel-right {
+        animation-name: part-right;
+        animation-range: 0 var(--door-run);
+      }
+      .door-title {
+        animation-name: title-recede;
+        animation-range: 0 var(--door-run);
+      }
+      .door-room {
+        animation-name: room-arrive;
+        animation-range: 0 calc(var(--door-run) * 0.8);
+      }
+      @keyframes part-left {
+        from {
+          transform: translateX(0);
+        }
+        to {
+          transform: translateX(-104%);
+        }
+      }
+      @keyframes part-right {
+        from {
+          transform: translateX(0);
+        }
+        to {
+          transform: translateX(104%);
+        }
+      }
+      @keyframes title-recede {
+        0%,
+        56% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        100% {
+          opacity: 0;
+          transform: scale(1.06);
+        }
+      }
+      @keyframes room-arrive {
+        0%,
+        35% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+    }
+  }
+
+  /* Phones get a shorter run: the same move, less thumb. */
+  @media (max-width: 700px) {
+    .door {
+      --door-run: 90vh;
+    }
+  }
+</style>

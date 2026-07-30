@@ -47,7 +47,11 @@ const thumb = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
     background: transparent;
     cursor: pointer;
   }
-  .yt-shape { fill: var(--accent); opacity: 0.9; transition: opacity 0.15s; }
+  /* A fixed near-black, not a theme token: this shape sits on a video thumbnail,
+     which is an arbitrary photograph rather than the wall, and the play triangle
+     inside it is hard-coded white. Following --text would turn the shape white
+     in dark mode and swallow the triangle whole. */
+  .yt-shape { fill: #16161a; opacity: 0.86; transition: opacity 0.15s; }
   lite-youtube:hover .yt-shape { opacity: 1; }
   lite-youtube iframe {
     position: absolute;

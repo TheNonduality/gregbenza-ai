@@ -39,17 +39,20 @@ const { context = 'site' } = Astro.props;
   .guidance {
     display: inline-block;
   }
-  /* The one solid red on the page. Everything else is outlined ink, so this
-     reads as the single thing the site is actually asking you to press. */
+  /* The one solid fill on the site. Every other control is an outline, so this
+     reads as the single thing the site is actually asking you to press — and it
+     gets there on contrast alone rather than on a colour, so it never argues
+     with the room it happens to be standing in. */
   .guidance-btn {
     list-style: none;
     cursor: pointer;
-    font-family: var(--font-ui);
-    font-size: 0.82rem;
-    color: var(--paper);
-    background: var(--accent);
-    border: 1px solid var(--accent);
-    border-radius: 999px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--on-press);
+    background: var(--press);
+    border: 1.5px solid var(--press);
+    border-radius: var(--radius-pill);
     padding: 0.35em 1.1em;
     min-height: 2.2rem;
     display: inline-flex;
@@ -66,16 +69,16 @@ const { context = 'site' } = Astro.props;
   }
   .guidance-btn:hover,
   .guidance[open] .guidance-btn {
-    background: var(--accent-soft);
-    border-color: var(--accent-soft);
+    background: var(--press-hover);
+    border-color: var(--press-hover);
   }
   .guidance-form {
     margin-top: var(--space-2);
-    padding: var(--space-2);
-    border: 1px solid var(--hairline);
-    border-radius: 6px;
-    /* Paper, not white — nothing else on the page is white any more. */
-    background: var(--paper);
+    padding: var(--space-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--ground-raised);
+    box-shadow: var(--shadow);
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
@@ -89,36 +92,42 @@ const { context = 'site' } = Astro.props;
     display: flex;
     flex-direction: column;
     gap: 0.35rem;
-    font-family: var(--font-ui);
     font-size: 0.85rem;
-    color: var(--ink-soft);
+    font-weight: 500;
+    color: var(--text-soft);
   }
   .g-optional {
-    color: var(--ink-faint);
+    font-weight: 400;
+    color: var(--text-faint);
   }
   .guidance-form textarea,
   .guidance-form input[type='text'] {
     font-family: var(--font-body);
     font-size: 1rem;
-    color: var(--ink);
-    background: var(--paper);
-    border: 1px solid var(--hairline);
-    border-radius: var(--radius);
-    padding: 0.5em 0.7em;
+    color: var(--text);
+    background: var(--ground);
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    padding: 0.55em 0.7em;
+  }
+  .guidance-form textarea:focus,
+  .guidance-form input[type='text']:focus {
+    border-color: var(--press);
   }
   .g-send {
     align-self: flex-start;
-    font-family: var(--font-ui);
+    font-family: var(--font-display);
+    font-weight: 600;
     font-size: 0.9rem;
-    color: var(--paper);
-    background: var(--accent);
+    color: var(--on-press);
+    background: var(--press);
     border: none;
-    border-radius: var(--radius);
-    padding: 0.5em 1.2em;
+    border-radius: var(--radius-pill);
+    padding: 0.5em 1.4em;
     min-height: 44px;
     cursor: pointer;
   }
   .g-send:hover {
-    background: var(--accent-soft);
+    background: var(--press-hover);
   }
 </style>

@@ -69,8 +69,14 @@ const projects = defineCollection({
     // Site-absolute path to this post's agent-facing markdown twin — the file
     // the ask-more buttons point a visitor's AI at.
     agentMd: z.string().optional(),
-    // Optional per-project accent override (design tokens hold the default).
-    accent: z.string().optional(),
+    // No per-post colour field, on purpose. It existed for the ink-wash design
+    // and was retired on 2026-07-29 with the Exhibit redesign: colour now carries
+    // meaning site-wide — each wing owns one, and the single red belongs to the
+    // one button asking the visitor to do something. A per-post override fought
+    // both, and the six values in use had been picked against a palette that no
+    // longer exists (two of them left white-on-fill at 1.9:1 and 2.3:1, an
+    // unreadable "Offer guidance" button). Colour lives in
+    // src/styles/tokens.css; a new colour means a new wing, not a new post field.
     draft: z.boolean().default(false),
   }),
 });

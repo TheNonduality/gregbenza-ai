@@ -3,8 +3,9 @@ import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Media from '../../components/Media.astro';
 import AskButtons from '../../components/AskButtons.astro';
-import GuidanceForm from '../../components/GuidanceForm.astro';
+import TalkBack from '../../components/TalkBack.astro';
 import { readQa } from '../../lib/qa';
+import { slugify } from '../../lib/wings';
 import { SITE_URL, PERSON_ID, BLOG_ID, abs, person, blog, graph } from '../../lib/schema';
 
 export async function getStaticPaths() {
@@ -120,18 +121,26 @@ const jsonLd = graph([
   ogType="article"
   jsonLd={jsonLd}
 >
-  <article
-    class="project"
-    data-accent={data.accent}
-    style={data.accent ? `--accent:${data.accent}` : undefined}
-  >
+  {/* data-wing hangs this piece in its room, and it is the ONLY colour input a
+      post has: the wing colour, the wall tint, the dateline rule, and the pill
+      below all derive from this one attribute (see tokens.css). The per-post
+      `accent` override was removed with the field on 2026-07-29 — see the note in
+      src/content.config.ts for why. */}
+  <article class="project" data-wing={data.project ? slugify(data.project) : ''}>
     <p class="eyebrow">
-      <a href="/">← the log</a>
+      <a href="/">← the exhibit</a>
     </p>
 
     {/* Ask-your-AI at the very top: the fastest way off the page for anyone
         who would rather have their own AI read the record than read this. */}
     {data.agentMd && <AskButtons agentMd={data.agentMd} title={data.title} />}
+
+    {/* Which room this hangs in, and the way back into it. */}
+    {data.project && (
+      <p class="project-wing">
+        <a class="wing-pill" href={`/?p=${slugify(data.project)}`}>{data.project}</a>
+      </p>
+    )}
 
     <h1>{data.title}</h1>
     <p class="dateline">
@@ -177,6 +186,10 @@ const jsonLd = graph([
         reader wants the file's name and a line telling them what it does. The
         `kind` field stays in the schema — it still carries meaning for agents
         reading the collection — it simply isn't rendered as a badge. */}
+    {/* SELF-CONTAINED ON PURPOSE. Greg is still deciding whether the files layer
+        stays on the page at all, so this section owns its own vertical margins
+        and nothing else references `.technical`. Deleting the whole block —
+        markup and styles — leaves the page correct. Do not hang anything off it. */}
     {
       data.technical.length > 0 && (
         <section class="technical" aria-label="Relevant files">
@@ -209,71 +222,101 @@ const jsonLd = graph([
     {data.outro && <Media {...data.outro} />}
 
     {/* The feedback door, last: read the whole record, then say something. */}
-    <GuidanceForm context={project.id} />
+    <TalkBack context={project.id} />
   </article>
 </Base>
 
 <style>
+  .project {
+    padding-block: var(--space-3) 0;
+  }
+  /* The room this piece hangs in, and the door back to it. */
+  .project-wing {
+    margin-block: var(--space-3) 0;
+  }
+  .wing-pill {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--wing-strong);
+    background: var(--wing-fill);
+    border: 1.5px solid var(--wing-line);
+    border-radius: var(--radius-pill);
+    padding: 0.3em 0.95em;
+    min-height: 2.1rem;
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+  }
+  .wing-pill:hover {
+    border-color: var(--wing);
+    color: var(--wing-strong);
+  }
+  .project h1 {
+    margin-block: var(--space-2) var(--space-2);
+    font-size: clamp(2.1rem, 6vw, 3.6rem);
+  }
   .dateline {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
     gap: 0.4rem;
     margin: 0;
-    font-family: var(--font-ui);
-    font-size: 0.85rem;
-    color: var(--ink-faint);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    /* A short rule in the room's colour, so the date sits under the wing. */
+    padding-left: 0.75rem;
+    border-left: 3px solid var(--wing);
   }
   .dateline-sep {
-    color: var(--hairline);
+    color: var(--line);
   }
   .updated {
-    color: var(--ink-soft);
+    color: var(--text-soft);
   }
-  .qa {
-    margin-block: var(--space-3);
-  }
-  .qa h2 {
-    margin-bottom: var(--space-2);
-  }
-  .qa-item + .qa-item {
-    margin-top: var(--space-3);
-    padding-top: var(--space-3);
-    border-top: 1px solid var(--hairline);
-  }
-  .qa-q {
-    margin: 0 0 var(--space-1);
-    color: var(--ink);
-  }
-  .qa-a {
-    margin: 0;
-    color: var(--ink-soft);
-  }
+  /* The hook, set large — the one line that decides whether you keep reading. */
   .blurb {
-    font-size: 1.3rem;
-    line-height: 1.5;
-    color: var(--ink-soft);
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(1.25rem, 2.6vw, 1.65rem);
+    line-height: 1.35;
+    letter-spacing: -0.015em;
+    color: var(--text-soft);
     margin-block: var(--space-3);
+    max-width: 40rem;
+    text-wrap: balance;
   }
+  /* The transfer crate: flat, recessed, filenames in the machine face. */
   .technical {
-    background: var(--paper-edge);
+    background: var(--ground-sunken);
+    border-top: 3px solid var(--wing-line);
     border-radius: var(--radius);
-    padding: var(--space-2) var(--space-3);
-    margin-block: var(--space-3);
+    padding: var(--space-2) var(--space-3) var(--space-3);
+    margin-block: var(--space-4);
   }
-  .technical h2 { margin-top: var(--space-1); }
+  .technical h2 {
+    margin-top: var(--space-2);
+    font-size: 1.3rem;
+  }
   .inputs { list-style: none; padding: 0; margin: 0; }
   .inputs li {
     display: flex;
-    padding: var(--space-1) 0;
-    border-top: 1px solid var(--hairline);
+    padding: var(--space-2) 0;
+    border-top: 1px solid var(--line);
   }
   .input-body { display: flex; flex-direction: column; }
+  .input-body a {
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+  }
   .input-note {
-    font-family: var(--font-ui);
     font-size: 0.85rem;
-    color: var(--ink-faint);
+    color: var(--text-faint);
   }
   /* Give the rendered background story comfortable rhythm. */
   .prose :global(h2) { border-top: none; }
+  .prose :global(a) { text-decoration-color: var(--wing); }
 </style>

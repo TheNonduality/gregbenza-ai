@@ -3,10 +3,38 @@ import Base from '../layouts/Base.astro';
 ---
 
 <Base title="Thank you — GregBenza.ai" description="Guidance received.">
-  <h1>Got it. Thank you.</h1>
-  <p>
-    Guidance is how this site gets better — it's read, taken seriously, and it
-    shapes what gets built next.
-  </p>
-  <p><a href="/">← back to the log</a></p>
+  <section class="thanks">
+    <p class="eyebrow">The door swung both ways</p>
+    <h1>Got it. Thank you.</h1>
+    <p class="thanks-body">
+      Guidance is how this site gets better — it's read, taken seriously, and it
+      shapes what gets built next.
+    </p>
+    <p><a class="thanks-back" href="/">← back to the exhibit</a></p>
+  </section>
 </Base>
+
+<style>
+  .thanks {
+    margin-block: var(--space-5);
+    padding: var(--space-5) var(--space-3);
+    background: var(--ground-raised);
+    border: 1px solid var(--line);
+    border-left: 5px solid var(--press);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .thanks h1 {
+    margin-block: 0.2rem var(--space-2);
+  }
+  .thanks-body {
+    max-width: 34rem;
+    color: var(--text-soft);
+    font-size: 1.1rem;
+  }
+  .thanks-back {
+    font-weight: 500;
+    text-decoration: none;
+    border-bottom: 2px solid var(--press);
+  }
+</style>

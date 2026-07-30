@@ -1,47 +1,195 @@
 /* ==========================================================================
-   Design tokens — seeded with the Phase 0 design direction.
-   Chinese watercolor (水墨, ink-wash): mostly black and white, one occasional
-   accent. Restraint is the design principle — these are the SEED values, not
-   the finished system (that lands in Phase 2). Everything downstream reads
-   from these variables so the later skin swap is one file, not a rewrite.
+   Design tokens — "The Exhibit".
+
+   The site is a gallery: quiet walls, vivid work. Three layers, in order:
+
+     1. RAW PALETTE      one vivid base per project lineage, plus the two
+                         brand colours (ask cyan, guidance red). Theme-blind.
+     2. SEMANTIC TOKENS   ground / text / line / shadow. Light in :root, dark
+                         in one prefers-color-scheme block. Nothing else in
+                         the codebase should name a literal colour.
+     3. DERIVED LINEAGE   every wing variant is color-mix(base, semantic), so
+                         one hex yields correct light AND dark automatically.
+
+   Adding a future wing (woods, cooking, practice) is one hex in layer 1 and
+   one selector line in layer 3. That is the whole job.
    ========================================================================== */
 
+/* --------------------------------------------------------------------------
+   LAYER 1 — raw palette
+   -------------------------------------------------------------------------- */
 :root {
-  /* Ink on rice paper. Near-black ink, warm off-white ground. */
-  --ink: #1a1a1a;
-  --ink-soft: #4a4a4a;
-  --ink-faint: #8a8a8a;
-  --paper: #faf8f4;
-  --paper-edge: #efece4;
-  --hairline: #dcd8ce;
+  --lin-fpv: #ff5f1f; /* FPV Journey — aerial orange */
+  --lin-games: #7c5cff; /* Games — arcade violet */
+  --lin-woods: #2fa36b; /* reserved */
+  --lin-cook: #e0398c; /* reserved */
 
-  /* The one accent: a seal-stamp red (印章), used sparingly. */
-  --accent: #a5322a;
-  --accent-soft: #c56b60;
+  /* Reserved, never a wing colour: the agent handshake wears cyan everywhere
+     on this site and nothing else does, so the mark is recognisable. */
+  --ask-base: #00b8d9;
 
-  /* Type — a serif for the human voice, system stack so Phase 0 ships no
-     web-font weight. Real type choices are a Phase 2 decision. */
-  --font-body: Georgia, 'Times New Roman', serif;
-  --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* THERE IS NO RED. The guidance button used to own one, and it was wrong
+     twice over. Measured: a red at hue 358° sits 19° from the FPV wing's orange
+     (17°) and 28° from the reserved cooking pink (330°), both at ~85%
+     saturation — close enough that the button read as the room's colour
+     slightly broken rather than as its own. And a saturated red button means
+     "delete" in every interface anyone has ever used, which is a poor way to
+     ask someone to talk to you.
+     The wings are claiming the whole colour wheel, so ANY fixed hue here
+     eventually collides with a room. The loud button is therefore hueless — see
+     --press below. */
+}
+
+/* --------------------------------------------------------------------------
+   LAYER 2 — semantic theme tokens
+   -------------------------------------------------------------------------- */
+:root {
+  /* Tells the browser to theme native controls, scrollbars and form fields
+     for us — the dark mode of the form inputs comes free from this line. */
+  color-scheme: light dark;
+
+  --ground: #f6f6f4; /* the gallery wall */
+  --ground-raised: #ffffff; /* a plaque hung on it */
+  --ground-sunken: #ececea; /* recessed: door panels, code, crates */
+  --text: #16161a;
+  --text-soft: #4c4c55;
+  --text-faint: #83838d;
+  --line: #dedede;
+  --shadow:
+    0 1px 3px rgb(0 0 0 / 0.07), 0 8px 24px rgb(0 0 0 / 0.06);
+
+  /* How hard a wing tints the wall as you walk into it. */
+  --wing-tint-pct: 6%;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ground: #121216;
+    --ground-raised: #1b1b21;
+    --ground-sunken: #0c0c0f;
+    --text: #f2f2f5;
+    --text-soft: #b6b6c2;
+    --text-faint: #7e7e8a;
+    --line: #2c2c34;
+    --shadow:
+      0 1px 3px rgb(0 0 0 / 0.5), 0 8px 24px rgb(0 0 0 / 0.4);
+    /* A dark wall swallows a 6% tint whole — it needs more to read as a room
+       you have walked into rather than a rendering artefact. */
+    --wing-tint-pct: 11%;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   LAYER 3 — derived lineage (wing) tokens
+
+   Scoped by [data-wing]; every value mixes the wing base against a SEMANTIC
+   token, which is why one hex per wing covers both themes.
+   -------------------------------------------------------------------------- */
+[data-wing] {
+  --wing: var(--text);
+} /* unknown / missing lineage degrades to neutral */
+[data-wing='fpv-journey'] { --wing: var(--lin-fpv); }
+[data-wing='games'] { --wing: var(--lin-games); }
+[data-wing='woods'] { --wing: var(--lin-woods); }
+[data-wing='cooking'] { --wing: var(--lin-cook); }
+
+[data-wing] {
+  --wing-tint: color-mix(in oklab, var(--wing) var(--wing-tint-pct), var(--ground));
+  --wing-soft: color-mix(in oklab, var(--wing) 55%, var(--text-soft));
+  --wing-line: color-mix(in oklab, var(--wing) 40%, var(--line));
+  --wing-fill: color-mix(in oklab, var(--wing) 14%, var(--ground-raised));
+  --wing-strong: color-mix(in oklab, var(--wing) 85%, var(--text));
+  /* A pressed chip or pill goes solid in its room's colour and carries white
+     text. The raw wing colours are too luminous for that: white on the FPV
+     orange measured 3.04:1 and white on the Games violet 4.35:1 — and the
+     violet failed with dark text too (4.15:1), so there was no legible label
+     either way. Deepening every wing by a fixed amount clears AA for all four
+     (worst case 5.42:1) and leaves enough headroom that a wing colour picked
+     later stays legible without anybody re-checking. */
+  --wing-solid: color-mix(in oklab, var(--wing) 72%, #000);
+}
+
+/* --------------------------------------------------------------------------
+   ZONES — the wall itself tints toward whichever wing you are standing in.
+   Wayfinding, not decoration: the colour tells you where you are, so it must
+   still change for visitors who have switched motion off (the transition is
+   what gets dropped there, never the tint).
+   -------------------------------------------------------------------------- */
+:root {
+  --zone: var(--ground);
+  --zone-fpv: color-mix(in oklab, var(--lin-fpv) var(--wing-tint-pct), var(--ground));
+  --zone-games: color-mix(in oklab, var(--lin-games) var(--wing-tint-pct), var(--ground));
+  --zone-woods: color-mix(in oklab, var(--lin-woods) var(--wing-tint-pct), var(--ground));
+  --zone-cooking: color-mix(in oklab, var(--lin-cook) var(--wing-tint-pct), var(--ground));
+}
+body[data-zone='fpv-journey'] { --zone: var(--zone-fpv); }
+body[data-zone='games'] { --zone: var(--zone-games); }
+body[data-zone='woods'] { --zone: var(--zone-woods); }
+body[data-zone='cooking'] { --zone: var(--zone-cooking); }
+
+/* A post page stands inside its own wing, statically — no scrolling required.
+   Matched on `article.project` and nothing looser: the homepage also carries
+   [data-wing] on its wing sections and its chips, so a bare
+   :has([data-wing='games']) matched the homepage too and pinned the wall to one
+   colour forever, killing the scroll-driven tint outright. */
+body:has(article.project[data-wing='fpv-journey']) { --zone: var(--zone-fpv); }
+body:has(article.project[data-wing='games']) { --zone: var(--zone-games); }
+body:has(article.project[data-wing='woods']) { --zone: var(--zone-woods); }
+body:has(article.project[data-wing='cooking']) { --zone: var(--zone-cooking); }
+
+/* --------------------------------------------------------------------------
+   The two brand colours, derived.
+   -------------------------------------------------------------------------- */
+:root {
+  --ask: var(--ask-base);
+  --ask-tint: color-mix(in oklab, var(--ask-base) 9%, var(--ground));
+  --ask-line: color-mix(in oklab, var(--ask-base) 45%, var(--line));
+  --ask-fill: color-mix(in oklab, var(--ask-base) 14%, var(--ground-raised));
+
+  /* THE LOUD BUTTON — the one control asking the visitor to do something.
+     Hueless by necessity (see the note in layer 1) and therefore built out of
+     the two tokens furthest apart in any theme: it fills with the TEXT colour
+     and labels itself in the GROUND colour. That inverts on its own — near-black
+     with a white label on the light wall, near-white with a dark label on the
+     dark one — which makes it the highest-contrast object on the page in both
+     (16.7:1), and means it can never clash with a wing colour, including ones
+     not chosen yet. */
+  --press: var(--text);
+  --on-press: var(--ground);
+  /* Hover eases the fill back toward the wall a little: a real change in both
+     themes that cannot lose contrast the way mixing toward the text colour did. */
+  --press-hover: color-mix(in oklab, var(--text) 82%, var(--ground));
+
+  /* Text laid on a solid wing fill (pressed chips and pills). Light in both
+     themes because --wing-solid deepens every wing colour to suit it. */
+  --on-solid: #ffffff;
+}
+
+/* --------------------------------------------------------------------------
+   Type. Bold and geometric for the voice, clean and quiet for the reading.
+   Self-hosted variable fonts (see global.css) — no third-party font requests.
+   -------------------------------------------------------------------------- */
+:root {
+  --font-display: 'Space Grotesk Variable', 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Inter Variable', Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono: 'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace;
+}
 
-  /* Spacing scale. */
+/* --------------------------------------------------------------------------
+   Space, shape, motion.
+   -------------------------------------------------------------------------- */
+:root {
   --space-1: 0.5rem;
   --space-2: 1rem;
   --space-3: 1.5rem;
   --space-4: 2.5rem;
   --space-5: 4rem;
 
-  --measure: 42rem;      /* readable line length */
-  --radius: 3px;
+  --measure: 42rem; /* readable line length */
+  --radius: 10px;
+  --radius-pill: 999px;
 
-  /* Rice paper (宣紙). Generated, not an image file — an SVG turbulence field
-     tinted to the paper colour, so it costs nothing to download, never
-     pixelates, and tiles seamlessly at any size. Two layers: fine grain for
-     tooth, and a long stretched layer for the fibres that run through real
-     xuan paper. Kept very low contrast; texture you notice is texture that
-     is too strong. */
-  --paper-grain:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23f)' opacity='0.055'/%3E%3C/svg%3E"),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.006 0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23g)' opacity='0.035'/%3E%3C/svg%3E");
+  --dur-reveal: 500ms;
+  --dur-zone: 600ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }

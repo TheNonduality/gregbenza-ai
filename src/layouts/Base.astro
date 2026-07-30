@@ -52,6 +52,14 @@ const aboutPrompt =
          re-checks it, so it stays. -->
     <meta name="google-site-verification" content="8603VMCvQNsi_EMf8otqhAfYyjfhl5rhE012ZNBFSCc" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Phone browser chrome matches the gallery wall in whichever theme the
+         visitor's device is set to. -->
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f6f4" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121216" />
+    <!-- Marks the page as script-capable BEFORE first paint. Every hidden-until-
+         revealed style is gated on `html.js`, so a visitor without JavaScript
+         is never left staring at content that will now never fade in. -->
+    <script is:inline>document.documentElement.classList.add('js');</script>
     <!-- Agent-readable from day one: point machines at the site index. -->
     <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt" />
     <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
@@ -77,92 +85,77 @@ const aboutPrompt =
     {jsonLd && <JsonLd data={jsonLd} />}
   </head>
   <body>
-    {/* Ink-wash edge filter, defined once and used by anything that wants a
-        brushed outline instead of a ruled one. feTurbulence generates a noise
-        field; feDisplacementMap pushes the border along it so the line wanders
-        the way a loaded brush does on damp paper; the blur softens where it
-        bleeds. Zero-size SVG — it renders nothing itself. */}
-    <svg class="filter-defs" aria-hidden="true" focusable="false">
-      <filter id="ink-edge" x="-12%" y="-12%" width="124%" height="124%">
-        <feTurbulence type="fractalNoise" baseFrequency="0.024" numOctaves="4" seed="11" result="noise" />
-        <feDisplacementMap in="SourceGraphic" in2="noise" scale="7" xChannelSelector="R" yChannelSelector="G" result="wobble" />
-        <feGaussianBlur in="wobble" stdDeviation="0.7" />
-      </filter>
-    </svg>
+    {/* Full-bleed slot, outside the reading column. Anything that has to touch
+        both walls goes here — the alternative is a child escaping .wrap with
+        100vw, which counts the scrollbar the content box does not and leaves the
+        whole site scrolling ~8px sideways.
+
+        IT SITS ABOVE THE HEADER ON PURPOSE, and that placement is the entire
+        mechanism behind "the header only appears once you are through the door".
+        A sticky element is in normal flow until its own position would scroll
+        past the top — so a header placed after a 220vh door is simply not reached
+        until the door is behind you, and then it pins and stays for the rest of
+        the page. No hiding, no script, no reveal to get wrong: nothing is ever
+        invisible-but-focusable, there is no layout shift, and it behaves
+        identically with JavaScript off and with motion turned off (where the door
+        is one screen tall, so the header arrives one screen in).
+        Pages with nothing in this slot are unaffected — the header is still the
+        first thing in the body and pins from the start.
+        It also fixed a misalignment nobody had noticed: the door used to begin
+        ~56px down the page while its scroll animation was measured from document
+        zero, so the doorway finished opening slightly out of step with its own
+        sticky run. Starting at zero puts them back in phase. */}
+    <slot name="bleed" />
     <header class="site-header">
       <div class="wrap header-row">
-        {/* Seal-stamp mark — placeholder until Greg's personal logo lands. */}
-        <a href="/" class="seal" aria-label="GregBenza.ai home">GB</a>
+        {/* No mark, by decision. The name set in the display face IS the
+            identity — the one repeated glyph on this site is the ask-spark,
+            which belongs to the agent handshake and nothing else. */}
         <a href="/" class="brand">
-          <span class="brand-name">GregBenza.ai</span>
+          <span class="brand-name">GregBenza<span class="brand-ai">.AI</span></span>
           <span class="tagline">— where good ideas go to grow</span>
         </a>
         <div class="header-ask">
           <AskButtons prompt={aboutPrompt} collapsed summaryLabel="Ask your AI about me ↗" />
         </div>
       </div>
-      {/* One ink brush stroke under the header — the site's horizon line. */}
-      <svg class="brush" viewBox="0 0 1200 14" preserveAspectRatio="none" aria-hidden="true">
-        <path
-          d="M0 8 Q 90 3 210 7 T 460 6 Q 600 10 740 6 T 1000 8 Q 1110 5 1200 7 L 1200 10 Q 1080 13 940 10 T 640 11 Q 480 8 330 11 T 60 10 L 0 11 Z"
-          fill="var(--ink)"
-          opacity="0.82"
-        />
-      </svg>
     </header>
     <main class="wrap">
       <slot />
     </main>
-    <footer class="site-footer">
-      <div class="wrap">
-        <span>GregBenza.AI — a log of projects, built in the open.</span>
-      </div>
-    </footer>
+    {/* No footer. The line that used to sit here ("a log of projects, built in
+        the open") was cut on 2026-07-29: the door already says what this place
+        is, and the talk-back panel is a better last thing on the page than a
+        restatement. The element went with the text rather than staying as an
+        empty bordered strip. */}
+    {/* Scroll progress. Pure garnish: a CSS scroll-driven animation where it is
+        supported, and simply absent where it is not — nothing depends on it. */}
+    <div class="scroll-progress" aria-hidden="true"></div>
   </body>
 </html>
 
 <style>
-  .filter-defs {
-    position: absolute;
-    width: 0;
-    height: 0;
-    overflow: hidden;
-  }
+  /* A pane of glass over the wall: the wing tint showing through keeps the
+     header part of the room rather than a bar sitting on top of it. Falls back
+     to the flat wall colour where backdrop-filter is unsupported. */
   .site-header {
     position: sticky;
     top: 0;
     z-index: 10;
-    /* Same fixed-attachment paper as the body, so the grain lines up exactly
-       and the header reads as part of the sheet rather than a bar laid on it. */
-    background-color: var(--paper);
-    background-image: var(--paper-grain);
-    background-attachment: fixed;
+    background-color: var(--ground);
+    border-bottom: 1px solid var(--line);
+  }
+  @supports (backdrop-filter: blur(8px)) {
+    .site-header {
+      background-color: color-mix(in oklab, var(--zone, var(--ground)) 82%, transparent);
+      backdrop-filter: blur(10px) saturate(1.4);
+    }
   }
   .header-row {
     display: flex;
     align-items: center;
     gap: 0.9rem;
     padding-block: 0.7rem;
-  }
-  .seal {
-    flex: 0 0 auto;
-    width: 2.4rem;
-    height: 2.4rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid var(--accent);
-    border-radius: 4px;
-    color: var(--accent);
-    font-family: var(--font-body);
-    font-weight: 700;
-    font-size: 1rem;
-    letter-spacing: 0.02em;
-    text-decoration: none;
-  }
-  .seal:hover {
-    background: var(--accent);
-    color: var(--paper);
   }
   .brand {
     display: flex;
@@ -173,29 +166,27 @@ const aboutPrompt =
     line-height: 1.25;
   }
   .brand-name {
-    font-family: var(--font-body);
-    font-weight: 700;
-    font-size: 1.35rem;
-    color: var(--ink);
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.4rem;
+    letter-spacing: -0.02em;
+    color: var(--text);
     white-space: nowrap;
   }
+  /* The only place outside the ask controls that wears the agent cyan — it ties
+     the name to what the site actually is. */
+  .brand-ai {
+    color: var(--ask);
+  }
   .tagline {
-    font-family: var(--font-body);
-    font-style: italic;
-    font-size: 1.15rem;
-    color: var(--ink-soft);
+    font-size: 1rem;
+    color: var(--text-faint);
     white-space: nowrap;
   }
   @media (max-width: 640px) {
     .header-row {
       gap: 0.6rem;
-      padding-block: 0.35rem;
-    }
-    .seal {
-      width: 1.9rem;
-      height: 1.9rem;
-      font-size: 0.75rem;
-      border-width: 1.5px;
+      padding-block: 0.4rem;
     }
     .brand {
       flex-direction: column;
@@ -225,7 +216,10 @@ const aboutPrompt =
      the pill. The extra margin is for devices whose fonts render wider.
        641 to 700: the brand is still full size (that shrinks at 640) but the
      viewport is narrower than the row needs.
-     Everywhere else the row fits and this does nothing. */
+     Everywhere else the row fits and this does nothing.
+     Re-measured after the seal was removed (2026-07-29): dropping the mark
+     freed ~55px of row, but the display face sets the name wider than the old
+     serif did, so both wrap points still earn their keep. */
   @media (max-width: 359px), (min-width: 641px) and (max-width: 700px) {
     .header-row {
       flex-wrap: wrap;
@@ -250,9 +244,34 @@ const aboutPrompt =
       min-height: 1.9rem;
     }
   }
-  .brush {
-    display: block;
-    width: 100%;
-    height: 7px;
+  /* Scroll progress. Only ever drawn where the browser can scrub it from the
+     scroll position itself — no JavaScript, and no half-broken version. */
+  .scroll-progress {
+    display: none;
+  }
+  @supports (animation-timeline: scroll()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .scroll-progress {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 11;
+        height: 3px;
+        width: 100%;
+        transform-origin: 0 50%;
+        background: linear-gradient(90deg, var(--ask), var(--wing, var(--text)));
+        animation: progress-grow linear both;
+        animation-timeline: scroll(root block);
+      }
+      @keyframes progress-grow {
+        from {
+          transform: scaleX(0);
+        }
+        to {
+          transform: scaleX(1);
+        }
+      }
+    }
   }
 </style>

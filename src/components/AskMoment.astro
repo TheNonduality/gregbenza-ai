@@ -1,0 +1,75 @@
+---
+// The handshake, explained once.
+//
+// Every post on this site ships a machine-readable twin, and every card carries
+// a button that hands it to the visitor's own AI. That is the most unusual thing
+// about this place, and a row of small pills does not say so. This section is
+// where the site stops and explains itself — one moment in the walk through,
+// placed after the first wing so it interrupts a visitor who is already reading.
+//
+// Self-contained: markup, style, and its own prompt. Delete the one line that
+// renders it and nothing else changes.
+import AskButtons from './AskButtons.astro';
+
+const prompt =
+  'Read https://gregbenza.ai/llms.txt — the machine-readable index of Greg Benza’s proof-of-work site. Pick the project that looks most interesting, read its record, and walk me through what he actually did.';
+---
+
+<section class="ask-moment reveal" aria-labelledby="ask-moment-title">
+  <svg class="moment-spark" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path d="M7 4 3 12l4 8" />
+    <path d="M17 4l4 8-4 8" />
+    <path d="M12 8.5l1.3 2.2 2.2 1.3-2.2 1.3L12 15.5l-1.3-2.2L8.5 12l2.2-1.3z" />
+  </svg>
+  <p class="eyebrow">How this exhibit works</p>
+  <h2 id="ask-moment-title">This site talks to your AI</h2>
+  <p class="moment-body">
+    Every project here has a second copy written for machines — the full record,
+    files and all. Hand it to your own AI and it can read the whole thing, then
+    answer your questions about it. No account, no copy-paste. One click.
+  </p>
+  <div class="moment-actions">
+    <AskButtons prompt={prompt} label="Try it on any project" />
+  </div>
+</section>
+
+<style>
+  /* The one full-colour panel in the walk-through, in the cyan reserved for the
+     agent handshake. NO overflow:hidden — the narrow ask pill opens a panel that
+     drops below its own button and would be clipped away. */
+  .ask-moment {
+    margin-block: var(--space-5);
+    padding: var(--space-4) var(--space-3);
+    background: var(--ask-tint);
+    border: 1.5px solid var(--ask-line);
+    border-radius: var(--radius);
+    text-align: center;
+  }
+  .moment-spark {
+    width: 56px;
+    height: 56px;
+    margin-inline: auto;
+    fill: none;
+    stroke: var(--ask);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .ask-moment .eyebrow {
+    margin-block: var(--space-2) 0;
+  }
+  .ask-moment h2 {
+    margin-block: 0.2rem var(--space-2);
+    font-size: clamp(1.6rem, 4.5vw, 2.6rem);
+  }
+  .moment-body {
+    max-width: 34rem;
+    margin-inline: auto;
+    color: var(--text-soft);
+  }
+  .moment-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--space-3);
+  }
+</style>

@@ -1,5 +1,11 @@
-/* Global base styles. Deliberately plain — Phase 0 ships an honest, ugly-but-real
-   skeleton. The look is a Phase 2 job. Everything here reads from tokens.css. */
+/* Global base styles for "The Exhibit". Flat by design: colour, type and
+   spacing do all the work — no textures, no filters, no ornament. Every value
+   here reads from tokens.css, which is the one file a future reskin touches. */
+
+/* Self-hosted variable fonts. Bundled and hashed by Astro, so the browser
+   makes no request to a third-party font host. */
+@import '@fontsource-variable/space-grotesk';
+@import '@fontsource-variable/inter';
 @import './tokens.css';
 
 *,
@@ -12,26 +18,18 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
-/* The sheet the whole site sits on. `fixed` keeps the paper still while the
-   placards scroll over it — the page reads as ink arriving on one continuous
-   sheet rather than as cards on a moving surface. */
+/* The gallery wall. --zone is plain --ground until a wing claims it; the
+   transition is what makes walking between wings feel like walking. */
 body {
   margin: 0;
-  background-color: var(--paper);
-  background-image: var(--paper-grain);
-  background-attachment: fixed;
-  background-repeat: repeat;
-  color: var(--ink);
+  background-color: var(--ground);
+  background-color: var(--zone, var(--ground));
+  transition: background-color var(--dur-zone) ease;
+  color: var(--text);
   font-family: var(--font-body);
-  font-size: 1.125rem;
+  font-size: 1.0625rem;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
-}
-
-/* Painted texture is decoration, not information — drop it for anyone who has
-   asked the OS to reduce visual noise. */
-@media (prefers-contrast: more) {
-  body { background-image: none; }
 }
 
 /* The column breathes with the screen: readable on a phone, generous on a
@@ -43,26 +41,51 @@ body {
   padding-inline: var(--space-2);
 }
 
-/* Links carry the ink; the accent is reserved for deliberate emphasis. */
+/* Links keep the text colour and let the UNDERLINE carry the colour: inside a
+   post or a wing that underline is the room's colour, elsewhere it is a quiet
+   grey. Hover thickens it and deepens it rather than recolouring the words —
+   the label therefore never drops below full contrast, which a coloured hover
+   state could not promise across four wing colours in two themes. */
 a {
-  color: var(--ink);
-  text-decoration-color: var(--accent-soft);
+  color: var(--text);
+  text-decoration-color: var(--wing, var(--text-faint));
+  text-decoration-thickness: 1px;
   text-underline-offset: 2px;
 }
 a:hover {
-  color: var(--accent);
+  text-decoration-color: var(--wing-strong, var(--text));
+  text-decoration-thickness: 2px;
+}
+
+/* One visible focus style for the whole site, in the agent cyan so keyboard
+   users get the same recognisable mark everyone else sees. */
+:focus-visible {
+  outline: 2px solid var(--ask);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 h1,
 h2,
 h3 {
-  font-family: var(--font-ui);
-  line-height: 1.2;
-  font-weight: 600;
+  font-family: var(--font-display);
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
 }
-h1 { font-size: 2rem; margin-block: var(--space-4) var(--space-2); }
-h2 { font-size: 1.4rem; margin-block: var(--space-4) var(--space-1); }
-h3 { font-size: 1.1rem; margin-block: var(--space-3) var(--space-1); }
+h1 {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  margin-block: var(--space-4) var(--space-2);
+}
+h2 {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  margin-block: var(--space-4) var(--space-1);
+}
+h3 {
+  font-size: 1.15rem;
+  margin-block: var(--space-3) var(--space-1);
+}
 
 img,
 video {
@@ -71,59 +94,84 @@ video {
   display: block;
 }
 
-figure { margin: var(--space-3) 0; }
+figure {
+  margin: var(--space-3) 0;
+}
 figcaption {
-  font-family: var(--font-ui);
   font-size: 0.85rem;
-  color: var(--ink-faint);
+  color: var(--text-faint);
   margin-top: var(--space-1);
 }
 
 hr {
   border: none;
-  border-top: 1px solid var(--hairline);
+  border-top: 1px solid var(--line);
   margin-block: var(--space-4);
 }
 
 code {
   font-family: var(--font-mono);
   font-size: 0.9em;
-  background: var(--paper-edge);
+  background: var(--ground-sunken);
   padding: 0.1em 0.35em;
-  border-radius: var(--radius);
+  border-radius: 4px;
 }
 
 .eyebrow {
-  font-family: var(--font-ui);
   font-size: 0.75rem;
-  letter-spacing: 0.08em;
+  font-weight: 600;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--ink-faint);
+  color: var(--text-faint);
 }
 
-.site-header,
-.site-footer {
-  font-family: var(--font-ui);
+/* --------------------------------------------------------------------------
+   Reveal-on-scroll, shared.
+
+   The hidden state is gated twice: on `html.js` (set by a one-line script in
+   Base.astro's head) and on the visitor NOT having asked for reduced motion.
+   Either gate failing means the content was never hidden in the first place —
+   which is the only safe way to animate content in. Never move these rules
+   out from under that media query.
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  .js .reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+      opacity var(--dur-reveal) var(--ease-out),
+      transform var(--dur-reveal) var(--ease-out);
+    transition-delay: calc(var(--i, 0) * 70ms);
+  }
+  .js .reveal.is-seen {
+    opacity: 1;
+    transform: none;
+  }
 }
-.site-header {
-  border-bottom: 1px solid var(--hairline);
-  padding-block: var(--space-2);
+
+/* The kill switch. Anyone who has asked their system to reduce motion gets a
+   site that holds still — including the door, which renders open. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
-.site-header a { text-decoration: none; }
-.site-header .brand {
-  font-weight: 700;
-  font-size: 1.05rem;
-  letter-spacing: 0.02em;
+
+/* --------------------------------------------------------------------------
+   Header base. Detailed styling lives in Base.astro. There is no footer — see
+   the note in Base.astro where it used to be.
+   -------------------------------------------------------------------------- */
+.site-header a {
+  text-decoration: none;
 }
-.site-header .tagline {
-  font-weight: 400;
-  font-size: 0.9rem;
-  color: var(--ink-faint);
-}
-.site-footer {
-  border-top: 1px solid var(--hairline);
-  margin-top: var(--space-5);
-  padding-block: var(--space-3);
-  font-size: 0.85rem;
-  color: var(--ink-faint);
+
+/* The page needs to end on something, and with the footer gone the last section
+   was butting against the bottom of the window. */
+main.wrap {
+  padding-bottom: var(--space-5);
 }
