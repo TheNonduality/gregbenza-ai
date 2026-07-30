@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 640" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
+  <rect width="1200" height="640" fill="#f6f6f4"/>
+
+  <text x="600" y="70" text-anchor="middle" font-size="30" font-weight="700" fill="#16161a">A year of being the app</text>
+
+  <!-- spine -->
+  <line x1="90" y1="330" x2="1110" y2="330" stroke="#16161a" stroke-width="3"/>
+  <polygon points="1110,330 1094,321 1094,339" fill="#16161a"/>
+
+  <!-- node: Jul 2025 -->
+  <circle cx="150" cy="330" r="11" fill="#2f6bff"/>
+  <text x="150" y="290" text-anchor="middle" font-size="17" font-weight="700" fill="#16161a">Jul 2025</text>
+  <text x="150" y="374" text-anchor="middle" font-size="15" fill="#4c4c55">first spreadsheet</text>
+  <text x="150" y="394" text-anchor="middle" font-size="15" fill="#4c4c55">into a chat window</text>
+
+  <!-- node: WorkBuddy -->
+  <circle cx="320" cy="330" r="11" fill="#2f6bff"/>
+  <text x="320" y="270" text-anchor="middle" font-size="17" font-weight="700" fill="#16161a">Jul 24, 2025</text>
+  <text x="320" y="292" text-anchor="middle" font-size="15" fill="#4c4c55">WorkBuddy, named</text>
+  <text x="320" y="312" text-anchor="middle" font-size="15" fill="#4c4c55">in a voice note</text>
+
+  <!-- node: Margin Magician -->
+  <circle cx="490" cy="330" r="11" fill="#2f6bff"/>
+  <text x="490" y="374" text-anchor="middle" font-size="17" font-weight="700" fill="#16161a">Fall 2025</text>
+  <text x="490" y="396" text-anchor="middle" font-size="15" fill="#4c4c55">Margin Magician:</text>
+  <text x="490" y="416" text-anchor="middle" font-size="15" fill="#4c4c55">a custom GPT that reads</text>
+  <text x="490" y="436" text-anchor="middle" font-size="15" fill="#4c4c55">the ERP's export</text>
+
+  <!-- node: crash -->
+  <circle cx="650" cy="330" r="11" fill="#16161a"/>
+  <text x="650" y="270" text-anchor="middle" font-size="17" font-weight="700" fill="#16161a">Oct 31, 2025</text>
+  <text x="650" y="292" text-anchor="middle" font-size="15" fill="#4c4c55">the model changes;</text>
+  <text x="650" y="312" text-anchor="middle" font-size="15" fill="#4c4c55">the magician breaks</text>
+
+  <!-- node: Claude project -->
+  <circle cx="820" cy="330" r="11" fill="#2f6bff"/>
+  <text x="820" y="374" text-anchor="middle" font-size="17" font-weight="700" fill="#16161a">Apr 2, 2026</text>
+  <text x="820" y="396" text-anchor="middle" font-size="15" fill="#4c4c55">moved to a Claude project;</text>
+  <text x="820" y="416" text-anchor="middle" font-size="15" fill="#4c4c55">the rules become</text>
+  <text x="820" y="436" text-anchor="middle" font-size="15" fill="#4c4c55">a written protocol</text>
+
+  <!-- node: the app -->
+  <circle cx="1020" cy="330" r="14" fill="#2f6bff"/>
+  <circle cx="1020" cy="330" r="22" fill="none" stroke="#2f6bff" stroke-width="3"/>
+  <text x="1020" y="270" text-anchor="middle" font-size="17" font-weight="700" fill="#16161a">May 28, 2026</text>
+  <text x="1020" y="292" text-anchor="middle" font-size="15" fill="#4c4c55">a worker.js appears —</text>
+  <text x="1020" y="312" text-anchor="middle" font-size="15" fill="#4c4c55">the chat becomes an app</text>
+
+  <text x="600" y="560" text-anchor="middle" font-size="15" fill="#83838d">Ten months of chat-window operations, and the day they turned into software.</text>
+</svg>

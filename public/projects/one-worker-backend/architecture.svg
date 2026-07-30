@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 640" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
+  <rect width="1200" height="640" fill="#f6f6f4"/>
+
+  <!-- Phone -->
+  <g>
+    <rect x="70" y="200" width="220" height="240" rx="26" fill="#ffffff" stroke="#16161a" stroke-width="3"/>
+    <rect x="150" y="216" width="60" height="8" rx="4" fill="#dedede"/>
+    <text x="180" y="310" text-anchor="middle" font-size="26" font-weight="700" fill="#16161a">The App</text>
+    <text x="180" y="342" text-anchor="middle" font-size="17" fill="#4c4c55">a web app on</text>
+    <text x="180" y="364" text-anchor="middle" font-size="17" fill="#4c4c55">the sales team's phones</text>
+    <text x="180" y="404" text-anchor="middle" font-size="15" font-weight="600" fill="#16161a">holds zero secrets</text>
+  </g>
+
+  <!-- Arrow phone -> worker -->
+  <line x1="290" y1="320" x2="420" y2="320" stroke="#16161a" stroke-width="3"/>
+  <polygon points="420,320 404,311 404,329" fill="#16161a"/>
+  <text x="355" y="300" text-anchor="middle" font-size="15" fill="#4c4c55">every request</text>
+
+  <!-- Worker -->
+  <g>
+    <rect x="424" y="180" width="330" height="280" rx="16" fill="#ffffff" stroke="#2f6bff" stroke-width="4"/>
+    <text x="589" y="238" text-anchor="middle" font-size="25" font-weight="700" fill="#16161a">One Cloudflare Worker</text>
+    <text x="589" y="270" text-anchor="middle" font-size="17" fill="#4c4c55">the only doorway</text>
+    <!-- padlock -->
+    <g transform="translate(561,300)">
+      <rect x="0" y="22" width="56" height="42" rx="8" fill="#2f6bff"/>
+      <path d="M 10 22 v-6 a 18 18 0 0 1 36 0 v6" fill="none" stroke="#2f6bff" stroke-width="8"/>
+      <circle cx="28" cy="40" r="6" fill="#ffffff"/>
+      <rect x="25" y="42" width="6" height="12" rx="3" fill="#ffffff"/>
+    </g>
+    <text x="589" y="404" text-anchor="middle" font-size="16" font-weight="600" fill="#16161a">every key lives here,</text>
+    <text x="589" y="426" text-anchor="middle" font-size="16" font-weight="600" fill="#16161a">and only here</text>
+  </g>
+
+  <!-- Arrows worker -> three services -->
+  <line x1="754" y1="240" x2="884" y2="150" stroke="#16161a" stroke-width="3"/>
+  <polygon points="884,150 866,152 876,167" fill="#16161a"/>
+  <line x1="754" y1="320" x2="884" y2="320" stroke="#16161a" stroke-width="3"/>
+  <polygon points="884,320 868,311 868,329" fill="#16161a"/>
+  <text x="819" y="302" text-anchor="middle" font-size="14" fill="#4c4c55">read-only</text>
+  <line x1="754" y1="400" x2="884" y2="490" stroke="#16161a" stroke-width="3"/>
+  <polygon points="884,490 876,473 866,488" fill="#16161a"/>
+
+  <!-- Claude API -->
+  <g>
+    <rect x="888" y="90" width="240" height="120" rx="14" fill="#ffffff" stroke="#16161a" stroke-width="2"/>
+    <text x="1008" y="142" text-anchor="middle" font-size="21" font-weight="700" fill="#16161a">Claude API</text>
+    <text x="1008" y="172" text-anchor="middle" font-size="16" fill="#4c4c55">powers the in-app chat</text>
+  </g>
+
+  <!-- ERP -->
+  <g>
+    <rect x="888" y="260" width="240" height="120" rx="14" fill="#ffffff" stroke="#16161a" stroke-width="2"/>
+    <text x="1008" y="312" text-anchor="middle" font-size="21" font-weight="700" fill="#16161a">ERP software</text>
+    <text x="1008" y="342" text-anchor="middle" font-size="16" fill="#4c4c55">orders &amp; inventory</text>
+  </g>
+
+  <!-- D1 -->
+  <g>
+    <rect x="888" y="430" width="240" height="120" rx="14" fill="#ffffff" stroke="#16161a" stroke-width="2"/>
+    <text x="1008" y="482" text-anchor="middle" font-size="21" font-weight="700" fill="#16161a">D1 database</text>
+    <text x="1008" y="512" text-anchor="middle" font-size="16" fill="#4c4c55">the CRM — SQLite at the edge</text>
+  </g>
+
+  <text x="600" y="600" text-anchor="middle" font-size="15" fill="#83838d">The phone talks to one Worker. The Worker talks to everything else.</text>
+</svg>

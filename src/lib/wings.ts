@@ -28,7 +28,7 @@ const INTROS: Record<string, string> = {
   games:
     'Games run by AI. Game masters built out of documents, secrets kept in dead languages, and a wasteland that remembers what you did.',
   'the-app':
-    'A CRM platform a real business runs on, built with AI. What it does and how it is shaped — the secrets stay home.',
+    'A CRM and operations app a real business runs on, built with AI — the phones, the backend, and the daily work in between.',
   woods: 'Time spent outside, and what it takes to spend it well.',
   cooking: 'Cooking as a build: a process, a result, and notes for the next attempt.',
 };

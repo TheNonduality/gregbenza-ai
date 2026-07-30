@@ -47,6 +47,11 @@ files.
 - [ ] Only charter-approved vendor names appear
 - [ ] No customer anything; no employee/colleague names; no internal domains
       or live-system URLs
+- [ ] No meta commentary about the wing's own discretion — nothing about
+      staged data, withheld details, anonymity, or what can't be shown, in
+      any reader-facing surface including wing intros, captions, the agent
+      twin, and llms.txt. The posts practice the house style; they never
+      narrate it (Greg, 2026-07-30, twice)
 
 **Media — every image and every video frame that ships**
 - [ ] Every still opened at full resolution (Read tool renders images)

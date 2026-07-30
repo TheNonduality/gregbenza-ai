@@ -1,0 +1,99 @@
+---
+title: 'WorkBuddy and the Margin Magician'
+date: 2026-05-28
+project: 'The App'
+blurb: >
+  My company's software began as two chat projects — a work companion
+  called WorkBuddy and a rule-bound custom GPT called the Margin Magician.
+  Ten months of running a sales team from a chat window.
+hero:
+  type: image
+  src: /projects/workbuddy-margin-magician/timeline.svg
+  alt: 'A timeline diagram on a warm off-white background titled "A year of being the app". A horizontal arrow runs left to right through six dots. Jul 2025: first spreadsheet into a chat window. Jul 24, 2025: WorkBuddy, named in a voice note. Fall 2025: Margin Magician — a custom GPT that reads the ERP''s export. Oct 31, 2025 (a black dot): the model changes; the magician breaks. Apr 2, 2026: moved to a Claude project; the rules become a written protocol. May 28, 2026 (a ringed blue dot): a worker.js appears — the chat becomes an app. A caption underneath reads: Ten months of chat-window operations, and the day they turned into software.'
+  caption: 'July 2025 to May 2026: from the first uploaded spreadsheet to the day the folder grew a backend.'
+agentMd: /projects/workbuddy-margin-magician/workbuddy-margin-magician.md
+---
+
+## The workflow that was me
+
+A sales team runs on the same questions every week. Who's selling what.
+Which shops went quiet. What the month looks like with a week left.
+
+In July 2025 I started answering them a new way: export a line-item
+spreadsheet from the ERP, upload it into a chat, and ask in plain
+language. The first one is logged on July 16 — a sales report and a
+one-line request to review the month's rep numbers. It worked. So I did
+it again. Hundreds of conversations over the next ten months, on ChatGPT
+first and Claude later, and somewhere in there the workflow earned two
+names.
+
+## WorkBuddy
+
+Eight days after that first upload, in a voice conversation on a drive, I
+talked through why the thing I was doing felt bigger than a spreadsheet
+trick. The transcript survived, and it reads like a spec for software
+that wouldn't exist for another year: an assistant you sit down with and
+talk through your day, that asks questions back, brings up the customers
+you should be thinking about, and turns the conversation into a call
+list.
+
+That was the WorkBuddy idea — not a report generator, a **work
+companion**. The same conversation already contained the problem that
+would eventually cap it: chat memory was too small to hold a working
+week, and a custom GPT forgets everything between sessions. I knew what I
+wanted, and I knew the chat window couldn't hold it. I built it there
+anyway, because that's where I could build.
+
+## Margin Magician
+
+The other name belonged to the numbers. The ERP's line-item export is not
+a thing you can hand to an AI raw — it's full of traps. Orders that were
+cancelled but still present. Sample product that looks like revenue.
+Internal transfers dressed up as sales. Three different dates, only one of
+which means anything.
+
+Margin Magician was a custom GPT whose entire job was to read that export
+correctly: a set of golden rules — ship date is the only date that
+matters, dead statuses don't exist, samples never count, internal zones
+aren't sales — plus a column-by-column reading of the file. It ran for
+months as the team's answer machine.
+
+## The Halloween crash
+
+On October 31, 2025, it stopped working. Same instructions, same kind of
+file — but the model underneath the custom GPT had changed, and rules
+that had run reliably for three months began failing. The diagnosis
+session went nowhere, because there was nowhere for it to go: the rules
+lived in a prompt, on a platform, under a model, and I controlled none of
+the three. That became the defining lesson of the era — and it's why the
+app that came later keeps its arithmetic in plain code, where a model
+update can't touch it.
+
+## The move, and the morning of charts
+
+On April 2, 2026 the whole operation moved to Claude: a project named
+WorkBuddy, and — uploaded the same day — a document called the Margin
+Magician parsing protocol. That upgrade mattered more than it looks. The
+rules stopped being a prompt that lived inside one platform's product and
+became a **written document** that could travel anywhere.
+
+The Claude era was short and dense. The first day alone produced customer
+list extractions and full rep-performance breakdowns. By late May I could
+type one request and get a morning's worth of revenue charts and
+reconciliations — my project folder still holds a dozen of them stamped
+with the same date, May 26.
+
+Two days later, May 28, two new files appear in that same folder:
+`cloudflare-worker.js` and an HTML file with the app's name on it.
+
+## What survived
+
+The chat era ended there, but almost nothing was thrown away. The golden
+rules written for Margin Magician in April are, nearly word for word, the
+sales laws running in [the production app](/projects/one-worker-backend/)
+today — ship date only, dead statuses don't exist, samples never count.
+And WorkBuddy's wishlist — surface the customers, build the day's call
+list, ask questions back — is a fair description of what the app's home
+screen now does every morning.
+
+Ten months of chat was the prototype. It just didn't know it yet.
