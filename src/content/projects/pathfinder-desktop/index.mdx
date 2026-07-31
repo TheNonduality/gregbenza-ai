@@ -196,6 +196,33 @@ on record-keeping.
 ## Where it stands
 
 First live play session was July 28, two days after the first file was
-written.
+written. Since then every mechanic has been inventoried against its real
+status and everything enforceable is now enforced: Threat that actually
+moves, Traits that change Difficulty, a damage and injury pipeline,
+complication-table riders that apply themselves, Determination and PLT
+spends, repeat-roll detection, extended-task fields — seventeen check
+blocks green, offline and free. The dice got honest in the same stretch:
+seven dice slots, bought dice that deduct Momentum, granted modifiers that
+bind to the next matching roll, and pools that refresh on the in-game day
+rather than never. A generic tracked-things store means a new mechanic now
+costs a word instead of a rebuild, and the memory spine finally shows up on
+screen. The interface moved with it — the rail widened 216→280px, REGISTER
+and PASS TIME moved out of the composer, the four pools evened into single
+18px rows that halved the meter block from 233px to 145px, and a THREADS
+tab arrived with four sorts and a settled filter.
+
+Three bugs turned up by playing that planning had not. **The game master
+was never told a single dice result.** Rolls were written and read in
+exactly two places — to draw the dice cards, and to build exports — and
+neither went near the prompt, which is why the same task kept getting
+rolled a dozen times with each outcome supposedly permanent. The last eight
+settled tasks now ride every turn, outcomes only. **Errors were being
+destroyed before anyone could read them:** the app caught a failure,
+rewrote it into a friendly sentence, and binned the original, and its
+word-matching treated anything containing "token" as a sign-in problem —
+so time went into chasing a credential that did not exist. The raw error is
+now logged first, matching is on distinctive phrases, and anything
+unrecognised keeps its own words. **The sign-in had in fact expired**,
+which was only knowable once that second fix was in.
 
 I haven't been sleeping enough. I just keep "play testing" 🙂

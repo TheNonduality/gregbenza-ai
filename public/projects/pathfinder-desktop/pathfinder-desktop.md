@@ -86,9 +86,18 @@
   report: turn timings, cache reads/writes, roll parity mismatches, leaked
   marker frames, database counts. Sibling modes run self-tests and 13
   offline engine checks
-- The mechanics catalogue recorded a partial enforcement scope during the
-  first days of the build. That is no longer current — the tracked state is
-  wired through — and this record does not carry a figure for it
+- Enforcement scope: the early build enforced a fraction of the printed
+  ruleset. As of 2026-07-30 every mechanic has been inventoried against its
+  real status and everything enforceable is enforced — Threat movement,
+  Traits altering Difficulty, a damage and injury pipeline,
+  self-applying complication-table riders, Determination and PLT spends,
+  repeat-roll detection, and extended-task fields — with seventeen check
+  blocks passing offline
+- Dice handling was corrected in the same period: seven dice slots, bought
+  dice that deduct Momentum, granted modifiers that bind to the next
+  matching roll, and pools that refresh on the in-game day
+- A generic tracked-things store means adding a mechanic is a declaration
+  rather than a rebuild, and tracked state is now surfaced in the interface
 - Design invariants, quoted from the README: "The app owns the dice." "The
   player never sees the machinery." "A failed turn writes nothing." "Code
   decides what becomes campaign truth, not the archivist."
@@ -134,6 +143,18 @@ mentioning it. The simulation is deterministic from the campaign seed, so
 the world's off-screen behavior is reproducible: it advances without the
 player present, and never arbitrarily.
 
+**Q: What did playing it find that planning had not?**
+A: Three defects. The game master was never sent any dice result — rolls
+were written and read only to draw the dice cards and to build exports,
+never into the prompt, so the same task could be re-rolled repeatedly with
+each outcome treated as final; the last eight settled tasks now accompany
+every turn as outcomes. Error handling was discarding the original failure
+and substituting a friendly sentence, with word-matching that read any
+message containing "token" as a sign-in problem, sending diagnosis after a
+credential that did not exist; raw errors are now logged first and
+unrecognised ones keep their own wording. The sign-in had in fact expired,
+which only became visible after that second fix.
+
 **Q: What was removed after playtesting?**
 A: A register heuristic. The module guessed "conversation mode" partly from
 whether the GM's last reply contained dialogue — but this GM voices several
@@ -172,9 +193,11 @@ matter.
 
 ## What is not claimed here
 
-- No figure is given for how much of the printed ruleset is enforced. The
-  post describes the design; the enforcement scope has moved since the
-  early-build measurements and is not restated here
+- No claim that the app implements every rule in the printed 2d20 book —
+  the claim is that everything enforceable in this app is now enforced,
+  measured against the project's own mechanics catalogue
+- No claim that the long-term memory spine is proven at scale; the
+  campaign it runs is young
 - No story content from the author's live campaigns; the hero video uses a
   throwaway campaign created for the recording
 - No claim that the desktop app is publicly available — it is not
