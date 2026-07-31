@@ -86,10 +86,9 @@
   report: turn timings, cache reads/writes, roll parity mismatches, leaked
   marker frames, database counts. Sibling modes run self-tests and 13
   offline engine checks
-- Scale of enforcement, from the project's own mechanics catalogue: the
-  source ruleset describes a complete 2d20 game and the app enforces roughly
-  a fifth of it; ~31 kinds of state are tracked and only news items and
-  hails currently reach the screen
+- The mechanics catalogue recorded a partial enforcement scope during the
+  first days of the build. That is no longer current — the tracked state is
+  wired through — and this record does not carry a figure for it
 - Design invariants, quoted from the README: "The app owns the dice." "The
   player never sees the machinery." "A failed turn writes nothing." "Code
   decides what becomes campaign truth, not the archivist."
@@ -168,16 +167,14 @@ world into a deterministic simulation, and the campaign's sealed material
 behind a query that filters spoilers at the database layer. It signs into
 the author's existing Claude subscription instead of metering an API key,
 and it played its first live session two days after the first file was
-written. Enforcement breadth is deliberately unfinished — about a fifth of
-the printed ruleset, by the project's own accounting — with the stated plan
-being to play first and enforce what proves to matter.
+written. The build order was to play first and enforce what proved to
+matter.
 
 ## What is not claimed here
 
-- No claim that the app enforces the full 2d20 ruleset — its own catalogue
-  says roughly a fifth, and most tracked state never reaches the screen yet
-- No claim that the long-term memory spine is proven — it had not been
-  stress-tested beyond a young campaign as of 2026-07-29
+- No figure is given for how much of the printed ruleset is enforced. The
+  post describes the design; the enforcement scope has moved since the
+  early-build measurements and is not restated here
 - No story content from the author's live campaigns; the hero video uses a
   throwaway campaign created for the recording
 - No claim that the desktop app is publicly available — it is not
