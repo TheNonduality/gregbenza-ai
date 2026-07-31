@@ -72,7 +72,7 @@ none of it on its own. Continuity was a file moved by hand, not a memory.
 **Q: Do you need to be a programmer to build something like this?**
 A: This one wasn't built by one. There is no code in the system — every part of
 it is a plain document attached to a project, because attaching files was the
-only persistence mechanism the author understood at the time. The sophistication
+only persistence mechanism the author understood at the time. The complexity
 is in the rules and the bookkeeping discipline, not in the tooling. The whole
 build is five text files.
 
@@ -96,8 +96,7 @@ source is unreadable to you.
 A: An explicit prohibition on choosing. The rules state that on a mixed success
 or failure the GM "must not pick consequences" and has to roll d7 on a
 consequence table instead. It must then print the dice, the modifiers, the
-final band, and the table result before narrating. A referee that has to show
-its work can't quietly steer the story.
+final band, and the table result before narrating.
 
 **Q: How does an AI campaign remember anything across sessions?**
 A: A ledger document that functions as a save file. It carries the current
@@ -134,9 +133,9 @@ with no background in game design and no formal software background either. The
 starting idea was simple enough: run a Fallout 2 campaign as a tabletop game
 with an AI as the referee.
 
-Writing rules turned out to be the easy half. Dice, stats, what happens on a bad
-roll — those are imaginable. The wall was memory. An AI chat forgets the world
-between sessions, and no amount of good rules fixes that.
+The rules were the easy half: dice, stats, what happens on a bad roll. The
+problem was memory. An AI chat forgets the world between sessions, and no
+amount of good rules fixes that.
 
 The solution came from the only mechanism that was understood at the time: you
 can attach files to a project, and the AI will read them. So the memory became
@@ -151,15 +150,15 @@ writing the game master's instructions and sitting down to play. Every secret
 written into the game had already been read by the person meant to be surprised
 by it.
 
-The fix was blunt and it worked: the campaign's hidden half went into its own
-document, written in Greek — a language the author cannot read — opening with an
-instruction never to reveal, translate, or quote it to the player. Inside it sat
-the endgame condition, what the world looks like at each tick of the doom clock,
-and five major factions with private objectives that advance whether or not the
-player is watching.
+The fix: the campaign's hidden half went into its own document, written in
+Greek — a language the author cannot read — opening with an instruction never
+to reveal, translate, or quote it to the player. Inside it sat the endgame
+condition, what the world looks like at each tick of the doom clock, and five
+major factions with private objectives that advance whether or not the player
+is watching.
 
-That split then spread into the rest of the system, which was not planned. The
-ledger grew its own sealed and unsealed sections — story spine, active clocks,
+That split then spread into the rest of the system. The ledger grew its own
+sealed and unsealed sections — story spine, active clocks,
 and hidden threads each divided into what the player may see and what only the
 referee may see.
 
@@ -184,7 +183,7 @@ The campaign ran roughly 20 hours of play across about a month, reaching Act II,
 Chapter 14. The character —
 Sammy, the Chosen One of Arroyo — got to level 5, picked up two companions,
 ambushed and killed the slaver boss Metzger, broke a prisoner out of the Den,
-rode a caravan into New Reno, and traded three ugly favors to a crime family
+rode a caravan into New Reno, and traded three favors to a crime family
 for a road north to Vault City. The last checkpoint leaves him outside a
 bathhouse at night with the doom clock at 2 of 5 and a body he's responsible
 for that hasn't been connected to him yet.

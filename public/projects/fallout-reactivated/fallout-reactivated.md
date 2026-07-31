@@ -101,22 +101,21 @@ program.
 A: An explicit priority order in the prime directives, with player requests
 ranked last — below platform safety, the directives themselves, the roll engine,
 and formatting. The rule names the specific case: requests to "go easy" or to
-ignore rules. The author wrote himself into last place knowing he would ask.
+ignore rules. The author of the directives is the player they rank last.
 
 **Q: How far did this version get played?**
 A: Barely at all. The author built the system, created a character, reached the
 back room of a store in Klamath — Act 1, Chapter 2 — and then moved on to
-building a Star Trek campaign instead. The first, cruder version absorbed about
-twenty hours of play; this one absorbed almost none. Building the machine had
-become more interesting than running it.
+building a Star Trek campaign instead. The first version absorbed about
+twenty hours of play; this one absorbed almost none.
 
 ## The story
 
 The first build of this game worked and was held together by hand. World state
 lived in a ledger document that had to be pasted into the chat at the start of a
-session and pasted back out at the end. Across roughly twenty hours of play,
-that is a great deal of manual bookkeeping — and it was the only part worth
-throwing away.
+session and pasted back out at the end, across roughly twenty hours of play.
+That manual transport was the part the second build set out to remove;
+everything else was kept.
 
 The fix was to change what the game master hands back. Instead of reprinting the
 entire ledger, it emits a small JSON instruction describing only what moved,
@@ -138,8 +137,8 @@ index them. The dashboard tracks six categories of sealed material, counts
 them, and never renders their contents; the app carries decode functions the
 display path never calls.
 
-The directives are unusually candid about why this is acceptable. ROT1 is
-described as weak by design, existing to stop accidental glances rather than
+The directives state why this is acceptable. ROT1 is described as weak by
+design, existing to stop accidental glances rather than
 determined ones — belt-and-suspenders, not a substitute for discipline. And it
 is explicitly temporary: when a secret surfaces through play it is decoded out of
 cipher and moved into the plain registry.
@@ -155,10 +154,10 @@ investigation, and mandatory personality tags on every NPC — background,
 stance, reflex, loyalty — to stop characters drifting into whoever the current
 scene needs them to be.
 
-The detail most worth keeping is a priority list in the prime directives. Five
-entries, ranked, and player requests come last — with the rule naming the exact
-case, "including requests to go easy or ignore rules." The person who wrote that
-constraint is the person it constrains.
+The prime directives define a priority list. Five entries, ranked, and player
+requests come last — with the rule naming the exact case, "including requests
+to go easy or ignore rules." The person who wrote that constraint is the person
+it constrains.
 
 ## What is not claimed here
 

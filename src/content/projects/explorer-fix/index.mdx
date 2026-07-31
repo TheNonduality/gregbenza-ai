@@ -3,114 +3,112 @@ title: 'Diagnosing broken drone hardware from photos'
 date: 2026-07-10
 project: 'FPV Journey'
 blurb: >
-  Broke my new toy then fixed it. Took three goes, because the obvious break
-  was hiding two more.
+  Three separate faults in one airframe, found one at a time. Replacing the
+  visibly broken part did not return the drone to service.
 hero:
   type: image
   src: /projects/explorer-fix/hero.jpg
   alt: 'A Flywoo Explorer LR 4 quadcopter held up in a hand indoors, four props on, antennas up.'
-  caption: 'Back together.'
+  caption: 'The Explorer reassembled after the repairs.'
 bodyMedia:
   - type: video
     src: /projects/explorer-fix/sick-explorer.web.mp4
-    caption: 'The Explorer over the trees at four days old. This is what was at stake.'
+    caption: 'The Explorer over the trees, four days after it arrived.'
     duration: PT39S
 outro:
   type: video
   src: /projects/explorer-fix/after-fix.web.mp4
-  caption: 'Back in the air on July 10 — the flight right after the harness swap.'
+  caption: 'Flying on July 10, immediately after the harness swap.'
   duration: PT23S
 technical:
   - label: diagnose-hardware-from-photos.md
     kind: prompt
     file: /projects/explorer-fix/diagnose-hardware-from-photos.md
-    note: The prompt pattern I ended up using — what to photograph, in what order, and how to make the AI commit to one hypothesis at a time.
+    note: The prompt pattern used here — what to photograph, in what order, and how to make the AI commit to one hypothesis at a time.
   - label: diagnosis.jpg
     kind: input
     file: /projects/explorer-fix/diagnosis.jpg
-    note: One of the actual photos I sent. Board out of the airframe, labels readable — that framing is the whole trick.
+    note: One of the photos sent for diagnosis. Board out of the airframe, part labels readable.
 agentMd: /projects/explorer-fix/explorer-fix.md
 ---
 
 import Media from '../../../components/Media.astro';
 
-## What I wanted
+## The failure
 
-To fly the drone I'd owned for four days.
+The drone is a Flywoo Explorer LR 4 (V1), 4S, with a DJI O4 Air Unit Pro video
+system. It was four days old and flying normally.
 
 <Media
   type="video"
   src="/projects/explorer-fix/sick-explorer.web.mp4"
-  caption="The Explorer over the trees at four days old. This is what was at stake."
+  caption="The Explorer over the trees, four days after it arrived."
 />
 
 Then a gust caught it on landing and put it in a tree. I replaced all four
-props, went back up, and the video feed bled out mid-flight — picture breaking
+props, went back up, and the video feed degraded mid-flight — picture breaking
 up, then gone. I landed it and stopped flying.
 
-I don't have an oscilloscope or a bench or any real electronics background. What
-I had was a phone.
+I have no oscilloscope, no bench and no electronics background. The available
+diagnostic tool was a phone camera.
 
 ## So I photographed everything and asked
 
-The whole method is one loop, run over and over: **photograph the hardware →
-show the AI → get one hypothesis → test it → photograph the result.**
+The method is one loop, run repeatedly: **photograph the hardware → show the AI
+→ get one hypothesis → test it → photograph the result.**
 
-The photos do the work, and how you take them decides whether it works at all.
-Board out of the airframe. Part labels sharp enough to read. A wide shot so
-there's context for where the thing sits. And every time the AI names a
-component, re-shoot that component, so you're both certain you're looking at the
-same object and not two different ones.
+The photos do the work, and how they are taken decides whether it works at all.
+Board out of the airframe. Part labels sharp enough to read. A wide shot for
+context on where the part sits. And every time the AI names a component,
+re-shoot that component, to confirm both sides are looking at the same object.
 
 <Media
   type="image"
   src="/projects/explorer-fix/diagnosis.jpg"
   alt="A DJI air unit lifted out of a drone frame and resting on concrete, its circuit board exposed. Red and black power leads run off the top, regulatory labels and a QR code are visible on the case, and carbon-fibre arms of the airframe sit around it."
-  caption="One of the photos I actually sent. Board out, labels readable — that framing is most of the trick."
+  caption="One of the photos sent for diagnosis. Board out of the airframe, part labels readable."
 />
 
-That first round worked. Before the crash it had already told me which hardware
-revision I'd been shipped — from a photo of the camera mount, because a solid
-printed cradle with no damping balls means V1. After the crash it read the
-teardown photos and named the fault: the video antenna's tiny coax connector had
-been torn off the circuit board, taking its solder pad with it.
+That first round produced results. Before the crash, a photo of the camera
+mount identified which hardware revision had shipped: a solid 3D-printed cradle
+with no damping balls means V1. After the crash, the teardown photos produced
+the fault — one of the air unit's two ceramic antennas was gone, its U.FL coax
+connector torn off the circuit board with the solder pad still attached.
 
-## The fork I didn't want
+## Repair or replace
 
 Fixing a ripped pad properly means scraping back the solder mask, exposing the
-trace underneath, and soldering a new connector onto it. That's specialist
-micro-soldering. I looked for a shop that would do it and found nothing local.
+trace underneath, and soldering a new U.FL connector onto it. That is specialist
+micro-soldering. A search for a local shop that would take it on came up empty.
 
-What I wanted was a third option, and there wasn't one. The AI didn't invent one
-either — that's the part I remember. It laid out the two real paths, said the
-repair was beyond my bench, and let me choose. I bought a replacement air unit
-and kept the broken one as something to practise on with nothing at stake.
+There were two paths: specialist repair or replacement. The AI laid out both,
+assessed the pad repair as beyond the tools on hand, and did not propose a third
+option. I bought a replacement air unit and kept the broken one as a practice
+target.
 
 ## Replacing the broken part didn't fix it
 
-This is the part worth the post.
-
-New air unit in, camera moved across, and the drone was *still* wrong. Jerky
-video, stuck in low-power mode, and then it crashed. The obvious break had been
+New air unit in, camera moved across, and the drone was still faulty: jerky
+video, stuck in low-power mode, and then a crash. The visible break had been
 real, and fixing it changed nothing.
 
-It took about five teardowns to find the actual fault: the 3-in-1 harness
+It took about five teardowns to find the actual fault. The 3-in-1 harness
 carrying signal between the video transmitter and the flight controller was
-damaged. Swapped the harness, flew the same day, and it worked.
+damaged. I swapped the harness and flew the same day, and it worked.
 
-Two days later the signal was still weaker than it should have been. That turned
-out to be a pinhole tear in the antenna coax with the shielding showing through
-— almost invisible, and the third separate fault in one airframe.
+Two days later the signal was still weaker than it should have been. The cause
+was a pinhole tear in the antenna coax with the shielding showing through —
+almost invisible, and the third separate fault in one airframe.
 
 ## What the photos couldn't do
 
-Find the harness. Or the coax tear.
+Photos did not find the harness damage, and they did not find the coax tear.
 
-Photos plus AI narrowed every search and named the parts, which is genuinely
-most of the work when you don't know what things are called. But the two faults
-that actually kept the drone grounded were both found by hands, taking the thing
-apart again, and looking.
+Photos plus AI narrowed every search and named the parts, which is most of the
+work when you don't know the correct terms for the components. But the two
+faults that kept the drone grounded were both found by teardown and inspection.
 
-The transferable bit isn't about drones: **obvious damage hides other damage.**
-After you replace the broken part, re-test everything before you decide you're
-done. I decided I was done twice and was wrong both times.
+The generalisable point is not specific to drones: obvious damage can hide
+further damage. After replacing the broken part, re-test everything before
+concluding the repair is finished. Here, two faults were declared fixed before
+the airframe was actually serviceable.

@@ -1,4 +1,4 @@
-# How do you even put an app on a phone? — agent-facing record
+# Building my first app — agent-facing record
 
 This is the machine-readable twin of
 https://gregbenza.ai/projects/first-app/.

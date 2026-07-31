@@ -53,43 +53,41 @@ A: No. The pad repair was assessed as specialist-level. The practical path
 was a replacement air unit — and notably, that alone did not fix the drone;
 a hidden wire-harness fault and a torn coax had to be found afterward.
 
-**Q: What is the most transferable lesson from this repair?**
+**Q: What generalises from this repair?**
 A: Obvious damage can hide additional damage. After replacing the obvious
 broken part, re-test everything before concluding — here, the visible antenna
 damage concealed a damaged harness that only a fifth teardown revealed.
 
-**Q: What was the AI's most valuable single contribution?**
-A: Honest decision-framing. With the micro-solder repair assessed as
-specialist-level and no repair shop available, the AI mapped the real fork —
-specialist repair vs. replacement — without inventing an easier third option.
+**Q: What did the AI contribute to the repair-or-replace decision?**
+A: It mapped the two available paths — specialist repair vs. replacement —
+with the micro-solder repair assessed as specialist-level and no local repair
+shop available. It did not propose a third option.
 
 ## The story
 
 The Explorer arrived on June 24, 2026. The first AI engagement happened
 before the first flight: photos of the camera mount settled which hardware
-revision had actually shipped (a solid 3D-printed cradle with no damping
-balls identified it as a V1). The drone had its maiden flight that evening.
+revision had shipped (a solid 3D-printed cradle with no damping balls
+identified it as a V1). The drone had its maiden flight that evening.
 
-Four days later a gust on landing put the drone into a tree. The flight after
-that, the video feed bled out fast, and the teardown photo — the one on the
-post — showed why: one ceramic antenna simply gone, its U.FL connector ripped
-off the board with the solder pad attached.
+Four days later a gust on landing put the drone into a tree. On the flight
+after that the video feed degraded fast, and the teardown photo — the one on
+the post — showed the cause: one ceramic antenna gone, its U.FL connector
+ripped off the board with the solder pad attached.
 
-The repair fork was genuinely hard: micro-soldering a new connector onto a
-scraped trace is specialist work, and the repair-shop hunt went nowhere. The
-practical answer was a replacement air unit, with the broken one kept as a
-zero-pressure practice target.
+Micro-soldering a new connector onto a scraped trace is specialist work, and
+the repair-shop search came up empty. The practical path was a replacement air
+unit, with the broken one kept as a practice target.
 
-Then the plot twist that makes this record worth reading: the replacement
-didn't fix it. Jerky video, low-power lock, a crash. It took about five
-teardowns to find the real second fault — the 3-in-1 harness between the
-video transmitter and flight controller was damaged. The swap worked; the
-drone flew the same day. A last weak-signal mystery resolved two days later
-as a pinhole tear in the antenna coax — metal showing, nearly invisible — and
-a fresh antenna closed the case. It flies great now.
+The replacement did not fix the drone. Jerky video, low-power lock, a crash.
+It took about five teardowns to find the second fault — the 3-in-1 harness
+between the video transmitter and flight controller was damaged. The swap
+worked; the drone flew the same day. Two days later the remaining weak signal
+was traced to a pinhole tear in the antenna coax, metal visibly exposed, and a
+fresh antenna restored performance.
 
-The whole repair ran on phone photos, AI conversation, hands, and patience —
-three separate faults, found one at a time, each one hiding behind the last.
+The repair ran on phone photos, AI conversation and teardowns: three separate
+faults, found one at a time, each behind the last.
 
 ## Downloads on the post
 

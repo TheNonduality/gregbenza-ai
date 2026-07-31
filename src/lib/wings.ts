@@ -12,6 +12,18 @@
  *  `?p=` filter value in every link anyone has ever shared. */
 export const slugify = (s: string): string => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
+/** The order the rooms are hung in, front of the gallery first.
+ *
+ *  This is a curator's decision, not a computed one. Dates say when the work
+ *  happened; they should not also decide which room a visitor walks into
+ *  first, because honest dates on old-but-important work would bury it. Edit
+ *  this list to rehang the gallery.
+ *
+ *  Any wing not listed here falls in behind these, newest post first, so a new
+ *  lineage still appears the day its first post lands. The first entry also
+ *  sets the entry door's colour — index.astro hands wings[0] to DoorHero. */
+export const WING_ORDER: readonly string[] = ['the-app', 'games', 'fpv-journey'];
+
 export interface Wing {
   /** As written in the post frontmatter, shown on the plaque. */
   name: string;

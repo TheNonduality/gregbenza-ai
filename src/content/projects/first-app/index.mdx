@@ -1,99 +1,95 @@
 ---
-title: 'How do you even put an app on a phone?'
-date: 2026-06-04
+title: 'Building my first app'
+date: 2026-05-29
 project: 'The App'
 blurb: >
-  I'm not a programmer, and until this week I had never made software with
-  users. Then the ERP's own team dared me to turn my chat protocol into an
-  app — and it turned out an app can be one HTML file.
+  The first application I built that had users other than me. It was one HTML
+  file, it was built in an evening, and a week later the whole sales team was
+  working in it.
 hero:
   type: image
   src: /projects/first-app/v1-api-key.png
   alt: 'A white settings sheet from a phone app. The heading Settings sits above the line "Your API key stays on this device." Below, a field labeled ANTHROPIC API KEY holds the placeholder sk-ant-…, over a note reading "Get one at console.anthropic.com. Saved locally only.", with Close and Save buttons at the bottom.'
-  caption: 'Version one''s security model, in one screen: paste your API key into the phone. A decision with six days left to live.'
+  caption: 'Version one''s security model: the API key is pasted into the phone and stored on the device. It was replaced within six days.'
 bodyMedia:
   - type: image
     src: /projects/first-app/v1-first-morning.png
     alt: 'A phone-sized app screen with a soft mauve background. A header reads "The App" beside a gear icon, over a grey status line reading "No data loaded". The center greets "Hi Greg." above instructions: "Tap the paperclip to upload your ERP line-item CSV, then ask anything. Margin Magician rules and the master customer list are already loaded." A white settings sheet covers the lower half: the heading Settings, the line "Your API key stays on this device.", a field labeled ANTHROPIC API KEY with placeholder sk-ant-…, a note "Get one at console.anthropic.com. Saved locally only.", and Close and Save buttons.'
-    caption: 'Version one, the morning after it was born: one HTML file with the Margin Magician rules baked in — running again today for this screenshot.'
+    caption: 'Version one on the morning of May 29, 2026, running again today from the original file.'
   - type: image
     src: /projects/first-app/project-cerise.png
     alt: 'A phone-sized app screen in a black theme titled "Project Cerise" with a gear button. Below the title, a row of pill-shaped chips: Line items, Orders, Master list, and a partly visible Pull from ERP. Faint center text reads "Drop in a ERP line-item CSV. Then ask anything. Margin Magician rules are baked in." A dark settings sheet covers the lower half with fields for an Anthropic API Key ("Saved only on this device") and an ERP API Key ("optional, for live pulls"), with Close and Save buttons.'
-    caption: 'The first attempt, from the same evening, wearing a codename: Project Cerise. The chip row and the optional ERP key were already sketching the app that exists today.'
+    caption: 'The prototype from the previous evening, under the codename Project Cerise. The chip row and the optional ERP key are both present in the production app today.'
 agentMd: /projects/first-app/first-app.md
 ---
 
 import Media from '../../../components/Media.astro';
 
-## Not a programmer
+## Background
 
-I sell things for a living. I don't write software, and before this week
-nothing I'd built had ever had a user besides me.
+I work in sales, not software. Before this, nothing I had built had any user
+besides me.
 
-What I had was a chat workflow — [WorkBuddy and the Margin
-Magician](/projects/workbuddy-margin-magician/) — and, from months of
-[building games with AI](/?p=games), a suspicion that had been growing all
-spring: the chat window could produce more than answers. I'd watched it
-build game dashboards and whole playable campaigns. The capability was
-clearly there. I just hadn't pointed it at work yet.
+Two things existed going in. One was a chat workflow, [WorkBuddy and the
+Margin Magician](/projects/workbuddy-margin-magician/), which had been
+answering the team's sales questions for about ten months. The other was
+several months of [building games with AI](/?p=games) — text-based games
+with dashboards and rules engines — which established that a chat session
+could produce working software rather than only answers.
 
-## The outputs were becoming programs
+## The outputs were already programs
 
-Looking back, the app announced itself before I noticed. In mid-May I
-asked for an order checklist and got back an HTML file — not a list, a
-little working page with checkboxes. Late in May, one morning's questions
-produced a dozen interactive revenue charts, each one a file I could open,
-tap, and share. Somewhere in those weeks the answers had quietly stopped
-being text.
+The transition shows up in the project folder before it was named. In
+mid-May 2026 a request for an order checklist returned an HTML file: a
+working page with checkboxes rather than a list. On May 26 a single
+morning's questions produced a dozen interactive revenue charts, each one a
+file that could be opened and shared.
 
-Then came the push. The ERP's own team had seen the Margin Magician
-protocol, and their reaction wasn't "nice spreadsheet trick" — it was,
-roughly: this is good, why isn't it an app on our API?
+The prompt to build an application came from the ERP vendor. Their team had
+seen the Margin Magician parsing protocol and suggested it be built as an
+app against their API.
 
-## The two-button question
+## The delivery question
 
-On the evening of May 28 I talked it through with an AI on a drive, and
-asked the question this post is named after. I genuinely didn't know. I
-assumed apps came from some mountain of tooling, accounts, and approvals,
-and that people like me stood at the bottom of it.
+The open question on the evening of May 28, 2026 was how an application
+reaches a phone at all — what tooling, accounts and approvals stand between
+a file and something installable.
 
-The answer: for a web app, you make a file, you open it on the phone, you
-tap "Add to Home Screen." That's the mountain.
+For a web app the answer is: build a single file, open it on the phone, and
+use the browser's "Add to Home Screen" option. There is no build step and no
+app store involved.
 
-By the end of that evening a prototype existed under a codename:
+A prototype existed that evening under the codename Project Cerise. By the
+following morning it carried the company's colours and a name.
 
-<Media type="image" src="/projects/first-app/project-cerise.png" alt="A phone-sized app screen in a black theme titled Project Cerise: chips for Line items, Orders, Master list and Pull from ERP, faint text reading Drop in a ERP line-item CSV — Margin Magician rules are baked in — and a settings sheet with Anthropic and ERP API key fields." caption="The first attempt, from the same evening, wearing a codename: Project Cerise. The chip row and the optional ERP key were already sketching the app that exists today." />
+<Media type="image" src="/projects/first-app/project-cerise.png" alt="A phone-sized app screen in a black theme titled Project Cerise: chips for Line items, Orders, Master list and Pull from ERP, faint text reading Drop in a ERP line-item CSV — Margin Magician rules are baked in — and a settings sheet with Anthropic and ERP API key fields." caption="The prototype from the previous evening, under the codename Project Cerise. The chip row and the optional ERP key are both present in the production app today." />
 
-By the next morning it had the company's colors, a friendly greeting, and
-a real name.
+## What version one was
 
-## One file, whole app
+<Media type="image" src="/projects/first-app/v1-first-morning.png" alt="A phone app screen with a soft mauve background: a header reading The App, a status line reading No data loaded, a greeting reading Hi Greg above instructions to upload an ERP line-item CSV with Margin Magician rules and the master customer list already loaded, and a white settings sheet with an Anthropic API key field saved locally only." caption="Version one on the morning of May 29, 2026, running again today from the original file." />
 
-<Media type="image" src="/projects/first-app/v1-first-morning.png" alt="A phone app screen with a soft mauve background: a header reading The App, a status line reading No data loaded, a greeting reading Hi Greg above instructions to upload an ERP line-item CSV with Margin Magician rules and the master customer list already loaded, and a white settings sheet with an Anthropic API key field saved locally only." caption="Version one, the morning after it was born: one HTML file with the Margin Magician rules baked in — running again today for this screenshot." />
+A single HTML file containing four things: the chat interface, the Margin
+Magician rules as the system prompt, the master customer list embedded so
+the app knew every shop and its owner, and a file picker for the weekly CSV
+export from the ERP. No server, no build step, and no installation beyond
+the home-screen shortcut. The file could be — and was — sent to someone as
+an email attachment.
 
-Version one was a single HTML file. Inside it: the chat, the Margin
-Magician rules as its brain, the master customer list embedded so it knew
-every shop and who owned it, and a paperclip for uploading the weekly CSV
-export. No server, no build step, no install beyond the home-screen
-button. The entire app could be sent to someone as an attachment —
-and was.
+It stored the AI API key in the phone's local storage. That is workable for
+a single-user tool and unworkable for anything shared, and it was replaced
+within the week.
 
-It also carried a decision that wouldn't survive the week: the AI key
-lived in the phone's settings, saved on the device. Fine for a tool
-whose only user is you. Not fine for what happened next.
+## The following week
 
-## The week that followed
+The file was rebuilt against the ERP's live API, which removed the weekly
+export step and required a server to hold the credentials the phone could no
+longer keep. That is covered in [its own
+post](/projects/one-worker-backend/).
 
-Within days the file was rebuilt against the ERP's live API — no more
-weekly export, always-current numbers — and that required a real server
-to hold the keys the phone no longer could. That server's story is [its
-own post](/projects/one-worker-backend/).
+On June 4, shared storage shipped — accounts, tasks, and a diary of
+interactions — which changed the app from a query tool into shared
+infrastructure. It had been built for two users. The whole sales team was
+using it the day it appeared.
 
-Then, on June 4, came the piece that changed what the thing *was*: shared
-storage — accounts, tasks, a diary of interactions. It stopped being a
-calculator you asked and became a place where the team's work lived. It
-had started as a tool for two people. The whole team was using it the day
-it appeared.
-
-Seven days from "how do you put an app on a phone" to company software.
-The rest of this wing is what it grew into.
+Seven days elapsed between the delivery question and software the company
+ran on.

@@ -1,0 +1,138 @@
+---
+title: 'Shared storage: accounts, ownership and access control'
+date: 2026-06-04
+project: 'The App'
+blurb: >
+  On June 4 the app got shared storage: an account record for every shop,
+  carrying its owner and a diary of every visit, call and email anyone on the
+  team logged against it.
+hero:
+  type: image
+  src: /projects/the-app-became-ours/account-snapshot.png
+  alt: 'A band of text from a phone app reply. Under a shop-front icon, a heading reads "Account Snapshot", followed by lines reading "Rep: Jim Halpert | Zone: Metro", "Revenue: $3,120 across 2 orders | Brand: Wonka Confections", and "Last order: July 8". Below a gap, an open-book icon heads "Stark Industries Diary (newest first)", and the first entry begins "1. Jul 28 — In-person (you): Shelf check. Facings held, but shelf talkers never went up."'
+  caption: 'An account record: the owner, the commercial summary, and the start of the shop''s logged history.'
+bodyMedia:
+  - type: image
+    src: /projects/the-app-became-ours/account-overview.png
+    alt: 'A phone-sized app screen showing a reply in the chat. It opens "Here''s the full picture on Stark Industries and that task:" and continues under headings. The Task: the quoted line "Deliver the summer promo case split and set up the shelf talkers.", "Due: July 29 — the server flags it as overdue", "Assigned to: You (Jim Halpert) | Confirmed July 24". Account Snapshot: "Rep: Jim Halpert | Zone: Metro", "Revenue: $3,120 across 2 orders | Brand: Wonka Confections", "Last order: July 8". Stark Industries Diary, newest first: a Jul 28 in-person shelf check where the shelf talkers never went up, a Jul 24 call about pushing delivery to Thursday, a Jul 19 in-person visit where the manager wanted a case split, and a fourth entry cut off at the bottom edge.'
+    caption: 'A full account record returned on request. The fourth diary entry, cut off at the frame edge, was logged by a different rep covering the account.'
+  - type: image
+    src: /projects/the-app-became-ours/reassign-2.png
+    alt: 'A phone-sized app screen showing a chat exchange. A dark maroon message bubble reads "Move Stark Industries over to Dwight - Jim is covering the coast now." The reply below reads "Let me look up both accounts at the same time.Here''s what will change:", then a line reading "- Stark Industries (account #1) — owner: Jim Halpert → Dwight Schrute", then "Confirm?". A small maroon bubble reads "yes". The final reply reads "Done — Stark Industries is now owned by Dwight Schrute."'
+    caption: 'Reassigning a shop: the instruction, the read-back of the pending change, the confirmation, the result.'
+outro:
+  type: image
+  src: /projects/the-app-became-ours/tasks-rep.png
+  alt: 'A phone-sized app screen. A header reads "The App" beside a house icon with a red badge showing 3, over a status line reading "Connected to ERP ✓". A row of pills reads overdue 1, today 1 with a small badge, tomorrow 1, and later 3. Six cards follow, each naming a shop and a date: Stark Industries due Jul 29 tagged OVERDUE; Wonka Industries due Jul 30, marked NEW with a pink border, tagged TODAY with "assigned by Pam Beesly" and a Confirm button; Initech due Jul 31 tagged TOMORROW; a Personal entry due Aug 2; Hooli due Aug 3; and Stark Industries again due Aug 5, the last three tagged LATER. A chat composer reading "Ask anything…" sits at the bottom.'
+  caption: 'One rep''s screen. Every shop listed is one they own; another rep signing in receives a different set of records.'
+agentMd: /projects/the-app-became-ours/the-app-became-ours.md
+---
+
+import Media from '../../../components/Media.astro';
+
+## Before
+
+Until June 4, 2026 the app could answer questions and nothing else.
+[Version one](/projects/first-app/) was a single HTML file with the sales
+rules embedded in it, and by the start of June it had [a backend holding the
+credentials](/projects/one-worker-backend/) and live figures in place of a
+weekly export.
+
+What it had no way to do was store anything. Nothing typed into it survived
+the session: no record of a visit, no list of outstanding work, and no
+shared state between two people using it at once.
+
+## What shipped on June 4
+
+Accounts, tasks and a diary of interactions, held in the same database
+behind the same Worker the rest of the backend already used. Per-person
+email and password sign-in replaced a shared passcode. A few hundred shops
+were loaded, each with a named owner.
+
+It was built for two users. The whole sales team was using it the day it
+appeared, without a training session, and interactions logged by people who
+had not been asked to try it appeared the same afternoon.
+
+## The account record
+
+The unit of the system is the shop.
+
+Each account carries its owner, its commercial summary, and a diary: every
+visit, call, text and email logged against it by any member of the team,
+newest first, attributed to whoever logged it. The commercial figures were
+already available from the ERP. The diary is the part that did not exist
+anywhere before this release — the shelf talkers that were not put up, the
+delivery a buyer asked to move to Thursday, the conversation a case split
+was agreed in.
+
+Asking about a shop returns that record assembled: the snapshot, the
+figures, and the history. The diary returned includes entries written by
+colleagues covering the account, which is the difference between a team's
+record and one person's notes.
+
+<Media type="image" src="/projects/the-app-became-ours/account-overview.png" alt="A phone app screen showing a reply that opens 'Here's the full picture on Stark Industries and that task:', then sections for the task (due July 29, flagged overdue, assigned to Jim Halpert), an account snapshot with rep, zone, revenue across two orders and last order date, and a dated diary of visits, calls and emails, the last entry cut off at the bottom edge." caption="A full account record returned on request. The fourth diary entry, cut off at the frame edge, was logged by a different rep covering the account." />
+
+## Role-scoped visibility
+
+The same screen returns different records depending on who is signed in. A
+rep receives their own accounts, history, tasks and figures. An admin
+receives everything.
+
+That split is enforced on the server, not in the client. Records outside a
+user's scope are never sent to the device, so an out-of-scope shop is not
+greyed out or partially returned — it is absent. Every route re-checks the
+caller's role rather than relying on an earlier check, and the scoping rules
+carry their own automated tests.
+
+## Ownership
+
+Every live shop has exactly one person responsible for it, and the database
+rejects a write that would leave a live shop without one, regardless of
+which code path issued it. The reasoning behind putting that rule in the
+data store rather than in application code is in [the backend
+post](/projects/one-worker-backend/).
+
+Ownership is what most other behaviour reads from: who can see a shop, whose
+figures its revenue counts toward, and whose list work against it lands on.
+That makes a territory change a change to one field with wide effects.
+
+## Reassignment in natural language
+
+An admin moves shops between reps by typing an instruction into the chat
+box — the same box a rep uses to ask about their month. There is no form, no
+admin console and no deploy involved, and the change takes effect
+immediately.
+
+Team administration works the same way: adding a person, changing what
+someone is permitted to do, or enabling an integration for an individual are
+all typed instructions. The app has no settings screen.
+
+Writes are two-step. Nothing is written on the first pass: the app reads
+back exactly what it is about to change — which shops, from which person, to
+which — and waits. A one-word confirmation commits it. That step exists
+because a typed instruction is easy to get wrong, and a read-back converts a
+mistake into a question rather than a write.
+
+<Media type="image" src="/projects/the-app-became-ours/reassign-2.png" alt="A phone app chat exchange. A user bubble reads 'Move Stark Industries over to Dwight - Jim is covering the coast now.' The reply lists what will change — Stark Industries, owner Jim Halpert to Dwight Schrute — and ends with 'Confirm?'. A short 'yes' bubble follows, then the reply 'Done — Stark Industries is now owned by Dwight Schrute.'" caption="Reassigning a shop: the instruction, the read-back of the pending change, the confirmation, the result." />
+
+## Retention
+
+Deletes are soft. A deleted row is marked and retained rather than removed,
+because the business needs to reconstruct what an account looked like at an
+earlier date. A history that can be edited down after the fact is not a
+usable record.
+
+## Go-live defect
+
+The CRM was deployed the day it was written. An error-handling mistake meant
+that failures were reported as an anonymous platform error code rather than
+the underlying cause, which made anything that went wrong in the field
+difficult to diagnose. The same code had behaved correctly in local
+development. It is a failure mode worth watching for in AI-written code,
+because the code reads as though it works.
+
+## Effect
+
+Before this release the app was a tool with one user at a time. After it,
+it was shared infrastructure: a deploy that broke something broke it for the
+whole team, and the team's records lived inside it.

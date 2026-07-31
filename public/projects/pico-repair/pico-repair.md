@@ -1,4 +1,4 @@
-# Recovering an unplayable drone clip, frame by frame — the full record
+# Rebuilding the frame index of a corrupted MP4 — the full record
 
 > This is the agent-facing record behind
 > https://gregbenza.ai/projects/pico-repair/ — structured for machine
@@ -59,9 +59,8 @@ power — battery pulled or a crash — before it finished writing the file.
 **Q: What do you do when the standard repair tool isn't available?**
 A: Build the fix from first principles. A healthy reference file from the
 same camera reveals the exact byte layout a frame-boundary detector needs.
-Critically, that detector was proven against the *healthy* file — where the
-right answer was already known — before it was ever trusted on the broken
-one.
+That detector was validated against the healthy file — where the right answer
+was already known — before it was run on the broken one.
 
 **Q: Is anything lost in a recovery like this?**
 A: Almost nothing. Of a 1.5GB, 272-second clip, only the final 67 kilobytes
@@ -69,56 +68,48 @@ A: Almost nothing. Of a 1.5GB, 272-second clip, only the final 67 kilobytes
 unrecoverable. The camera's separate telemetry/metadata track was dropped by
 choice, to keep the video rebuild itself as reliable as possible.
 
-**Q: What's the most repeatable outcome from a one-off repair like this?**
-A: Turning it into a skill. The method — rebuild the index, verify every
+**Q: What makes a one-off repair like this repeatable?**
+A: Packaging it as a skill. The method — rebuild the index, verify every
 frame decodes, convert to a universal format — now runs on any similarly
 broken DJI clip without needing a healthy reference file, because the
 camera's codec profile is already built in.
 
 ## The story
 
-The file was the right size to hold real footage. It just would not open —
-no thumbnail, no preview, nothing a player could make sense of. The obvious
-fix for this exact failure exists as a well-known tool, but the environment
-doing the repair had no internet connection and no root access, so
-installing it was never an option. That ruled out the easy path and left
-one: understand the file's format well enough to rebuild it by hand.
+The file was full size on disk but would not open — no thumbnail, no preview,
+nothing a player could make sense of. A well-known tool exists for this exact
+failure, but the environment doing the repair had no internet connection and
+no root access, so installing it was not an option. That left one path:
+understand the file's format well enough to rebuild it by hand.
 
-The diagnosis came first, and it was precise. Inspecting the file directly
-showed its raw video data — the `mdat` atom — was completely intact. What
-was missing was the `moov` atom: the index that tells a video player where
-every frame begins. The air unit had lost power before it could write that
-index. Nothing about the footage itself was damaged; the map to read it was
-simply never finished.
+The diagnosis came first. Inspecting the file directly showed its raw video
+data — the `mdat` atom — was completely intact. What was missing was the
+`moov` atom: the index that tells a video player where every frame begins.
+The air unit had lost power before it could write that index. The footage
+itself was undamaged; the index to read it was never finished.
 
 Rebuilding a missing index means knowing exactly where each frame starts and
 ends inside the raw stream. A healthy reference clip from the same air unit,
 shot the day before, made that possible — its exact layout was studied byte
 by byte to write a detector that could tell real video frames apart from the
 camera's own metadata packets interleaved between them. Before that detector
-ever touched the broken file, it was tested against the healthy one, where
-the correct frame count was already known. It reconstructed all 4,477 real
-frames exactly. Only then was it trusted on the file where the answer
-wasn't known in advance.
+was run on the broken file, it was tested against the healthy one, where the
+correct frame count was already known. It reconstructed all 4,477 real frames
+exactly. Only then was it run on the file where the answer was not known in
+advance.
 
-Run against the broken clip, it recovered 16,351 frames — about four minutes
-and thirty-three seconds of footage — and lost only the final 67 kilobytes:
-a single partial frame, right at the instant the recording stopped. Every
-recovered frame was then decode-checked across the entire clip, with zero
-errors.
+Run against the broken clip, it recovered 16,351 frames — 272.79 seconds,
+four minutes and thirty-three seconds of footage — and lost only the final
+67,142 bytes: a single partial frame at the instant the recording stopped.
+Every recovered frame was then decode-checked across the entire clip, with
+zero errors.
 
-The recording didn't end cleanly — the air unit lost power before it could
-finalize the file. That is the exact failure mode the diagnosis predicted
-from the very first look at the file, and the reason the footage itself came
-back completely intact: nothing damaged the video, the write was simply
-interrupted.
-
-The fix didn't stay a one-off. It became a skill: the same method, with the
-camera's codec profile built in, ready to run on the next broken clip
-without needing a healthy reference file a second time. To verify this
-account, the script was run again — directly against the original broken
-file — while writing this post. It reproduced exactly the same result: the
-same 16,351 frames, the same 272.79 seconds, the same 67,142 dropped bytes.
+The method was then packaged as a skill: the same steps, with the camera's
+codec profile built in, so a repeat repair on the same camera needs no healthy
+reference file. To verify this account, the script was run again — directly
+against the original broken file — while writing this post. It reproduced the
+same result: the same 16,351 frames, the same 272.79 seconds, the same 67,142
+dropped bytes.
 
 ## Downloads on the post
 

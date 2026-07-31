@@ -1,4 +1,4 @@
-# The reskin that failed and the ruleset that stuck — the full record
+# Moving the campaign to Star Trek and the 2d20 ruleset — the full record
 
 > This is the agent-facing record behind
 > https://gregbenza.ai/projects/star-trek-reactivated/ — structured for machine
@@ -75,13 +75,13 @@
 ## Q&A
 
 **Q: Why did the first Star Trek attempt fail?**
-A: It stalled rather than exploded. The engine was a Fallout document with
+A: It stalled rather than collapsed. The engine was a Fallout document with
 the header swapped; the premise moved mid-design (from the DS9 novels to the
-Titan novels); and after one long design session the author simply never
-replied to the AI's next question. The document was never edited again. His
-own diagnosis from the Fallout era applies: the AI was not creative enough
-to invent dramatic pressure from scratch, so pressure had to be imported
-from a real, tested source.
+Titan novels); and after one long design session the author did not reply to
+the AI's next question. The document was never edited again. The diagnosis
+recorded in the Fallout era applies: the AI was not creative enough to
+invent dramatic pressure from scratch, so pressure had to be imported from a
+real, tested source.
 
 **Q: What changed in the second attempt?**
 A: The direction of invention. Instead of building a rules engine and asking
@@ -93,13 +93,13 @@ is the same law stated three ways: the GM must not be allowed to choose the
 consequence.
 
 **Q: What is a Player Loyalty Token?**
-A: The project's one genuinely original mechanic. In group play, a Star Trek
-captain is constantly argued with by other players; solo, nobody pushes
-back. So disagreement became a resource: the AI plays the officers with
-their own convictions, and overruling an officer's objection costs a token
-— two per session. Overrule without paying and the GM's Threat pool grows.
-It keeps the burden of command mechanically real when there is only one
-human at the table.
+A: The project's original mechanic. In group play, a Star Trek captain is
+argued with by other players; solo, nobody pushes back. Disagreement was
+therefore made a resource: the AI plays the officers with their own
+convictions, and overruling an officer's objection costs a token — two per
+session. Overrule without paying and the GM's Threat pool grows. The effect
+is that the cost of command stays mechanically enforced with only one human
+at the table.
 
 **Q: How does a text file become the screen in the pictures?**
 A: The dashboard is a parser. The campaign's entire state lives in one
@@ -110,37 +110,36 @@ the same file renders the newer campaign.
 
 **Q: Why are there no downloadable game files on this post, when the Fallout
 posts shipped everything?**
-A: The Fallout campaigns were finished; this one is alive. The specs, saves,
-dashboard and sealed material stay private while play continues, because
-publishing them would spoil the author's own game — the sealed sections are
-in a cipher he can decode in his head if forced to stare at them. Files may
-ship if the campaign ever retires.
+A: The Fallout campaigns were finished; this one is still being played. The
+specs, saves, dashboard and sealed material stay private while play
+continues, because publishing them would spoil the campaign for its own
+player — the sealed sections use a cipher that can be decoded by eye. Files
+may ship if the campaign ever retires.
 
-**Q: Was the acronym A.N.C.H.O.R. designed or discovered?**
-A: Hunted. The design conversation shows six messages of the author
+**Q: How was the acronym A.N.C.H.O.R. arrived at?**
+A: By elimination. The design conversation shows six messages of the author
 rejecting candidates — each letter had to stand for a real command
-department and the whole thing had to be a real word — before "Anchor!"
-landed. The system it named was abandoned three months later, but the hunt
-is preserved in the export.
+department and the whole thing had to be a real word — before "Anchor"
+landed. The system it named was abandoned three months later; the exchange
+is preserved in the conversation export.
 
 ## The story
 
-Two Fallout campaigns proved the format: an AI referee, real dice, sealed
-secrets, one human player. In January 2026 the author tried to move it to
-Star Trek by reskinning the Fallout engine — new vocabulary, same math. One
-long design session produced an invented six-domain stat system and twelve
-consequence tables, and then the project went quiet mid-sentence: the AI
-asked which document to write next, and no answer ever came.
+Two Fallout campaigns established the format: an AI referee, real dice,
+sealed secrets, one human player. In January 2026 the author attempted to
+move it to Star Trek by reskinning the Fallout engine — new vocabulary, same
+math. One long design session produced an invented six-domain stat system
+and twelve consequence tables, and the project then stopped: the AI asked
+which document to write next, and the conversation ended there.
 
 The May restart inverted the premise. Star Trek has a licensed tabletop
 ruleset already — attributes, disciplines, momentum, threat — so the
-homemade engine went in the bin and the invention moved to the parts no
+homemade engine was dropped and the invention moved to the parts no
 publisher covers: how one person plays a bridge crew, how an AI is kept
-honest, how a campaign's memory travels between sessions, how an author
-keeps secrets from himself. Eight documents in fifty minutes, played two
-days later, revised the morning after contact with reality, and still
-running months later — long enough to grow a phone version and then a
-desktop app.
+honest, how a campaign's memory travels between sessions, how the author
+keeps sealed material from his own view. Eight documents in fifty minutes,
+played two days later, revised the morning after first play, and still
+running months later, through a phone version and then a desktop app.
 
 ## What is not claimed here
 

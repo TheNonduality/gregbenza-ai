@@ -1,156 +1,97 @@
 ---
-title: 'The whole backend is one Worker'
-date: 2026-07-30
+title: 'The backend is a single Cloudflare Worker'
+date: 2026-06-03
 project: 'The App'
 blurb: >
-  My company runs on an app I built with AI. Its entire server side is a
-  single Cloudflare Worker: every secret lives there, every request goes
-  through it, and it went live the same day it was written.
+  The server side of the company's app is a single Cloudflare Worker. It holds
+  every credential, every request passes through it, and it went to production
+  the day it was written.
 hero:
   type: image
   src: /projects/one-worker-backend/home-rep-top.png
-  alt: 'The top of a phone app screen. A header reads "The App" beside a small house icon with a red badge showing 2, over a status line reading "Connected to ERP ✓". Below, a Reminders heading sits above a pink-bordered card labeled New Reminder with a NEW pill, reading "Log every touch the same day — the weekly report pulls Sunday night.", with a Confirm button.'
-  caption: 'The top of a rep''s morning: signed in, connected to the ERP, and a reminder from the admins waiting to be confirmed.'
+  alt: 'The top of a phone app screen. A header reads "The App" beside a small house icon with a red badge showing 2, over a status line reading "Connected to ERP ✓" and a thin divider. Below, a Reminders heading sits above the start of a pink-bordered card headed "New Reminder" with a pink NEW pill, whose text begins "Log every touch the same day — the weekly" before the frame cuts it off.'
+  caption: 'The client the Worker serves: a signed-in session and a live ERP connection, with no credentials held on the device.'
 outro:
   type: image
   src: /projects/one-worker-backend/home-rep.png
   alt: 'A full phone-sized app screen. A header reads "The App" beside a small house icon with a red badge showing 2, over a status line reading "Connected to ERP ✓". Below, a Reminders section holds two pink-bordered cards, each labeled New Reminder with a NEW pill and a Confirm button: one reads "Log every touch the same day — the weekly report pulls Sunday night.", the other "Push the summer promo with every visit this week — it ends Friday." A Scoreboard section labeled "your numbers — tap" shows a collapsed row "July IN PROGRESS $10,345" above an expanded card: July with an IN PROGRESS tag, then brand rows — Wonka Confections $4,120, Acme Foods $2,980, Globex Snacks $2,215, Initech Beverages $1,030 — and a footnote "gross sales, as of this pull (2026-07-30) — month still in progress". A Tasks section shows pill buttons "overdue 1" and "later 3", partly scrolled out of view. At the bottom sits a chat composer with a three-dot menu, a text field reading "Ask anything…", and a round dark send button with an up arrow.'
-  caption: 'The whole home screen the Worker serves: reminders, the month''s scoreboard by brand, tasks, and the chat box that runs everything.'
+  caption: 'One home screen, assembled from all three upstreams: reminders and tasks from the database, the scoreboard computed from ERP data, and the chat box routed to the model.'
 bodyMedia:
   - type: image
     src: /projects/one-worker-backend/architecture.svg
     alt: 'An architecture diagram on a warm off-white background. On the left, a phone outline labeled "The App — a web app on the sales team''s phones" with the note "holds zero secrets". An arrow labeled "every request" points to a blue-bordered box in the middle: "One Cloudflare Worker — the only doorway", with a blue padlock icon and the note "every key lives here, and only here". Three arrows fan out from the Worker to boxes on the right: "Claude API — powers the in-app chat", "ERP software — orders & inventory" (arrow labeled read-only), and "D1 database — the CRM, SQLite at the edge". A caption underneath reads: The phone talks to one Worker. The Worker talks to everything else.'
-    caption: 'The whole backend: one Worker in the middle, holding every key.'
+    caption: 'The complete server side: one Worker, holding every credential, in front of three upstreams.'
 agentMd: /projects/one-worker-backend/one-worker-backend.md
 ---
 
 import Media from '../../../components/Media.astro';
 
-## The stakes are different this time
+## The constraint
 
-The [Games wing](/?p=games) is me playing. This wing is my company's
-software — a CRM and operations app I built with AI that a real distribution
-business runs on every day. Real sales team, real accounts, real money
-moving through it.
+The app runs on the sales team's phones as a web app. It needs three sets of
+credentials: the Claude API for the chat, the ERP's API for orders and
+inventory, and a database for the CRM.
 
-This first post is about the foundation everything else sits on. It is
-smaller than you'd guess.
+A phone client cannot hold any of them. The app is a web page, so anyone
+with the app has its source. The rule set at the start was that the client
+holds no secrets at all — not encrypted, not obfuscated, none.
 
-## A phone app with a secret problem
+That requires a server to hold the credentials and make the calls. The
+implementation is a single Cloudflare Worker: a JavaScript program running
+at Cloudflare's edge. Every credential is stored there as a platform secret
+and injected server-side. The client sends a request, the Worker attaches
+the correct credential, and passes it upstream.
 
-The App lives on the sales team's phones. It talks to three things that all
-demand credentials: the Claude API for its chat brain, our ERP software for
-orders and inventory, and a database for the CRM.
+The Worker was written and deployed to production on June 3, 2026, the same
+day it was started. It has no framework and no build step, and consists of
+two plain JavaScript files.
 
-A phone is the worst possible place to keep a credential. Anyone with the
-app has the app's code — it's a web page. So the design rule, set on day
-one, is absolute: **the phone holds zero secrets.** Not encrypted ones, not
-obfuscated ones. None.
+## One doorway, three upstreams
 
-That rule needs a server — something that holds the keys and does the
-talking. What it got was a single Cloudflare Worker: a small JavaScript
-program that runs at Cloudflare's edge, close to whoever's calling it. Every
-key the company has lives there as a sealed secret, injected server-side.
-The app sends requests to the Worker; the Worker stamps them with the right
-credential and passes them along. A gatekeeper, not a middleman with
-opinions.
+<Media type="image" src="/projects/one-worker-backend/architecture.svg" alt="An architecture diagram: a phone labeled The App with the note 'holds zero secrets', an arrow labeled 'every request' into a blue-bordered box labeled 'One Cloudflare Worker — the only doorway' with a padlock icon, and three arrows fanning out to Claude API, ERP software (read-only), and D1 database — the CRM, SQLite at the edge." caption="The complete server side: one Worker, holding every credential, in front of three upstreams." />
 
-The Worker went from first line to live in production on June 3 — one day.
-Not because the problem is trivial, but because the shape is so small: no
-framework, no build step, a couple of plain JavaScript files. That
-smallness is a feature we've defended since. Every piece of machinery you
-don't have is a piece that can't fail quietly.
+Everything the backend does routes through that Worker:
 
-## One doorway, three rooms
+- **The Claude relay.** The in-app chat runs on Claude and the Worker holds
+  the API key. A server relaying a browser's request inherits the browser's
+  identity headers and is rejected for it; the relay strips them before
+  forwarding. This surfaced on go-live day and worked correctly in local
+  development beforehand.
+- **The ERP relay.** Orders and inventory come from the ERP's API, with
+  those keys also held by the Worker. The relay is read-only by
+  construction: it forwards queries and has no write path, so the app cannot
+  modify the system of record.
+- **The CRM.** Accounts, tasks and interactions are stored in D1,
+  Cloudflare's SQLite service, with the Worker serving as its API.
 
-<Media type="image" src="/projects/one-worker-backend/architecture.svg" alt="An architecture diagram: a phone labeled The App with the note 'holds zero secrets', an arrow labeled 'every request' into a blue-bordered box labeled 'One Cloudflare Worker — the only doorway' with a padlock icon, and three arrows fanning out to Claude API, ERP software (read-only), and D1 database — the CRM, SQLite at the edge." caption="The whole backend: one Worker in the middle, holding every key." />
+Authentication follows the same routing. Sign-in happens at the Worker,
+sessions are signed tokens, and passwords are hashed server-side. Cloudflare
+caps the work a password hash may perform in production and the local
+simulator does not enforce that cap, so identical code hashed successfully
+in development and was rejected in production. That was found on the second
+day of the CRM's life.
 
-Everything the backend does goes through that one Worker, which routes to
-three places:
+## Rules enforced by the database
 
-- **The Claude relay.** The in-app chat is powered by Claude, and the
-  Worker holds the API key. First lesson of go-live day: a server calling
-  the Claude API on a browser's behalf inherits the browser's identity
-  headers, and gets refused for it. The fix — teaching the relay to shed
-  what the browser wraps it in — was the first of many "works locally,
-  fails in production" moments this platform would teach me.
-- **The ERP relay.** Orders and inventory come from our ERP's API. The
-  Worker holds those keys too, and this relay is **read-only by design** —
-  it will pass questions along, never writes. The app can't corrupt the
-  system of record even if it tries, because the doorway physically doesn't
-  do that.
-- **The CRM.** Accounts, tasks, interactions — the half of the app the
-  next posts are about. It lives in D1, Cloudflare's SQLite-at-the-edge
-  database, and the Worker is its API.
+The CRM's data carries constraints. The primary one is that every live shop
+must have an owner — a named person responsible for it.
 
-Auth follows the same one-doorway logic. Sign-in happens at the Worker,
-sessions are signed tokens, and passwords are hashed server-side — which
-produced my favorite go-live bug: the hashing hit a hard cap that exists
-only in production. Cloudflare limits how much work a password hash may do,
-the local simulator doesn't enforce the limit, and so the exact same code
-hashed happily on my machine and refused in the field. Day two of the CRM
-was learning that lesson.
+That rule is not a check in application code. It is enforced by the
+database, which rejects a write that would store a live shop without an
+owner regardless of which code path issued it. The reasoning is that code
+paths multiply and each new feature is another opportunity to omit a check,
+whereas a database constraint is a single point every write passes through.
 
-## Rules that live in the database
+Deletion follows the same approach: rows are marked deleted and retained
+rather than removed, because the business needs to reconstruct earlier
+states.
 
-The CRM's data has laws. The one I'm proudest of: **every real, live shop
-must have an owner** — a specific person responsible for it. That law isn't
-enforced by a code path someone remembered to write. It's enforced by the
-database itself, which simply refuses to save a shop with no owner, no
-matter which door the write came through.
+## Deployment
 
-That distinction — rules living in the database rather than in the code in
-front of it — runs through the whole design. Code paths multiply; every new
-feature is a new chance to forget the check. A database constraint is one
-wall that every write hits. Nothing is ever truly deleted either; rows are
-marked gone and kept, because a distribution business is a business of
-disputes, and "what did this look like before?" is a question you must
-always be able to answer.
+A Worker deploys globally in about a second from the command line, so fixes
+ship as soon as they are verified.
 
-## The job that runs while everyone sleeps
-
-Our ERP has an unusual property: **it keeps no history.** Ask it about
-inventory and it tells you about now. Yesterday doesn't exist. Trends,
-velocity, "are we about to run out?" — all unanswerable from the source.
-
-So every morning, on a schedule, the Worker wakes up with no request to
-answer, photographs the entire catalog's stock levels into the database,
-and goes back to sleep. Stock over time is reconstructed from the nightly
-photographs — and a missed night is missed *forever*, because there's
-nothing to backfill from.
-
-That permanence made the job's failure modes the real design problem, and
-both of the ones that happened were **silent**:
-
-1. **The job died mid-run**, leaving a half-written day that looked
-   complete. The fix is a completion marker written only after a clean
-   finish — a day exists when the marker says so, never because data rows
-   happen to be present.
-2. **The platform simply never fired the schedule.** No error, no log —
-   nothing happened, which is the one thing monitoring can't see. That one
-   was revived by a redeploy and survives as the system's quietest failure
-   mode: every trend answer now carries a staleness note, so a stale photo
-   announces itself instead of impersonating a fresh one.
-
-The schedule gets multiple tries each morning, retries skip themselves if
-the day is already banked, and if the last try fails the Worker tells the
-admin directly. Designing for the failure you can't see coming turned out
-to be most of the work.
-
-## Shipping in seconds, rolling back in minutes
-
-A Worker deploys globally in about a second from my terminal, which sets
-the tempo for everything: fixes ship the minute they're verified.
-
-The discipline that makes that speed safe was proven the hard way on July
-29. A change to how sales numbers are filtered went out, was discovered
-wrong in the field, and was **rolled back — verified, live — in about four
-minutes**: check out the last good version, rebuild, ship, confirm the live
-build stamp. The deploy script verifies the stamp itself, so "did the
-rollback take?" is answered by the tooling, not by hope.
-
-And because the whole backend runs identically on a laptop — same Worker,
-same database engine, local SQLite standing in for D1, fake keys standing
-in for real ones — there's a complete sandbox of the company's entire
-system that has never contained a real record: every experiment happens
-there first, before it goes anywhere near the field.
+The same backend runs on a laptop — the same Worker code, local SQLite in
+place of D1, and dummy credentials in place of the real ones. That provides
+a full local copy of the system that has never contained a production
+record, which is where changes are tested first.

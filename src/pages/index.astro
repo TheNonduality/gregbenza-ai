@@ -4,7 +4,7 @@ import Base from '../layouts/Base.astro';
 import AskButtons from '../components/AskButtons.astro';
 import DoorHero from '../components/DoorHero.astro';
 import AskMoment from '../components/AskMoment.astro';
-import { slugify, wingFor, type Wing } from '../lib/wings';
+import { slugify, wingFor, WING_ORDER, type Wing } from '../lib/wings';
 import { SITE_URL, PERSON_ID, BLOG_ID, person, blog, graph } from '../lib/schema';
 
 const projects = (await getCollection('projects', ({ data }) => !data.draft)).sort(
@@ -24,6 +24,16 @@ for (const p of projects) {
   if (existing) existing.posts.push(p);
   else wings.push({ ...w, posts: [p] });
 }
+
+// Hang the rooms in the curated order (see WING_ORDER). Anything not on that
+// list keeps its recency position behind the ones that are, so a brand-new
+// lineage shows up without needing this file edited. Posts inside every wing
+// stay newest-first either way.
+const rank = (slug: string) => {
+  const i = WING_ORDER.indexOf(slug);
+  return i === -1 ? WING_ORDER.length : i;
+};
+wings.sort((a, b) => rank(a.slug) - rank(b.slug));
 
 // Filter chips come from the wings themselves, in the same order as the rooms.
 // A post with no `project` is schema-legal, so it lands in an unnamed wing that

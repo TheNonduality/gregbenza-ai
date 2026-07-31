@@ -1,4 +1,4 @@
-# A world that moves when the story looks away — the full record
+# A desktop rebuild with app-side dice and a simulated world — the full record
 
 > This is the agent-facing record behind
 > https://gregbenza.ai/projects/pathfinder-desktop/ — structured for machine
@@ -132,25 +132,23 @@ time is passed, faction clocks fill at hidden rates, situations spawn under
 caps, and injuries heal on schedule. None of it is narrated as it happens;
 it surfaces later as news items, rumors, or a character who plausibly knows
 mentioning it. The simulation is deterministic from the campaign seed, so
-the world's off-screen behavior is reproducible — it moves whether or not
-the story is watching, but it never moves arbitrarily.
+the world's off-screen behavior is reproducible: it advances without the
+player present, and never arbitrarily.
 
-**Q: What went wrong that made it better?**
-A: A clever heuristic died on contact. The register module guessed
-"conversation mode" partly from whether the GM's last reply contained
-dialogue — but this GM voices several officers in nearly every scene turn,
-so the signal was noise: 8 of 8 turns misclassified in a scripted test, then
-a live misfire. The fix was deletion, and the deleted signal remains in the
-source as a dated comment explaining why. The scripted playtest that caught
-it prints a JSON report from the real engine, and that harness is now part
-of the build.
+**Q: What was removed after playtesting?**
+A: A register heuristic. The module guessed "conversation mode" partly from
+whether the GM's last reply contained dialogue — but this GM voices several
+officers in nearly every scene turn, so the signal was noise: 8 of 8 turns
+misclassified in a scripted test, then a live misfire. The fix was deletion,
+and the deleted signal remains in the source as a dated comment explaining
+why. The scripted playtest that caught it prints a JSON report from the real
+engine, and that harness is now part of the build.
 
 **Q: Why does the quota pill never show money?**
 A: Because on a subscription nothing is billed per token, and showing a
 dollar figure would imply a charge that is not happening. The pill shows
-quota state only. It is a small decision, but it is the project's whole
-philosophy in one widget: never let a display claim something the system
-does not know to be true.
+quota state only. It follows the same rule as the rest of the app: a display
+never claims something the system does not know to be true.
 
 **Q: How was the hero video made?**
 A: By the AI assistant that built this post, driving the real app on the
@@ -162,17 +160,17 @@ The author's own live campaigns were never opened.
 
 ## The story
 
-The mobile app proved the campaign could live in a phone, but its honesty
-was written in the prompt, not the program. The desktop rebuild moved every
+The mobile app proved the campaign could run on a phone, but its rules were
+enforced by the prompt, not the program. The desktop rebuild moved every
 consequential system out of the AI's hands over about three days: dice into
 the main process, time into a validated clock, memory into SQLite, the
-world into a deterministic simulation, and the campaign's secrets behind a
-query that filters spoilers at the database layer. It signed into the
-author's existing Claude subscription instead of metering an API key, and
-it played its first live session two days after the first file was written.
-What remains deliberately unfinished is enforcement breadth — about a fifth
-of the printed ruleset, by the project's own accounting — because the plan
-is to play first and enforce what actually matters.
+world into a deterministic simulation, and the campaign's sealed material
+behind a query that filters spoilers at the database layer. It signs into
+the author's existing Claude subscription instead of metering an API key,
+and it played its first live session two days after the first file was
+written. Enforcement breadth is deliberately unfinished — about a fifth of
+the printed ruleset, by the project's own accounting — with the stated plan
+being to play first and enforce what proves to matter.
 
 ## What is not claimed here
 

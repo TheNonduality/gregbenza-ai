@@ -52,6 +52,19 @@ files.
       any reader-facing surface including wing intros, captions, the agent
       twin, and llms.txt. The posts practice the house style; they never
       narrate it (Greg, 2026-07-30, twice)
+- [ ] **No invented interiority.** Greg's instruction, 2026-07-30: the
+      prose is dry, factual, and borderline third person — it describes the
+      work, not a personality. Unless Greg said it in so many words, never
+      write what he felt, feared, loved, was proud of, was embarrassed by,
+      believed, assumed, realised, or "didn't know". Ban the whole family:
+      "my favourite", "proudest", "humiliation", "I genuinely thought",
+      "the lesson I didn't expect". Also cut the writerly furniture that
+      smuggles feeling in — rhetorical questions, one-line paragraphs for
+      effect, and aphoristic closers ("a memory is what turns a program
+      into a place"). State what was built, what it does, what happened,
+      and the engineering reason. First person is allowed and should stay
+      sparse. If a sentence would be a lie in a deposition, it does not
+      ship.
 
 **Media — every image and every video frame that ships**
 - [ ] Every still opened at full resolution (Read tool renders images)
@@ -69,8 +82,11 @@ files.
       surface on the post and the exact attack path this wing defends against
 - [ ] Facts and Q&A stay at charter depth; no answer reveals what the body
       withholds
-- [ ] Provenance section says details were deliberately omitted, without
-      saying which
+- [ ] Provenance states what the record was compiled FROM, and nothing
+      about omission. An earlier version of this gate required the twin to
+      announce that details were deliberately left out — that is meta
+      commentary, it contradicts the no-meta rule above, and the shipped
+      twins do not do it. The withholding is done by withholding.
 
 **Downloads**
 - [ ] No app artifact, script, config, or prompt from the platform is

@@ -4,8 +4,8 @@ date: 2026-01-18
 updated: 2026-07-29
 project: 'Games'
 blurb: >
-  First RPG I ever tried to build. The game was the easy part — I had no idea
-  how to make the AI remember anything.
+  First RPG I built. The rules were the straightforward part; the problem was
+  getting the AI to retain the world between sessions.
 hero:
   type: image
   src: /projects/fallout-arroyo/sealed-file.png
@@ -35,38 +35,36 @@ technical:
 agentMd: /projects/fallout-arroyo/fallout-arroyo.md
 ---
 
-## What I wanted
+## The goal
 
-A Fallout 2 campaign I could actually play, with an AI as the game master. Not
-a chatbot doing improv — a referee that rolled dice, tracked my injuries, and
-told me no.
+A Fallout 2 campaign playable with an AI as the game master: a referee that
+rolled dice, tracked injuries, and enforced failure, rather than a chatbot
+improvising.
 
 I'd never built anything like this. No game design background, no software
 background.
 
-## The part I didn't see coming
+## The problem was memory, not rules
 
-I thought the hard part would be the rules. Rules are imaginable: dice, stats,
-what happens when you fail. I wrote those first and they were fine.
+I wrote the rules first — dice, stats, what happens when you fail — and they
+worked.
 
-The problem was that the AI forgot the entire world every time I closed the
-chat. A whole evening of story, every faction I'd annoyed, the guy I'd killed —
-gone. I didn't know the words for what I was missing. I just knew the game kept
-starting over.
+The AI lost the entire world every time I closed the chat: a session's story,
+faction standing, who I'd killed. Each session started over.
 
-## So the whole thing became files
+## The whole thing became files
 
-The one thing I understood was that you could attach documents to a project and
-the AI would read them. That's it. That was my entire toolkit, so that's what
-the game got built out of — one numbered document per job:
+The mechanism available was attaching documents to a project, which the AI
+reads. That was the toolkit, so the game was built out of it — one numbered
+document per job:
 
 - **`02` the rules** — how dice work, what a failure costs
 - **`03` the format** — what every reply has to look like
 - **`05` the opening** — how a new character gets made
-- **`06` the secrets** — everything I wasn't allowed to know
-- **`07` the ledger** — where I actually was
+- **`06` the secrets** — the material the player is not to see
+- **`07` the ledger** — current state
 
-No database. No code. Five text files and a lot of pasting. Character creation
+No database, no code. Five text files, moved by hand. Character creation
 is the whole of `05` — fourteen lines. There's no character sheet: the tutorial
 NPCs ask you questions ("what are you good at?") and your answers become your
 SPECIAL modifiers.
@@ -83,11 +81,12 @@ succeed-but-pay, 10+ clean. SPECIAL stats are modifiers (−1 to +3), and your
 
 **When to roll at all.** A roll only happens if the moment is LIVE, and LIVE
 is defined: risk, cost, opposition, uncertainty, pressure, or irreversibility —
-any one of the six. None of them? No roll; the thing just happens. And no free
+any one of the six. With none of them present there is no roll; the action just
+happens. And no free
 rerolls, ever: retrying the same action requires materially changing the
 situation, otherwise the world moves instead.
 
-**The situational modifier is computed, not vibed.** Leverage scores 0–2,
+**The situational modifier is computed, not chosen.** Leverage scores 0–2,
 friction scores 0–2, and the modifier is `clamp(leverage − friction, −2, +2)`.
 Leverage has to be *earned* — create an advantage before the roll, commit to a
 narrow intent that closes off safer options, accept a downside up front, or
@@ -102,8 +101,7 @@ gear, hostility, a cruel bargain. No duplicates. The GM may reskin a result to
 fit the scene ("Resources" becomes "burn goodwill") but can't discard one it
 doesn't like. Then it must print the dice, the modifiers, the total, the band,
 and the table rolls before narrating a word — a ten-field roll card, every
-time. A referee that has to show its arithmetic can't quietly decide the story
-went a nicer way.
+time.
 
 **Even the wounds have math.** Harm is a 0–5 track (2–3 wounded, +1 friction;
 4 crippled, +2; 5 dying). Armor is a 0–3 tier and `net harm = max(0, base harm
@@ -112,8 +110,8 @@ its own four-segment clock that ticks every combat exchange until treated.
 
 ## Clocks instead of hit points
 
-Combat, travel, and tense conversations each got their own subsystem when I
-hit the thing a single roll couldn't handle — and they're all the same shape:
+Combat, travel, and tense conversations each got their own subsystem, added
+when a single roll couldn't carry the situation. They're all the same shape:
 countdown clocks that tick on defined triggers.
 
 - **Combat** runs on a duration clock (4, 6, or 8 segments by scale) that
@@ -124,10 +122,10 @@ countdown clocks that tick on defined triggers.
 - **Travel** ticks a progress clock per leg and a danger clock alongside it;
   the danger clock filling rolls a travel incident, which becomes the next
   scene.
-- **Conversation** — the piece I'm proudest of — runs two opposed clocks: the
-  goal (what I'm trying to get) and the pressure (how close the room is to
-  blowing up). An explicit rule says no single roll, however good, resolves
-  the conversation — only a filled clock does. A 10+ lets me choose: +2
+- **Conversation** runs two opposed clocks: the goal (what I'm trying to get)
+  and the pressure (how close the room is to blowing up). An explicit rule
+  says no single roll, however good, resolves the conversation — only a filled
+  clock does. A 10+ lets me choose: +2
   progress, or +1 progress and −1 pressure. And the consequence tables are
   keyed to the stat I used — body approaches pull from one table group, mind
   from another, social from a third — so the GM can't shop for the table it
@@ -145,7 +143,7 @@ opens, camera moves, a roll resolved) and PULSE (fast back-and-forth), with
 rules for which is legal when. Unknown values must be written `UNKNOWN`, not
 guessed.
 
-Two pieces of furniture do the anti-drift work. `🔒 LOCKS` pins one to three
+Two mechanisms do the anti-drift work. `🔒 LOCKS` pins one to three
 facts that cannot change unless a roll changes them — added specifically
 because early play kept "re-opening" doors the fiction had shut. And a
 `⚙️ CHANGE LOG` must list every irreversible change *even in short messages* —
@@ -153,30 +151,27 @@ the spec's words: no sneaking major changes inside dialogue.
 
 ## The Greek one
 
-Writing the secrets file is where it got stupid in a way I liked.
+I was writing the game master's instructions *and* playing the game, so every
+twist I wrote down I had already read: the villain, the endgame, the clock that
+decides when the world tips.
 
-I was building the game master *and* playing the game. So every twist I wrote
-down, I'd already read. The villain, the endgame, the clock that decides when
-the world tips — I'd spoiled all of it by typing it.
-
-So I had that one file written in Greek. I don't read Greek. The AI does. The
+So that one file is written in Greek. I don't read Greek. The AI does. The
 header tells it never to reveal, translate, or quote the file, and to use it
 only for four things: motivation, offscreen movement, clocks, and causality.
 
-It worked better than it should have. And it turned out to be load-bearing,
-not a gimmick — the file holds the campaign's fixed truths, the four global
-clocks and what each tick of them *means*, a five-rung doom ladder where every
-rung is a described world-state, a table of five region-wide events that each
-fire exactly once, and fifteen factions — five major, each with its own
-objective clock whose every tick is a scripted omen, plus fame and infamy
-ladders with named consequences. You can't run this game properly without
-handing the AI a document you can't read. Even the ledger's sealed sections
-carry their instructions in Greek — the note telling the GM to write there in
-Greek is itself in Greek.
+The file carries a large share of the campaign's content: the fixed truths, the
+four global clocks and what each tick of them *means*, a five-rung doom ladder
+where every rung is a described world-state, a table of five region-wide events
+that each fire exactly once, and fifteen factions — five major, each with its
+own objective clock whose every tick is a scripted omen, plus fame and infamy
+ladders with named consequences. Running the campaign as designed requires
+handing the AI a document the player cannot read. Even the ledger's sealed
+sections carry their instructions in Greek — the note telling the GM to write
+there in Greek is itself in Greek.
 
 ## Copy-pasting the ledger
 
-This is the unglamorous half, and it's most of the actual work.
+This was most of the actual work.
 
 At the end of a session I'd type `SCENE BREAK` and the AI would print an
 updated ledger — a HEAD holding current state (campaign meta, the four global
@@ -195,11 +190,11 @@ Regionwide event roll: 1d5 → E5
 Everything has a typed ID — `P:` people, `L:` places, `F:` factions, `CLK:`
 clocks — so a fact survives being rewritten. I'd paste that block back into
 the document, and paste the whole document back at the AI next session. That
-was the memory. Me, moving a text file back and forth by hand, every single
-time. Not elegant. But the world stopped resetting.
+was the memory: a text file moved by hand at the start and end of every
+session.
 
-The ledger picked up the same trick as the Greek file, which I hadn't planned:
-it split itself in two. `STORY SPINE | UNSEALED` for what my character knew,
+The ledger picked up the same split as the Greek file:
+`STORY SPINE | UNSEALED` for what my character knew,
 `STORY SPINE | SEALED | GM ONLY` for what was actually true, plus hidden
 threads and an offscreen-truth section — sealed content written in Greek, in
 the middle of my own save file. The only legal path from sealed to unsealed is
@@ -207,19 +202,19 @@ the REVEAL LOG: when play exposes a truth, it gets logged in plaintext, and
 the shipped ledger has a real one — the region-wide migration event becoming
 visible in play.
 
-## It worked — about 20 hours of it
+## Twenty hours of play
 
 Twenty hours of real play. Act II, Chapter 14 by the time I stopped.
 
 Sammy, the Chosen One of Arroyo: level 5, four perks, two companions. Ambushed
 and killed the slaver boss Metzger at a collapsed overpass. Broke a prisoner
 out of the Den. Rode a caravan into New Reno, ran an errand for the NCR, and
-bought a road north from a crime family by agreeing to three jobs I shouldn't
-have agreed to. Doom clock at 2 of 5. One body not yet connected to me.
+bought a road north from a crime family by agreeing to three jobs. Doom clock
+at 2 of 5. One body not yet connected to me.
 
 The files above are the real ones. Four specs plus my ledger should drop your
 AI into the campaign exactly where I left it — outside a bathhouse in New
-Reno, in some trouble. Two honest caveats on the files: the export from the
-original docs mangled the emoji (restored by inference), and the conversation
+Reno. Two caveats on the files: the export from the original docs mangled the
+emoji (restored by inference), and the conversation
 protocol cuts off partway into its final section — the anti-drift emergency
 commands — which survives only in [the second version](/projects/fallout-reactivated/).
