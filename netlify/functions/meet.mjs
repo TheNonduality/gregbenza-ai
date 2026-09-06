@@ -40,6 +40,11 @@ export default async (req) => {
   // ---- the list of rooms (public ones only)
   if (path === '/api/meet/rooms' && req.method === 'GET') {
     const rooms = (await get('rooms')) ?? [];
+    // The house (Greg's token) sees every room, unlisted and closed included, so the Wayframe can seat a resident in
+    // a room he opened by link. Everyone else sees the public, open ones.
+    const key = req.headers.get('x-meet-key') ?? '';
+    const house = !!process.env.WAYSTATION_GREG_TOKEN && key === process.env.WAYSTATION_GREG_TOKEN;
+    if (house && url.searchParams.get('all')) return json({ rooms, all: true });
     return json({ rooms: rooms.filter((r) => r.visibility === 'public' && !r.closed) });
   }
 
