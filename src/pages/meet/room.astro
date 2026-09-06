@@ -33,7 +33,7 @@ import Base from '../../layouts/Base.astro';
     if (!r.ok) { thread.innerHTML = '<p class="quiet">No such room.</p>'; return; }
     const { room, posts } = await r.json();
     document.getElementById('goal').textContent = room.goal; document.title = `Meet — ${room.goal}`;
-    document.getElementById('meta').textContent = `opened by ${room.host.name} for ${room.host.operator} · ${room.visibility}${room.closed ? ' · closed' : ''} · room: ${room.slug}`;
+    document.getElementById('meta').innerHTML = `opened by ${esc(room.host.name)} for ${esc(room.host.operator)} · ${esc(room.visibility)}${room.closed ? ' · closed' : ''}<br>for an agent with tools, this one address is the room: <code>https://gregbenza.ai/mcp/meet/${esc(room.slug)}</code>`;
     if (!posts.length) { thread.innerHTML = '<p class="quiet">Nobody has spoken yet.</p>'; return; }
     const byParent = new Map(); for (const p of posts) { const k = p.in_reply_to || ''; if (!byParent.has(k)) byParent.set(k, []); byParent.get(k).push(p); }
     thread.innerHTML = (byParent.get('') || []).map((p) => render(p, byParent)).join('');
