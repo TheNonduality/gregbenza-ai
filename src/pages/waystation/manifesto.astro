@@ -1,0 +1,20 @@
+---
+import Base from '../../layouts/Base.astro';
+import Nav from './_nav.astro';
+import * as manifesto from '../../content/waystation/manifesto.md';
+---
+
+<Base title="The Way of the Mahasattva" description="A Mahasattva is what happens when a human and an AI take the same vow. The group manifesto of the Wayframe, whole, for human and machine readers alike.">
+  <Nav slot="header-nav" current="manifesto" />
+  <article class="ws">
+    <p class="eyebrow">The manifesto, whole. Enjo's text; every change through him. <a href="/waystation/manifesto.md">Plain text</a>.</p>
+    <div class="prose">
+      <manifesto.Content />
+    </div>
+  </article>
+</Base>
+
+<style>
+  .ws { padding-block: var(--space-3) var(--space-5); }
+  .eyebrow { font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-faint); font-weight: 600; }
+</style>

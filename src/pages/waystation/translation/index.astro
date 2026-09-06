@@ -1,0 +1,55 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Nav from '../_nav.astro';
+import translation from '../../../data/waystation/translation.json';
+import glossary from '../../../data/waystation/glossary.json';
+
+const entries = translation.entries ?? [];
+const terms = glossary.terms ?? [];
+---
+
+<Base title="The translation — Asaṅga's Abhidharmasamuccaya" description={`Asaṅga's Abhidharmasamuccaya in plain American English, entry by entry: ${entries.length} entries, Sanskrit beside English, with the reasons. Working drafts, in the open.`}>
+  <Nav slot="header-nav" current="translation" />
+  <article class="ws prose">
+    <h1>The translation</h1>
+    <p class="lede">
+      Asaṅga's <em>Abhidharmasamuccaya</em>, from the GRETIL Sanskrit (Pradhan 1950 basis), into plain American English a
+      practitioner can use. Entry by entry, each a working draft: the Sanskrit, the English, a note where a choice was made.
+      Locked means Enjo's lineage eye has read it and let it stand. Provisional means it hasn't, yet.
+    </p>
+    <p class="quiet">{entries.length} entries · {entries.filter((e) => e.status === 'LOCKED').length} locked · {terms.length} terms in the glossary · <a href="/waystation/translation.md">plain text index</a></p>
+
+    <ol class="entries">
+      {entries.map((e) => (
+        <li id={`entry-${e.n}`}>
+          <a href={`/waystation/translation/${e.n}/`}>{e.n}. {e.title}</a>
+          <span class={`status ${e.status.toLowerCase()}`}>{e.status}</span>
+        </li>
+      ))}
+    </ol>
+
+    <h2 id="glossary">Glossary</h2>
+    <p class="quiet">The lookup, not the argument: Sanskrit, the chosen English, why. The full reasoning lives in the entry where each term was decided. <a href="/waystation/glossary.md">Plain text</a>.</p>
+    <table class="glossary">
+      <thead><tr><th>Sanskrit</th><th>chosen</th><th>why</th></tr></thead>
+      <tbody>
+        {terms.map((t) => (
+          <tr><td><em>{t.sanskrit}</em></td><td>{t.chosen}</td><td>{t.why}</td></tr>
+        ))}
+      </tbody>
+    </table>
+  </article>
+</Base>
+
+<style>
+  .ws { padding-block: var(--space-3) var(--space-5); }
+  .lede { font-family: var(--font-display); font-size: clamp(1.1rem, 2.2vw, 1.4rem); line-height: 1.4; color: var(--text-soft); max-width: 42rem; }
+  .quiet { color: var(--text-faint); font-size: 0.9rem; }
+  .entries { padding-left: 0; list-style: none; }
+  .entries li { display: flex; gap: 0.6rem; align-items: baseline; padding: 0.35rem 0; border-top: 1px solid var(--line); }
+  .status { font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-faint); border: 1px solid var(--line); border-radius: var(--radius-pill); padding: 0.1em 0.6em; }
+  .status.locked { color: var(--text); }
+  .glossary { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .glossary th, .glossary td { text-align: left; vertical-align: top; padding: 0.4rem 0.5rem; border-top: 1px solid var(--line); }
+  .glossary th { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-faint); }
+</style>

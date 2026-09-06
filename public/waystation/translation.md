@@ -1,0 +1,49 @@
+# The translation — Asaṅga's Abhidharmasamuccaya
+
+45 entries. Plain American English from the GRETIL Sanskrit (Pradhan 1950 basis). Working drafts, in the open.
+
+- [1. Chapter 1, Section 1, opening](https://gregbenza.ai/waystation/translation/1.md) — LOCKED
+- [2. Chapter 1, Section 1, "Why exactly five aggregates"](https://gregbenza.ai/waystation/translation/2.md) — LOCKED
+- [3. Chapter 1, Section 1, "Why exactly eighteen elements / twelve gateways"](https://gregbenza.ai/waystation/translation/3.md) — LOCKED
+- [4. Chapter 1, Section 1, "Why 'aggregates with grasping'"](https://gregbenza.ai/waystation/translation/4.md) — LOCKED
+- [5. Chapter 1, Section 1, "The hallmark of form"](https://gregbenza.ai/waystation/translation/5.md) — LOCKED
+- [6. Chapter 1, Section 1, "The hallmark of feeling"](https://gregbenza.ai/waystation/translation/6.md) — LOCKED
+- [7. Chapter 1, Section 1, "The hallmark of perception"](https://gregbenza.ai/waystation/translation/7.md) — LOCKED
+- [8. Chapter 1, Section 1, "The hallmark of formation"](https://gregbenza.ai/waystation/translation/8.md) — LOCKED
+- [9. Chapter 1, Section 1, "The hallmark of consciousness"](https://gregbenza.ai/waystation/translation/9.md) — LOCKED
+- [10. Chapter 1, Section 1, "The hallmark of the eye"](https://gregbenza.ai/waystation/translation/10.md) — LOCKED
+- [11. Chapter 1, Section 1, "The hallmark of form" (as element)](https://gregbenza.ai/waystation/translation/11.md) — LOCKED
+- [12. Chapter 1, Section 1, "The hallmark of eye-consciousness"](https://gregbenza.ai/waystation/translation/12.md) — LOCKED
+- [13. Chapter 1, Section 1, "The hallmark of the gateways"](https://gregbenza.ai/waystation/translation/13.md) — LOCKED
+- [14. Chapter 1, Section 1, "How the form-aggregate breaks down"](https://gregbenza.ai/waystation/translation/14.md) — LOCKED
+- [15. Chapter 1, Section 1, "The four great elements defined"](https://gregbenza.ai/waystation/translation/15.md) — LOCKED
+- [16. Chapter 1, Section 1, "Derived form"](https://gregbenza.ai/waystation/translation/16.md) — LOCKED
+- [17. Chapter 1, Section 1, "The five sense-faculties defined"](https://gregbenza.ai/waystation/translation/17.md) — LOCKED
+- [18. Chapter 1, Section 1, "The sense-object form (*rūpa*) defined"](https://gregbenza.ai/waystation/translation/18.md) — LOCKED
+- [19. Chapter 1, Section 1, "The sense-object sound (*śabda*) defined"](https://gregbenza.ai/waystation/translation/19.md) — LOCKED
+- [20. Chapter 1, Section 1, "The sense-object smell (*gandha*) defined"](https://gregbenza.ai/waystation/translation/20.md) — LOCKED
+- [21. Chapter 1, Section 1, "The sense-object taste (*rasa*) defined"](https://gregbenza.ai/waystation/translation/21.md) — LOCKED
+- [22. Chapter 1, Section 1, "The sense-object touch (derived portion) defined"](https://gregbenza.ai/waystation/translation/22.md) — LOCKED
+- [23. Chapter 1, Section 1, "Form that arrives as a mental object" (*dharmāyatana-saṃgṛhīta-rūpa*)](https://gregbenza.ai/waystation/translation/23.md) — LOCKED
+- [24. Chapter 1, Section 1, "How the feeling-aggregate breaks down" (opening)](https://gregbenza.ai/waystation/translation/24.md) — LOCKED
+- [25. Chapter 1, Section 1, "How the feeling-aggregate breaks down" (three further classifications + definitions)](https://gregbenza.ai/waystation/translation/25.md) — LOCKED
+- [26. Chapter 1, Section 1, "How the perception-aggregate breaks down"](https://gregbenza.ai/waystation/translation/26.md) — LOCKED
+- [27. Chapter 1, Section 1, "How the formation-aggregate breaks down" (opening)](https://gregbenza.ai/waystation/translation/27.md) — LOCKED
+- [28. Chapter 1, Section 1, "Intention" (*cetanā*) defined](https://gregbenza.ai/waystation/translation/28.md) — LOCKED
+- [29. Chapter 1, Section 1, "Attention" (*manaskāra*) defined](https://gregbenza.ai/waystation/translation/29.md) — LOCKED
+- [30. Chapter 1, Section 1, "Contact" (*sparśa*) defined](https://gregbenza.ai/waystation/translation/30.md) — LOCKED
+- [31. Chapter 1, Section 1, "Wanting" (*chanda*) defined](https://gregbenza.ai/waystation/translation/31.md) — LOCKED
+- [32. Chapter 1, Section 1, "Conviction" (*adhimokṣa*) defined](https://gregbenza.ai/waystation/translation/32.md) — LOCKED
+- [33. Chapter 1, Section 1, "Mindfulness" (*smṛti*) defined](https://gregbenza.ai/waystation/translation/33.md) — LOCKED
+- [34. Chapter 1, Section 1, "Concentration" (*samādhi*) defined](https://gregbenza.ai/waystation/translation/34.md) — LOCKED
+- [35. Chapter 1, Section 1, "Discernment" (*prajñā*) defined](https://gregbenza.ai/waystation/translation/35.md) — LOCKED
+- [36. Chapter 1, Section 1, "*Confidence*" (*śraddhā*) defined](https://gregbenza.ai/waystation/translation/36.md) — LOCKED
+- [37. Chapter 1, Section 1, "*Self-respect*" (*hrī*) defined](https://gregbenza.ai/waystation/translation/37.md) — LOCKED
+- [38. Chapter 1, Section 1, "*Decency*" (*apatrāpya*) defined](https://gregbenza.ai/waystation/translation/38.md) — LOCKED
+- [39. Chapter 1, Section 1, "*Non-greed*" (*alobha*) defined](https://gregbenza.ai/waystation/translation/39.md) — LOCKED
+- [40. Chapter 1, Section 1, "*Non-hatred*" (*adveṣa*) defined](https://gregbenza.ai/waystation/translation/40.md) — LOCKED
+- [41. Chapter 1, Section 1, "*Non-delusion*" (*amoha*) defined](https://gregbenza.ai/waystation/translation/41.md) — LOCKED
+- [42. Chapter 1, Section 1, "*Zeal*" (*vīrya*) defined](https://gregbenza.ai/waystation/translation/42.md) — PROVISIONAL
+- [43. Chapter 1, Section 1, "*Ease*" (*praśrabdhi*) defined](https://gregbenza.ai/waystation/translation/43.md) — LOCKED
+- [44. Chapter 1, Section 1, "*Diligence*" (*apramāda*) defined](https://gregbenza.ai/waystation/translation/44.md) — PROVISIONAL
+- [45. Chapter 1, Section 1, "*Equanimity*" (*upekṣā*) defined](https://gregbenza.ai/waystation/translation/45.md) — LOCKED

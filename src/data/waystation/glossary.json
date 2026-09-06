@@ -1,0 +1,893 @@
+{
+ "terms": [
+  {
+   "sanskrit": "skandha",
+   "rough": "heap/aggregate",
+   "chosen": "aggregate",
+   "why": "Standard rendering. The five-fold structure of self-grasping. Kept Sanskrit on first use."
+  },
+  {
+   "sanskrit": "rūpa-skandha",
+   "rough": "form-heap",
+   "chosen": "form-aggregate",
+   "why": "Hyphenated. Covers physical body and the world it senses (Entry 2)."
+  },
+  {
+   "sanskrit": "vedanā-skandha",
+   "rough": "feeling-heap",
+   "chosen": "feeling-aggregate",
+   "why": "Hyphenated. The felt tone of each sense experience as it happens (Entry 2)."
+  },
+  {
+   "sanskrit": "saṃjñā-skandha",
+   "rough": "perception-heap",
+   "chosen": "perception-aggregate",
+   "why": "Hyphenated. Recognizing and naming what comes up in sense experience (Entry 2)."
+  },
+  {
+   "sanskrit": "saṃskāra-skandha",
+   "rough": "formation-heap",
+   "chosen": "formation-aggregate",
+   "why": "Hyphenated. Active forming of wholesome/unwholesome causes that shape what comes next (Entry 2). Forward-only — does NOT include the karmic backlog. Locked Entry 8."
+  },
+  {
+   "sanskrit": "vijñāna-skandha",
+   "rough": "consciousness-heap",
+   "chosen": "consciousness-aggregate",
+   "why": "Hyphenated. The knowing that supports the other four (Entry 2)."
+  },
+  {
+   "sanskrit": "dhātu",
+   "rough": "realm/element",
+   "chosen": "element",
+   "why": "Standard. Used for the 18 elements. Carries faculty + material substrate as one unit when applied to senses (Entry 10 lock — eye and seeing as one element under two aspects)."
+  },
+  {
+   "sanskrit": "āyatana",
+   "rough": "sense-sphere",
+   "chosen": "gateway",
+   "why": "Plain English over academic 'sphere.' The gateway through which consciousness arises. Entry 1."
+  },
+  {
+   "sanskrit": "indriya",
+   "rough": "faculty",
+   "chosen": "sense",
+   "why": "Plain English over academic 'faculty.' The sense as living capacity. Entry 1."
+  },
+  {
+   "sanskrit": "rūpa (sense-object)",
+   "rough": "visible form",
+   "chosen": "form",
+   "why": "When pointing to what the eye sees. Includes color shape size brightness contrasts (Entry 18)."
+  },
+  {
+   "sanskrit": "rūpa (general)",
+   "rough": "form",
+   "chosen": "form",
+   "why": "The category that covers physical-and-experienced. Kept Sanskrit on first use of rūpa-skandha."
+  },
+  {
+   "sanskrit": "dharma (analytical)",
+   "rough": "phenomenon/factor",
+   "chosen": "factor",
+   "why": "For dharmas as a class of analytical categories. Orientation paragraph still pending."
+  },
+  {
+   "sanskrit": "dharma (Teaching)",
+   "rough": "Teaching",
+   "chosen": "Dharma",
+   "why": "Capitalized when it means the Buddha's Teaching."
+  },
+  {
+   "sanskrit": "dharma-dhātu / dharma-āyatana",
+   "rough": "mind-realm/mind-sphere",
+   "chosen": "mental object",
+   "why": "For the sixth member of the sense-object pairs. Plain English. Entry 1."
+  },
+  {
+   "sanskrit": "upādāna",
+   "rough": "grasping/clinging",
+   "chosen": "grasping",
+   "why": "Two-sided: reaches toward what hasn't arrived AND clings to what's here. Entry 4."
+  },
+  {
+   "sanskrit": "chanda-rāga",
+   "rough": "desire-and-passion",
+   "chosen": "fixation",
+   "why": "Hendiadys — one named thing with two facets. 'Fixation' carries both reaching-toward and clinging-onto. Entry 4."
+  },
+  {
+   "sanskrit": "abhinirvartana",
+   "rough": "bringing-into-being",
+   "chosen": "pulls into being",
+   "why": "The reaching-side of grasping. Future-directed. Entry 4."
+  },
+  {
+   "sanskrit": "aparihāra",
+   "rough": "non-relinquishing",
+   "chosen": "won't release",
+   "why": "The clinging-side of grasping. Present-directed. Entry 4."
+  },
+  {
+   "sanskrit": "abhilāṣa",
+   "rough": "longing",
+   "chosen": "reaching toward",
+   "why": "For grasping at what hasn't yet arrived. Entry 4."
+  },
+  {
+   "sanskrit": "adhyavasāna",
+   "rough": "settled-on",
+   "chosen": "clinging to",
+   "why": "For grasping at what's already present. Entry 4."
+  },
+  {
+   "sanskrit": "lakṣaṇa",
+   "rough": "characteristic/mark",
+   "chosen": "hallmark",
+   "why": "Plain English over academic 'characteristic.' What identifies the thing AS the thing. Locked across Entries 5-13."
+  },
+  {
+   "sanskrit": "rūpaṇa",
+   "rough": "deformation/registering",
+   "chosen": "way it registers",
+   "why": "Functional gerund. Both the contact-side (body getting hit) and the partition-side (mind picking out 'form is here'). Entry 5."
+  },
+  {
+   "sanskrit": "sparśa",
+   "rough": "touch/contact",
+   "chosen": "contact",
+   "why": "Same Sanskrit term in three contexts: Entry 5 (bodily-impact mode of form's registering); Entries 24/25/26/27 as saṃsparśa (the meeting-event at each sense that generates the aggregate-types); Entry 30 as the formal caitasika definition — when sense object and consciousness meet the sense-faculty is changed and contact is the defining of that change. Function: provides the basis for feeling. Earlier renderings stand. Entry 30."
+  },
+  {
+   "sanskrit": "trika-saṃnipāta",
+   "rough": "meeting-of-three",
+   "chosen": "sense object and consciousness meet",
+   "why": "The standard Yogācāra/Abhidharma shorthand for the three-fold convergence at any sense-event. Asaṅga assumes the reader knows the trika; we expand inline. Xuanzang has 三和合. Entry 30."
+  },
+  {
+   "sanskrit": "indriya-vikāra",
+   "rough": "modification-of-the-sense-faculty",
+   "chosen": "the sense-faculty is changed",
+   "why": "The change that occurs in the sense-faculty when the three meet. Vikāra rendered 'change' over 'modification' — modification reads academic. Entry 30."
+  },
+  {
+   "sanskrit": "pariccheda",
+   "rough": "cutting-around / discrimination",
+   "chosen": "defining",
+   "why": "Literally pari + chid — cutting around / setting boundaries to. The mind marks off the change in the sense-faculty so it becomes a determinate thing for the rest of cognition. 'Defining' carries the cut-around quality in plain English. 'Discerning' tested and rejected (too passive). 'Distinguishing' taken by vijānanā (Entry 9). Xuanzang has 分別. Entry 30."
+  },
+  {
+   "sanskrit": "saṃniśraya",
+   "rough": "thorough-resting-on",
+   "chosen": "basis",
+   "why": "The load-bearing support that the next factor rests on in caitasika function-clauses (saṃniśraya-dāna = providing the basis). Single-source — not one-of-many. 'Foundation' (tested) reads architectural and stiff in function-clauses; 'support' reads as one-of-many. 'Basis' carries the load-bearing single-source quality in plain American English. Distinct from āśraya (Entry 17 = foundation) — near-synonymous in this period but Asaṅga uses both; English distinction preserves the Sanskrit. Locked Entry 34; applied retroactively to Entries 30 and 31. ENGLISH RENDERING EXCEPTION (locked Entry 39): in function-clauses where saṃniśraya-dāna grounds a description of the factor's own direct effect rather than a structurally separate downstream caitasika — as with the three wholesome roots' duścaritāpravṛtti-saṃniśraya-dāna (basis for non-arising of misconduct) — the basis-language is redundant in English. There the function clause collapses to \"Its function is to prevent misconduct from arising.\" When saṃniśraya-dāna grounds a separate downstream factor (sparśa → vedanā, chanda → vīrya, samādhi → jñāna, śraddhā → chanda, hrī/apatrāpya → saṃyama), the basis-language stays. Applies to Entries 39, 40, 41."
+  },
+  {
+   "sanskrit": "pradeśa",
+   "rough": "place/region",
+   "chosen": "partitioning",
+   "why": "Activity-gerund — what the mind does when it picks out 'form is here / form is there.' Spatial nouns failed. Entry 5."
+  },
+  {
+   "sanskrit": "pratibimba",
+   "rough": "reflection",
+   "chosen": "impression",
+   "why": "The mental image left by perception. Entry 5 / Entry 7."
+  },
+  {
+   "sanskrit": "citrī-kāra",
+   "rough": "making-variegated",
+   "chosen": "makes (impressions)",
+   "why": "The mind's productive activity in registering form. Entry 5."
+  },
+  {
+   "sanskrit": "anubhava",
+   "rough": "experience",
+   "chosen": "experiencing",
+   "why": "The hallmark of feeling. Pratyanubhavanti = 'one experiences.' Entry 6."
+  },
+  {
+   "sanskrit": "vipāka",
+   "rough": "maturation/fruition",
+   "chosen": "fruition / ripening",
+   "why": "Karmic ripening. Used in 'fruition of past actions' (Entry 6) and 'ripening in the storehouse-consciousness' (Entries 10/12)."
+  },
+  {
+   "sanskrit": "saṃjānanā",
+   "rough": "recognizing",
+   "chosen": "recognizing",
+   "why": "The hallmark of perception. Entry 7."
+  },
+  {
+   "sanskrit": "udgrahaṇa",
+   "rough": "seizing",
+   "chosen": "grabbing",
+   "why": "Active take-up of impressions. Entry 7."
+  },
+  {
+   "sanskrit": "abhisaṃskāra",
+   "rough": "formative-action",
+   "chosen": "active forming",
+   "why": "The hallmark of formation. Forward-pointing. Entry 8."
+  },
+  {
+   "sanskrit": "prerayati",
+   "rough": "impels",
+   "chosen": "drives",
+   "why": "Verb in formation's hallmark and in cetanā's function-clause. Drives mind into wholesome/unwholesome/neutral. Distinct from cetayate (= directs) — two Sanskrit verbs two English verbs. Entries 8 28."
+  },
+  {
+   "sanskrit": "cetayate",
+   "rough": "intends/wills",
+   "chosen": "directs",
+   "why": "The cetanā-verb. The intending itself in motion. Renders 'directs the mind toward' — distinct from prerayati (= drives). Family-echo with 'intention' would require 'intends the mind' which reads awkward; the noun-verb echo dropped for English clarity. Entry 27."
+  },
+  {
+   "sanskrit": "manaskāra",
+   "rough": "attention/mental-orientation",
+   "chosen": "attention",
+   "why": "The turning of the mind toward something. Defined Entry 29 as cetasa ābhogaḥ (bending of mind toward) with function ālambana-citta-dhāraṇa (holding mind on the object). 'Attention' is conventional Buddhist English; flagged for revisit if the passive reading ('something one has') creates trouble against Asaṅga's active sense. Xuanzang reaches for 發動 (rousing/activating) — different angle on the same move. Entry 29."
+  },
+  {
+   "sanskrit": "ābhoga",
+   "rough": "bending/curving-toward",
+   "chosen": "turning toward",
+   "why": "The orienting move where mind turns to face an object before settling on it. Literally 'bending' or 'curving.' 'Turning toward' lands plainer in English. Defines manaskāra. Entry 29."
+  },
+  {
+   "sanskrit": "vijānanā",
+   "rough": "distinguishing",
+   "chosen": "distinguishing",
+   "why": "The hallmark of consciousness. Telling apart objects. Entry 9."
+  },
+  {
+   "sanskrit": "bīja",
+   "rough": "seed",
+   "chosen": "seeds",
+   "why": "Karmic seeds. The eye is also its accumulated seeds. Entry 10."
+  },
+  {
+   "sanskrit": "upacita",
+   "rough": "accumulated",
+   "chosen": "karmic",
+   "why": "In compound 'upacita bīja' — the karmic seeds. Entry 10."
+  },
+  {
+   "sanskrit": "ālaya-vijñāna",
+   "rough": "storehouse-consciousness",
+   "chosen": "storehouse-consciousness",
+   "why": "Hyphenated. Kept Sanskrit on first use. Entry 10."
+  },
+  {
+   "sanskrit": "vipāka-ālaya-vijñāna",
+   "rough": "maturation-storehouse-consciousness",
+   "chosen": "ripening in the storehouse-consciousness",
+   "why": "Compound rendered as activity. Entry 10/12. Note: DSBC drops vipāka in Entry 10 but Xuanzang preserves; English assumes vipāka present."
+  },
+  {
+   "sanskrit": "āśraya",
+   "rough": "support/basis",
+   "chosen": "foundation",
+   "why": "The structural ground that something rests on. Used Entry 12 (cakṣur-āśrayā = foundation of eye-consciousness) and Entry 17 (the five sense-faculties as foundations of their respective consciousnesses). Distinct from saṃniśraya (= basis) — āśraya is the structural ground a consciousness rests on; saṃniśraya is the function-clause load-bearer in caitasika definitions. Near-synonymous in this period; English distinction preserves the Sanskrit. Entries 12 17."
+  },
+  {
+   "sanskrit": "ālambana",
+   "rough": "object/objective-support",
+   "chosen": "object",
+   "why": "Plain English. What consciousness takes up. Entry 12."
+  },
+  {
+   "sanskrit": "prativijñapti",
+   "rough": "cognition/awareness",
+   "chosen": "cognition",
+   "why": "The specific knowing-of-form that is eye-consciousness. Entry 12."
+  },
+  {
+   "sanskrit": "mahā-bhūta",
+   "rough": "great element",
+   "chosen": "great element",
+   "why": "Standard. The four ground-elements of physicality. Entry 14."
+  },
+  {
+   "sanskrit": "pṛthivī",
+   "rough": "earth",
+   "chosen": "earth",
+   "why": "Standard. Defined as kaṭhinatā = solidity. Entry 15."
+  },
+  {
+   "sanskrit": "ab",
+   "rough": "water",
+   "chosen": "water",
+   "why": "Standard. Defined as niṣyandatā = fluidity. Entry 15."
+  },
+  {
+   "sanskrit": "tejas",
+   "rough": "fire",
+   "chosen": "fire",
+   "why": "Standard. Defined as uṣṇatā = heat. Entry 15."
+  },
+  {
+   "sanskrit": "vāyu",
+   "rough": "wind",
+   "chosen": "wind",
+   "why": "Standard. Defined as kampanatā = liveliness. Entry 15."
+  },
+  {
+   "sanskrit": "kaṭhinatā",
+   "rough": "hardness",
+   "chosen": "solidity",
+   "why": "The earth-quality. Entry 15."
+  },
+  {
+   "sanskrit": "niṣyandatā",
+   "rough": "flowing",
+   "chosen": "fluidity",
+   "why": "The water-quality. Entry 15."
+  },
+  {
+   "sanskrit": "uṣṇatā",
+   "rough": "hotness",
+   "chosen": "heat",
+   "why": "The fire-quality. Entry 15."
+  },
+  {
+   "sanskrit": "kampanatā",
+   "rough": "trembling",
+   "chosen": "liveliness",
+   "why": "The wind-quality. The animating quick-making aspect. Xuanzang has 輕等動性 ('light-and-moving') matching Kosa-tradition; we follow DSBC's kampanatā directly. Entry 15."
+  },
+  {
+   "sanskrit": "upādāya-rūpa",
+   "rough": "derived form",
+   "chosen": "derived form",
+   "why": "Standard. The sense-faculties + sense-objects (minus great elements) + form as mental object. Entry 16."
+  },
+  {
+   "sanskrit": "rūpa-prasāda",
+   "rough": "form-clarity",
+   "chosen": "transparent form",
+   "why": "The subtle perceptual matter at the foundation of each sense-consciousness. Entry 17."
+  },
+  {
+   "sanskrit": "gocara",
+   "rough": "range/field",
+   "chosen": "what the eye-sense takes in",
+   "why": "Used only for form (Entry 18). Form is the gocara outlier."
+  },
+  {
+   "sanskrit": "grāhya",
+   "rough": "what is grasped",
+   "chosen": "what the X-sense picks up",
+   "why": "Used for sound smell taste touch (Entries 19-22). Pattern confirmed."
+  },
+  {
+   "sanskrit": "artha",
+   "rough": "object/meaning",
+   "chosen": "what",
+   "why": "In compound 'X-indriya-grāhyo 'rthaḥ' — the 'what' the sense picks up. Plain English over 'object.'"
+  },
+  {
+   "sanskrit": "ekadeśa",
+   "rough": "one-part",
+   "chosen": "(structural marker — 'including X as well as')",
+   "why": "Asaṅga uses ekadeśa for touch alone because the great elements ARE part of touch. Form/sound/smell/taste have no overlap so no ekadeśa qualifier. The English carries the structural difference with 'including the four great elements as well as' rather than 'derived from.' Entry 22."
+  },
+  {
+   "sanskrit": "manojña / amanojña / ubhaya-viparīta",
+   "rough": "agreeable / disagreeable / contrary-to-both",
+   "chosen": "pleasing / displeasing / neither",
+   "why": "The triad for sound (Entry 19) and taste (Entry 21). 'Neither' preserves the logical-negation structure of ubhaya-viparīta where 'neutral' would posit a positive middle category the Sanskrit doesn't claim."
+  },
+  {
+   "sanskrit": "śobhana / aśobhana / ubhaya-viparīta",
+   "rough": "beautiful / ugly / contrary-to-both",
+   "chosen": "beautiful / ugly / neither",
+   "why": "Form's triad (Entry 18). Different Sanskrit pair from manojña/amanojña; same logical structure for the third item."
+  },
+  {
+   "sanskrit": "abhyavakāśa-rūpa",
+   "rough": "open-space-form",
+   "chosen": "open space / form of open space",
+   "why": "Visible space as such. Both Entry 18 (in form list) and Entry 23 (as a kind of mental form)."
+  },
+  {
+   "sanskrit": "vijñapti-rūpa",
+   "rough": "communicating-form",
+   "chosen": "visible action",
+   "why": "Bodily gesture/expression that communicates intention. Entry 18."
+  },
+  {
+   "sanskrit": "upātta-mahā-bhūta-hetuka",
+   "rough": "sourced-in-appropriated-elements",
+   "chosen": "comes from a living body",
+   "why": "Sound from breath/speech. Entry 19."
+  },
+  {
+   "sanskrit": "anupātta-mahā-bhūta-hetuka",
+   "rough": "sourced-in-non-appropriated-elements",
+   "chosen": "comes from external matter",
+   "why": "Sound from objects. Entry 19."
+  },
+  {
+   "sanskrit": "loka-prasiddha",
+   "rough": "world-established",
+   "chosen": "everyday speech",
+   "why": "Speech everyone agrees on the meaning of. Entry 19."
+  },
+  {
+   "sanskrit": "siddhopanīta",
+   "rough": "perfected-and-presented",
+   "chosen": "teaching reported from someone's direct realization",
+   "why": "Speech grounded in awakening. Entry 19."
+  },
+  {
+   "sanskrit": "parikalpita",
+   "rough": "imagined/constructed",
+   "chosen": "built from someone's constructed conceptual system",
+   "why": "The reaching-and-fitting move of conceptual construction. Used for speech (Entry 19) and for mental form (Entry 23) — same Sanskrit different domain. The doctrinal-construction sense. Sthiramati glosses as tīrthya-deśita (non-Buddhist teachings); we declined to import the gloss."
+  },
+  {
+   "sanskrit": "ārya-deśita / tīrtha-deśita",
+   "rough": "taught-by-noble / taught-by-heretic",
+   "chosen": "spoken truthfully / untruthfully",
+   "why": "The truth-classification of speech. Entry 19."
+  },
+  {
+   "sanskrit": "surabhi / asurabhi / sama-gandha",
+   "rough": "fragrant / foul / equal-smell",
+   "chosen": "fragrant / foul / neutral",
+   "why": "Smell's quality triad. Entry 20."
+  },
+  {
+   "sanskrit": "sahaja / sāṃyogika / pāriṇāmika",
+   "rough": "innate / combined / transformed",
+   "chosen": "comes with the thing itself / from things combining / from things changing",
+   "why": "Source-triad applied to smell (Entry 20) and taste (Entry 21). Each compound expands to a relative clause."
+  },
+  {
+   "sanskrit": "kaṣāya",
+   "rough": "astringent",
+   "chosen": "astringent",
+   "why": "Sixth taste. Standard Indian rasa list. Xuanzang has 淡 (bland) not 澀 — possible source variant. We follow Sanskrit. Entry 21."
+  },
+  {
+   "sanskrit": "kaṭuka",
+   "rough": "sharp/pungent",
+   "chosen": "spicy",
+   "why": "2026 American ear. 'Pungent' reads academic. Entry 21."
+  },
+  {
+   "sanskrit": "ślakṣṇatva",
+   "rough": "smoothness",
+   "chosen": "smoothness",
+   "why": "Touch-quality #1. Entry 22."
+  },
+  {
+   "sanskrit": "karkaśatva",
+   "rough": "roughness",
+   "chosen": "roughness",
+   "why": "Touch-quality #2. Entry 22."
+  },
+  {
+   "sanskrit": "manda-amanda",
+   "rough": "slow-quick / soft-firm",
+   "chosen": "softness firmness",
+   "why": "Xuanzang has 緩急 (loose/tight). Both defensible; revisits if the pattern recurs."
+  },
+  {
+   "sanskrit": "vyavasthāna",
+   "rough": "positioning/laying-out",
+   "chosen": "break down / break into",
+   "why": "The structural laying-out that classifies an aggregate into its parts/kinds. Distinct from katamat alone. Entries 14 16 24."
+  },
+  {
+   "sanskrit": "katamat (alone)",
+   "rough": "which?",
+   "chosen": "what counts as",
+   "why": "Asks what falls under a category. Distinct from vyavasthāna which asks how the category structures. Lock across Entries 15 17 18-23."
+  },
+  {
+   "sanskrit": "saṃsparśaja",
+   "rough": "contact-born",
+   "chosen": "arises from contact",
+   "why": "Feeling born of sense-contact. Sparśa proper (the meeting of three) gets defined later in saṃskāra list. Entry 24."
+  },
+  {
+   "sanskrit": "aduḥkhāsukhā",
+   "rough": "neither-painful-nor-pleasant",
+   "chosen": "neither",
+   "why": "Logical negation of the prior two. Same structure as ubhaya-viparīta. Entry 24. Note: as the third member of the sukhā/duḥkhā/aduḥkhāsukhā vedanā triad, \"neither\" pairs with \"pleasant\" and \"unpleasant\" — the adjective-with-vedanā register where duḥkhā stays \"unpleasant\" (not \"unsatisfying\" — see duḥkha row)."
+  },
+  {
+   "sanskrit": "vedanā-kāya",
+   "rough": "feeling-body / feeling-group",
+   "chosen": "(omitted in English; enumeration carries)",
+   "why": "Sanskrit announces 'six vedanā-kāyas' before listing. English doesn't need the announcement; the enumeration counts itself. Register-fit move. Entry 24."
+  },
+  {
+   "sanskrit": "ābhisaṃkṣepika",
+   "rough": "extremely-condensed",
+   "chosen": "form that arises when you analyze a thing down to its smallest parts",
+   "why": "The mental form of analytical reduction to paramāṇu (conceptual atom). Body-scan style atomic-decomposition meditations sit here. Entry 23."
+  },
+  {
+   "sanskrit": "sāmādānika",
+   "rough": "vow-undertaken",
+   "chosen": "form that arises from taking a vow",
+   "why": "The unseen physical commitment generated by vow-taking. Entry 23."
+  },
+  {
+   "sanskrit": "vaibhutvika",
+   "rough": "mastery-related",
+   "chosen": "form produced by mastery in meditation",
+   "why": "The visualizations and form-generation of advanced meditative attainment. Entry 23."
+  },
+  {
+   "sanskrit": "kāyikī vedanā",
+   "rough": "bodily feeling",
+   "chosen": "bodily feeling",
+   "why": "Feeling that arises with the five sense-consciousnesses. Entry 25."
+  },
+  {
+   "sanskrit": "caitasikī vedanā",
+   "rough": "mental feeling",
+   "chosen": "mental feeling",
+   "why": "Feeling that arises with mind-consciousness. Entry 25."
+  },
+  {
+   "sanskrit": "sāmiṣa vedanā",
+   "rough": "with-flesh feeling",
+   "chosen": "bound feeling",
+   "why": "The bait/raw-flesh metaphor preserved by image-family rather than literal. Feeling tied to craving for self-existence — chained to continued becoming. Xuanzang takes the flavor side (有味). 'Hooked' was tested and rejected as too casual; 'bound' carries the weight. Entry 25."
+  },
+  {
+   "sanskrit": "nirāmiṣa vedanā",
+   "rough": "without-flesh feeling",
+   "chosen": "unbound feeling",
+   "why": "Negation of sāmiṣa. Free of the self-existence craving. Entry 25."
+  },
+  {
+   "sanskrit": "gredhāśrita vedanā",
+   "rough": "based-on-greed feeling",
+   "chosen": "being based on greed",
+   "why": "Feeling resting on craving for the five sense-pleasures. āśrita = rooted-in/based-on (foundational not directional). 'Greed-leaning' rejected — directional ambiguity. Entry 25."
+  },
+  {
+   "sanskrit": "naiṣkramyāśrita vedanā",
+   "rough": "based-on-going-forth feeling",
+   "chosen": "being based on renunciation",
+   "why": "Feeling resting on renunciation. Negation of gredhāśrita. Entry 25."
+  },
+  {
+   "sanskrit": "ātma-bhāva-tṛṣṇā",
+   "rough": "self-existence-craving",
+   "chosen": "craving for self-existence",
+   "why": "The craving for continued being. Defines sāmiṣa vedanā. Entry 25."
+  },
+  {
+   "sanskrit": "pañca-kāma-guṇa-tṛṣṇā",
+   "rough": "five-sense-pleasure-craving",
+   "chosen": "craving for the five sense-pleasures",
+   "why": "The craving for sights/sounds/smells/tastes/touches. Defines gredhāśrita vedanā. Entry 25."
+  },
+  {
+   "sanskrit": "saṃjñā-kāya",
+   "rough": "perception-body / perception-group",
+   "chosen": "perception-body",
+   "why": "Kept in English here unlike vedanā-kāya — Asaṅga's six-fold structure of perception by sense-contact. Hyphenated. Entry 26."
+  },
+  {
+   "sanskrit": "sa-nimitta",
+   "rough": "with-mark/with-sign",
+   "chosen": "with features",
+   "why": "nimitta = the conceptual handle perception grabs to make a thing identifiable. 'Sign-bearing' is established Buddhist English but reads loose in modern American usage. 'Features' lands plainer. Object-grammar preserved: 'perception of things with features.' Entry 26."
+  },
+  {
+   "sanskrit": "animitta",
+   "rough": "without-mark/signless",
+   "chosen": "without features",
+   "why": "Negation of sa-nimitta. Used both for the absorption-state (animitta-dhātu = 'featureless-element') and for non-language perception. Entry 26."
+  },
+  {
+   "sanskrit": "parītta",
+   "rough": "limited",
+   "chosen": "limited",
+   "why": "Perception that recognizes the desire-realm. Standard. Entry 26."
+  },
+  {
+   "sanskrit": "mahad-gata",
+   "rough": "gone-to-greatness",
+   "chosen": "vast",
+   "why": "Perception that recognizes the form-realm. 'Gone-to-greatness' literal but unwieldy; 'vast' carries the expansion plain. Xuanzang has 大. Entry 26."
+  },
+  {
+   "sanskrit": "apramāṇa",
+   "rough": "immeasurable",
+   "chosen": "immeasurable",
+   "why": "Perception that recognizes the first two formless spheres (infinite space and infinite consciousness). Standard. Entry 26."
+  },
+  {
+   "sanskrit": "ākiṃcanya-āyatana",
+   "rough": "nothing-whatever-sphere",
+   "chosen": "sphere of nothing-whatsoever",
+   "why": "The third formless sphere. 'Whatsoever' over 'whatever' — modern American 'whatever' reads casual. Entry 26."
+  },
+  {
+   "sanskrit": "avyavahāra-kuśala",
+   "rough": "not-skilled-in-conventional-usage",
+   "chosen": "without skill in conventional language",
+   "why": "A being whose perception lacks the linguistic-conceptual marking of ordinary perception (non-language users — animals infants etc). One of the three carve-outs from sa-nimitta. Xuanzang confirms language reading (不善言說). Entry 26."
+  },
+  {
+   "sanskrit": "bhavāgra",
+   "rough": "peak-of-existence",
+   "chosen": "peak of existence",
+   "why": "The fourth and highest formless absorption (naiva-saṃjñā-nāsaṃjñā-āyatana). Excluded from sa-nimitta but sits inside animitta. Entry 26."
+  },
+  {
+   "sanskrit": "cetanā",
+   "rough": "intention/will/volition",
+   "chosen": "intention",
+   "why": "The prime caitasika and karma-maker. Defined Entry 28 as cittābhisaṃskāra (active forming of mind) glossed by manaskarma (mental action) — apposition rendered with colon. Function: drives the mind toward wholesome/unwholesome/neutral. 'Intention' over 'volition' (academic) and 'will' (loses directionality). Two distinct verbs: cetayate (Entry 27) = directs the mind toward; prerayati/preraṇa (Entries 8 28) = drives the mind. Earlier Entry 27 lock of 'drives' for cetayate revised to 'directs' to keep the verbs distinct in English."
+  },
+  {
+   "sanskrit": "saṃkleśa",
+   "rough": "defilement/affliction",
+   "chosen": "defiled / defilement",
+   "why": "The afflictive direction of intention. Narrower than akuśala (the broader ethical category). Saṃkleśa points specifically at kleśa-laden activity. Adjective 'defiled' for parallel constructions; nominal 'defilement' otherwise. Note the triad swap: Entry 8 used kuśala/akuśala/avyākṛta; Entry 27 uses kuśalatva/saṃkleśa/avasthābheda — the English asymmetry mirrors the Sanskrit. Entry 27."
+  },
+  {
+   "sanskrit": "avasthābheda",
+   "rough": "state-distinction/state-difference",
+   "chosen": "neutral activity (provisional)",
+   "why": "Literally 'state-distinction / difference of position.' The kind of willing that produces shifts of state without ethical valence — where citta-viprayuktas live. 'Neutral activity' flattens the bheda-quality; flagged for revisiting before the saṃskāra section closes. Sthiramati glosses as the avyākṛta-direction; we declined to import the gloss. Entry 27."
+  },
+  {
+   "sanskrit": "chanda",
+   "rough": "desire/will/wish",
+   "chosen": "wanting",
+   "why": "The wish-faculty. As caitasika (Entry 31): morally neutral — wholesome unwholesome or neutral charge depending on its object. As one half of chanda-rāga (Entry 4): the kliṣṭa instance fused with rāga into the grasping mechanism. Same Sanskrit term different scope. Defined Entry 31 as kartṛ-kāmatā (wish to act) directed at īpsita vastu (something sought) and pulling together tat-tad (whatever) the action involves. Function: provides the basis for taking up effort. Locked Apr 21-22; reaffirmed Entry 31; saṃniśraya rendering updated to 'basis' Entry 34."
+  },
+  {
+   "sanskrit": "īpsita",
+   "rough": "desired/wished-for",
+   "chosen": "sought",
+   "why": "Past participle of √āp. Agent-led not magnetic. 'Something sought' over 'something draws you' — protects chanda's moral neutrality by keeping the directionality subject-to-object rather than object-pulling-subject. Entry 31."
+  },
+  {
+   "sanskrit": "vastu",
+   "rough": "thing/matter/basis",
+   "chosen": "something",
+   "why": "Broader than viṣaya/ālambana (which take 'object' in the log). Vastu = anything-that-is — thing situation state condition. Rendered 'something' or 'what' contextually in the determinative caitasikas. Not a term-lock; gets its own row when fires standalone in a way that matters. Entries 31 32 33."
+  },
+  {
+   "sanskrit": "kartṛ-kāmatā",
+   "rough": "desire-to-be-the-doer",
+   "chosen": "wish to act",
+   "why": "The active-tense reading of chanda. 'Wish to act' over literal 'wish to be the doer' — avoids loop with 'wanting.' Entry 31."
+  },
+  {
+   "sanskrit": "tat-tad-upasaṃhata",
+   "rough": "that-and-that-brought-together",
+   "chosen": "pulling together whatever the action involves",
+   "why": "Plural-aspectual. Tat-tad = 'this and that various.' Confirmed by Xuanzang's 彼彼引發所作 ('drawn out toward various what-is-to-be-done'). 'Whatever' over 'everything' — better carries the indefinite-plural quality. Entry 31."
+  },
+  {
+   "sanskrit": "vīryādāna",
+   "rough": "taking-up-effort",
+   "chosen": "taking up effort",
+   "why": "Function-clause of chanda. Vīrya as the energy that follows from wanting. DSBC has variant vīryārambha (commencement); going with vīryādāna. Entry 31."
+  },
+  {
+   "sanskrit": "adhimokṣa",
+   "rough": "inclination/resolve/conviction",
+   "chosen": "conviction",
+   "why": "Literally 'release-toward' (adhi + √muc) but the Sanskrit definition uses the function not the etymology — the cognitive faculty that makes a determination stay determined. Once mind has reached a niścaya conviction holds it just as it was determined. Function: keep from being swayed (asaṃhāryatā). Ontology not psychology — structural feature of cognition not a stubborn attitude. Earlier drafts ('holding to it') leaned attitudinal; locked English ('what makes the determination hold') names the function. Entry 32."
+  },
+  {
+   "sanskrit": "niścita / niścaya",
+   "rough": "settled/ascertained",
+   "chosen": "determined / determination",
+   "why": "From niś + √ci 'fully gathered together / ascertained.' Epistemic not legal. Xuanzang's 決定 confirms. 'Determined' over 'ascertained' (academic) and over 'settled' (which carries dispute-resolution flavor in modern American). Entry 32."
+  },
+  {
+   "sanskrit": "yathā-niścayam",
+   "rough": "according-to-the-determination",
+   "chosen": "just as it was determined",
+   "why": "Adverbial — the standard against which conviction holds. Preserves the niścite/niścayaṃ loop in English. Entry 32."
+  },
+  {
+   "sanskrit": "dhāraṇā (in adhimokṣa)",
+   "rough": "holding",
+   "chosen": "what makes (it) hold",
+   "why": "In Abhidharma context dhāraṇā is the causing-to-hold not the act of someone gripping. Distinguished from manaskāra's dhāraṇa (Entry 29 — holding the mind on its object). Different work same root. Entry 32."
+  },
+  {
+   "sanskrit": "asaṃhāryatā",
+   "rough": "not-carryable-away-ness",
+   "chosen": "keep from being swayed",
+   "why": "Function-clause of adhimokṣa. Xuanzang's 不可引轉 ('cannot be pulled away') confirms. 'Keep from being swayed' over 'unmovable' — verb form lands plainer. Entry 32."
+  },
+  {
+   "sanskrit": "smṛti",
+   "rough": "memory/mindfulness/recollection",
+   "chosen": "mindfulness",
+   "why": "Conventional Buddhist English held. Defined Entry 33 as cetasaḥ asaṃpramoṣa (mind not losing hold) of saṃstuta vastu (something already in mind). Function: keep mind from drifting (avikṣepa-karmikā). NOT memory — present-moment cognitive holding of an object the mind has purchase on through prior engagement not retrieval of a past event. Distinct from adhimokṣa: smṛti holds an engaged object against drifting; adhimokṣa holds a determination against being swayed. Smṛti = the object stays in cognition; adhimokṣa = the conclusion stays the conclusion. Entry 33."
+  },
+  {
+   "sanskrit": "saṃstuta",
+   "rough": "well-known/well-praised",
+   "chosen": "already in mind",
+   "why": "Saṃ + √stu — 'made familiar through repeated engagement.' Xuanzang's 串習 ('practiced through repetition') confirms. DSBC has saṃsṛta (likely OCR slip); functional sense identical. Earlier drafts ('something familiar' 'something it has worked with before') leaned past-tense and pulled smṛti toward memory. 'Already in mind' lands the present-moment cognitive purchase without temporal pastness. Entry 33."
+  },
+  {
+   "sanskrit": "asaṃpramoṣa",
+   "rough": "non-letting-slip",
+   "chosen": "not losing hold of",
+   "why": "Pra + √muṣ = to make-disappear / steal. A-saṃpramoṣa = not-slipping-away. 'Not losing hold of' over 'not letting go of' (which carries affective clinging charge in English) and over 'not forgetting' (which would pull smṛti toward memory). Entry 33."
+  },
+  {
+   "sanskrit": "avikṣepa",
+   "rough": "non-distraction / non-scattering",
+   "chosen": "keep the mind from drifting",
+   "why": "Function-clause of smṛti. Negative phrasing preserved — both terms in smṛti's definition (a-saṃpramoṣa a-vikṣepa) describe what doesn't happen. 'Keep from drifting' over 'non-distraction' (Latinate) and over 'concentration / focus' (which would flip the structural shape positive and conflate smṛti with samādhi). Entry 33."
+  },
+  {
+   "sanskrit": "upaparīkṣya",
+   "rough": "closely-examined",
+   "chosen": "thing being examined",
+   "why": "From upa-pari-√īkṣ — to examine closely investigate. Locative upaparīkṣye vastuni sets the object-frame for samādhi (Entry 34) and prajñā (Entry 35) — the same 'thing being examined' that samādhi single-points on is what prajñā discriminates. Locking the pair preserves the structural link Asaṅga is making. Xuanzang renders 所觀 (samādhi) / 所觀法 (prajñā) — 'what is observed' — slightly broader than the Sanskrit's 'examined.' Flagged for potential revisit once more upaparīkṣya passages land. Entry 34."
+  },
+  {
+   "sanskrit": "samādhi",
+   "rough": "concentration/absorption",
+   "chosen": "concentration",
+   "why": "Conventional Buddhist English held. Defined Entry 34 as cittasyaikāgratā (mind's single-pointed focus) on upaparīkṣye vastuni (the thing being examined). Function: provides the basis for knowing (jñāna-saṃniśraya-dāna). 'Single-pointed focus on it' renders ekāgratā with verb-feeling that 'one-pointedness' lacks in modern American English. DSBC has vittasya — OCR slip for cittasya; Xuanzang's 令心一境 confirms. Entry 34."
+  },
+  {
+   "sanskrit": "ekāgratā",
+   "rough": "one-pointedness",
+   "chosen": "single-pointed focus",
+   "why": "Eka-agra-tā — 'one-pointed-ness.' The mind gathered and held on a single object without scatter. 'One-pointedness' is conventional Buddhist English but reads abstract-noun-stiff in function-clauses; 'single-pointed focus' carries verb-feeling and lands plainer in 2026 American English. Entry 34."
+  },
+  {
+   "sanskrit": "jñāna",
+   "rough": "knowing/knowledge",
+   "chosen": "knowing",
+   "why": "Plain rendering. The cognitive resolution that samādhi provides the basis for. Distinct from prajñā (Entry 35) which is the discriminating-of-dharmas. Jñāna is the resolution; prajñā is the discriminating that arrives at it. Entry 34."
+  },
+  {
+   "sanskrit": "prajñā",
+   "rough": "wisdom/discernment/insight",
+   "chosen": "discernment",
+   "why": "Asaṅga is naming the ordinary cognitive operation of sorting through dharmas — not awakening-wisdom (prajñāpāramitā). 'Discernment' carries the analytical work; 'wisdom' reads too contemplative for the function being described. Defined Entry 35 as dharmāṇāṃ pravicayaḥ (analysis of factors) on upaparīkṣya vastu (the thing being examined — same object as samādhi). Function: dispel uncertainty (saṃśaya-vyāvartana). Function-clause breaks the saṃniśraya-dāna pattern of sparśa/chanda/samādhi — prajñā doesn't provide the basis for further cognition; it resolves cognition itself. Entry 35."
+  },
+  {
+   "sanskrit": "pravicaya",
+   "rough": "thorough-discrimination",
+   "chosen": "analyzes",
+   "why": "Pra (forth/thoroughly) + vi (apart) + √ci (gather/select). The analytical move of taking factors apart and seeing what each one is. 'Sorting-through' tested but loses the analytical-judgment quality. 'Discrimination' rejected (academic; loop with vijānanā = distinguishing). 'Analyzes' lands plain in 2026 American English. Verb form chosen over noun ('analysis of') for sentence-flow. Entry 35."
+  },
+  {
+   "sanskrit": "saṃśaya",
+   "rough": "doubt/uncertainty",
+   "chosen": "uncertainty",
+   "why": "Genuine cognitive wavering between alternatives — the mind that hasn't settled. NOT the affective 'I doubt myself' sense modern American 'doubt' carries. Xuanzang's 疑 confirms the cognitive-uncertainty reading. 'Wavering' tested as more concrete but 'uncertainty' lands more natural. Entry 35."
+  },
+  {
+   "sanskrit": "vyāvartana",
+   "rough": "turning-away/removing",
+   "chosen": "dispel",
+   "why": "Vi + ā + √vṛt — turning back/away. Active cutting-off of uncertainty. Xuanzang has 斷 (cut off). 'Dispel' carries the active-removal sense; 'cut off' tested but reads stronger than the Sanskrit warrants in this context. Entry 35."
+  },
+  {
+   "sanskrit": "śraddhā",
+   "rough": "faith / trust / confidence",
+   "chosen": "confidence",
+   "why": "Three-and-three structure: confidence has three objects (what exists, what has virtue, what is capable) and three responses (conviction, clarity, aspiration). 'Faith' carries Christian weight in 2026 American register; 'trust' reads interpersonal. 'Confidence' lands clean — covers the conviction-component (full assent that something exists), the prasāda-component (the heart settling and clearing), and supports the aspiration-component without doctrinal baggage. Within the definition, abhilāṣa renders as 'aspiration' rather than 'longing' — abhi-laṣ is directional reach, and 'longing' both reads sentimental and crowds wanting (chanda). Function: provides the basis for wanting (chanda-saṃniśraya-dāna). DSBC has abhilāpaḥ (speech) — OCR slip for abhilāṣaḥ; Xuanzang's 希望 confirms. Locked Entry 36."
+  },
+  {
+   "sanskrit": "hrī",
+   "rough": "shame / modesty / conscience",
+   "chosen": "self-respect",
+   "why": "The wholesome standing factor whose activity is the inward recoil (lajjanā) from one's own (svayam) wrongdoing (avadya). 'Shame' is conventional Buddhist English but imports toxic-shame baggage in 2026 American register — therapy-culture and Brené Brown frames make 'shame' read as a problem to heal from rather than a wholesome factor to cultivate. 'Conscience' was tested — closer to the cognitive faculty but loses the affective recoil quality of lajjanā. 'Conscientiousness' tested and rejected (modern American reads diligence not recoil). 'Self-respect' surface-inverts the polarity (positive standing trait rather than negative event) but accurately names the moral self-regard whose function is restraint from misconduct. The standing-factor reading, not event-reading, is what caitasika categories require. Pairs with apatrāpya as outward counterpart — Sthiramati's lokapālau (two guardians of the world). Function: provides the basis for restraint from misconduct (duścarita-saṃyama-saṃniśraya-dāna). Locked Entry 37."
+  },
+  {
+   "sanskrit": "apatrāpya",
+   "rough": "shame before others / propriety / decency",
+   "chosen": "decency",
+   "why": "The wholesome standing factor whose activity is the inward recoil (lajjanā) from one's own wrongdoing (avadya) as witnessed by others (parato). Pairs with hrī as the outward counterpart. 'Decency' carries the moral weight without the social-etiquette reading of 'propriety' or the imported 'shame' we worked away from in Entry 37. The pair self-respect / decency reads as the two foundations of conduct in plain American English. Sthiramati glosses hrī and apatrāpya together as the lokapālau — two guardians of the world. Sanskrit pair is structural: same verb same object, only svayam (oneself) vs parato (from another) changes. English mirrors: 'as seen by others' carries the parato-shift. Function: tat-karmakam eva — same as hrī's. Locked Entry 38."
+  },
+  {
+   "sanskrit": "alobha",
+   "rough": "non-greed / non-attachment",
+   "chosen": "non-greed",
+   "why": "First of the three wholesome roots (alobha / adveṣa / amoha). Defined Entry 39 via anāsakti (non-attachment) over the locative bhave bhavopakaraṇeṣu vā — existence and the supports of existence (the gear that props up continued becoming: possessions status body the apparatus of having-a-life). A wholesome factor named entirely through what it isn't — first caitasika in the list to fire that way. 'Non-greed' preserves the negation-structure of a-lobha and Xuanzang's 無貪. Declined: 'non-attachment' (too close to the definiens anāsakti), 'generosity' / 'contentment' (flip to positive value, lose the negation, import downstream effects). Function: prevent misconduct from arising (English-collapsed form of duścaritāpravṛtti-saṃniśraya-dāna — see saṃniśraya row's rendering exception). Locked Entry 39."
+  },
+  {
+   "sanskrit": "adveṣa",
+   "rough": "non-hatred / non-aversion",
+   "chosen": "non-hatred",
+   "why": "Second wholesome root. Defined Entry 40 via anāghāta (the lashing-out doesn't fire) over three locatives: sattveṣu (at beings), duḥkhe (at the unsatisfying), duḥkha-sthānīyeṣu dharmeṣu (at what brings on the unsatisfying). Asaṅga uses the same three locatives later to define pratigha (anger / hatred — the unwholesome opposite), confirming the locatives as triggers-where-strike-out-would-fire, not objects-of-attitude. English grammar critical: \"non-hatred toward suffering\" reads as you-should-not-hate-suffering, importing a should-be-okay-with-suffering reading the Sanskrit doesn't carry. Locked English (\"the mind not lashing out, whether at... or at...\") names the absence-of-strike-out without that import. Sthiramati waves off the wholesome eleven entirely (hryādayaḥ sugamatvānna vibhajyante — \"hrī and the rest aren't analyzed, they're easy\"); doctrinal content for adveṣa recovered from his pratigha and āghāta commentary downstream. The session that locked this entry also produced the duḥkha lock for the whole project (see duḥkha row). Function: prevent misconduct from arising (English-collapsed form — see saṃniśraya row). Locked Entry 40."
+  },
+  {
+   "sanskrit": "amoha",
+   "rough": "non-delusion / non-ignorance",
+   "chosen": "non-delusion",
+   "why": "Third wholesome root; closes the wholesome-roots triad. Defined Entry 41 via jñānaṃ pratisaṃkhyā (knowing — careful discernment, near-synonyms in apposition) arising from one of three sources: vipāka (karmic ripening), āgama (study / scripture / teaching), adhigama (direct realization / attainment). Xuanzang's 報教證 confirms the triple-source. 'Non-delusion' preserves the negation-structure (parallel to alobha / adveṣa) — 'wisdom' would flip to positive value and lose the structural shape. Declined 'non-ignorance' — moha is the active confusion that produces delusion not bare ignorance. Function: prevent misconduct from arising (English-collapsed form — see saṃniśraya row). Locked Entry 41."
+  },
+  {
+   "sanskrit": "duḥkha",
+   "rough": "suffering / pain / unsatisfactoriness",
+   "chosen": "unsatisfying (context-flex)",
+   "why": "Etymology: duḥ- (bad / ill) + -kha (axle-hole / opening). Traditional commentarial reading: the bad axle-hole — the wheel that doesn't sit clean and grinds. Paired structurally with sukha (good axle-hole, runs smooth). Whether the kha = axle-hole derivation is historically accurate or folk-etymology, that's the etymology Asaṅga's tradition heard. Asaṅga uses duḥkha across at least three registers and English has no single word that spans them: (1) hedonic feeling-tone in vedanā triads — duḥkhā vedanā as ADJECTIVE form — stays \"unpleasant\" (Entries 24, 25); \"unsatisfying\" overreaches the small immediate feeling-tone sense. (2) Bare-noun aversive occasion in adveṣa / pratigha triads — renders \"the unsatisfying\" (Entry 40). (3) Structural diagnosis of conditioned existence in the four truths and aggregate-analysis — renders \"unsatisfying / unsatisfactory / unsatisfaction\" depending on grammar (Entries TBD). \"Suffering\" overshoots: duḥkha covers everything from a stubbed toe to existential dread, and most of its range is closer to chronic dissatisfaction than acute suffering. \"Suffering\" makes Buddhism sound like a complaint; \"unsatisfying\" lands the actual diagnostic. The trividha-duḥkhatā (three types of unsatisfactoriness — duḥkha-duḥkhatā, vipariṇāma-duḥkhatā, saṃskāra-duḥkhatā) all sit under the unsatisfying-rendering. Sanskrit grammar fixes register: adjective-with-vedanā = hedonic (\"unpleasant\"); bare noun in other contexts = \"unsatisfying\" / variants. Locked Entry 40."
+  },
+  {
+   "sanskrit": "sukha",
+   "rough": "pleasure / happiness / ease",
+   "chosen": "satisfying (context-flex)",
+   "why": "Pair to duḥkha. Etymology: su- (good) + -kha (axle-hole) — the good fit, the wheel running smooth. Same register-split as duḥkha: adjective form with vedanā (sukhā vedanā) stays \"pleasant\" for the small hedonic-tone sense (Entries 24, 25); bare-noun standalone uses (when they arise) render \"satisfying\" / \"the satisfying.\" Locked Entry 40 (paired with duḥkha)."
+  },
+  {
+   "sanskrit": "āghāta",
+   "rough": "striking / blow / hostility",
+   "chosen": "lashing out",
+   "why": "The active aversive mental move — literally \"striking\" (root √han, same as ghāta, killing-blow). Not a disposition or attitude but the impulse to strike out. Defines pratigha (hatred — same root term) and is what adveṣa is the absence of (anāghāta, Entry 40). Sthiramati glosses āghāta downstream as the mental state of a mind already striking out (in his asparśavihāra comment: \"no-easy-dwelling refers to the duḥkha-vihāra of a mind with āghāta\"). \"Lashing out\" carries the active-impulse quality plain in 2026 American English; \"hostility\" reads too dispositional, \"malice\" reads too narrow (premeditated). Locked Entry 40."
+  },
+  {
+   "sanskrit": "vīrya",
+   "rough": "energy / diligence / exertion / zeal / wholeheartedness",
+   "chosen": "zeal (provisional)",
+   "why": "Provisional Entry 42. Defined as cetaso 'bhyutsāha (mind's vigorous lift) toward what is wholesome, in five locatives: sannāha (armoring-up, initial resolve), prayoga (engaging the work), alīnatva (not shrinking back when difficulty hits), avyāvṛtti (not turning away under setback), asantuṣṭi (not stopping at partial gain). Sthiramati treats these as stages of vīrya's activity; Xuanzang T.1605 matches item-by-item — 被甲 / 方便 / 無下 / 無退 / 無足. The category is wholesome by construction — vīrya names this charge only when directed at the wholesome; the same charge directed at the unwholesome would be a kleśa (rāga, krodha). English needs to carry the built-in wholesome direction along with the lift/charge. 'Energy' tested and rejected (too inert — describes a battery; loses the abhyutsāha lift). 'Wholeheartedness' tested — carried both built-wholesome and charge, but didn't capture the zealous-enthusiastic feeling Asaṅga is naming. 'Zeal' carries the charge and directedness but lacks the built-in wholesomeness (zealots can be zealous for anything). 'Diligence' leans virtuous but loses the lift — moved to apramāda (Entry 44). Function clause kuśala-pakṣa-paripūraṇa-pariniṣpādana-karmakam: direct function (fulfill-and-complete what is wholesome), not saṃniśraya-dāna. Sits with the three wholesome roots in this non-saṃniśraya pattern. Xuanzang T.1605 renders the head term 勤 (diligence). Open thread; revisit when vīrya fires in technical clusters downstream — seven bodhyaṅgas, four right exertions, noble eightfold path."
+  },
+  {
+   "sanskrit": "abhyutsāha",
+   "rough": "up-rising-vigor / enthusiastic energy",
+   "chosen": "exerting itself toward",
+   "why": "Literally abhi-ut-sāha — up-rising-out-toward. Vigor with directional lift. The head verb-form in vīrya's definition (kuśale cetaso 'bhyutsāhaḥ). 'Exerting itself toward' lands the active-at-an-object structure in 2026 American English; 'vigor for' tested as compacter but reads slightly archaic. Distinct from cetayate (cetanā's directing) and prerayati (the driving in cetanā's function-clause) — abhyutsāha names the lift-and-charge specifically. Entry 42."
+  },
+  {
+   "sanskrit": "praśrabdhi",
+   "rough": "pliancy / tranquility / suppleness / ease",
+   "chosen": "ease",
+   "why": "Locked Entry 43. Defined as the workability (karmaṇyatā) of body and mind that arises when their heaviness (dauṣṭhulya) subsides. Technical śamatha weight — marker of meditative workability at the threshold of access concentration. 'Suppleness' tested and rejected (archaic, not real American English). 'Pliancy' the conventional Buddhist English but archaic-leaning. 'Tranquility' loses the workability dimension. 'Lightness' tested as opposing-pair to 'heaviness' but reads imbalanced. 'Ease' lands clean: in 2026 American English 'with ease' already carries both released-from-strain and capable-fluent. Matches Xuanzang T.1605's 安 (ease/peace). The function clause (dispelling all obstructions) keeps it from going soft. Function is karmikā alone — direct, not saṃniśraya-dāna. Sits with vīrya and the three wholesome roots in this pattern. DSBC has aśrabdhiḥ in the opening — OCR slip; silently corrected. Locked Entry 43."
+  },
+  {
+   "sanskrit": "karmaṇyatā",
+   "rough": "workability / fitness-for-action",
+   "chosen": "workability",
+   "why": "The state of being fit-to-work. The structural noun ease (praśrabdhi) names: the released-and-ready quality of body and mind after heaviness subsides. The factor is the workable-state itself, not the calming-event — per the standing-factor discipline. Entry 43."
+  },
+  {
+   "sanskrit": "dauṣṭhulya",
+   "rough": "coarseness / dysfunction / unworkability / heaviness",
+   "chosen": "heaviness (provisional)",
+   "why": "Provisional Entry 43 — flagged for revisit. The technical Yogācāra term for the unworkable karmic residue body and mind carry. Load-bearing across the system — the sluggish-unworkable load that āśraya-parāvṛtti (the substrate-turning) targets. Xuanzang renders 麁重 ('coarse-heavy'). 'Heaviness' carries the somatic-mental drag and pairs cleanly against ease/workability for the Entry 43 contrast. Declined: 'coarseness' (archaic, loses drag), 'dysfunction' (too clinical), 'difficulty' (flattens to generic obstacle, loses the somatic-load specificity). Open question: 'heaviness' may not carry the full technical weight when dauṣṭhulya fires in non-praśrabdhi contexts where its role in āśraya-parāvṛtti is structural. Revisit downstream."
+  },
+  {
+   "sanskrit": "apramāda",
+   "rough": "non-heedlessness / heedfulness / vigilance / diligence",
+   "chosen": "diligence (provisional)",
+   "why": "Provisional Entry 44 — tied to vīrya's open question (if vīrya moves off zeal, diligence may need to move back to vīrya). Literally 'non-heedlessness' / 'non-intoxication.' Structurally a meta-factor: rests on the three wholesome roots (alobha, adveṣa, amoha) plus vīrya, and does two things — cultivates wholesome dharmas and guards mind from contaminated (sāsrava) dharmas. Function clause covers laukika and lokottara sampatti — the biggest scope in the wholesome eleven so far. Parallel construction to upekṣā (Entry 45) — Asaṅga structurally pairs apramāda and upekṣā as the wholesome eleven's meta-factors. 'Heedfulness' the conventional Buddhist English but archaic. 'Vigilance' biases the guarding side over the cultivation side. 'Conscientiousness' too administrative. 'Diligence' carries the steady-applied integrative quality and is free now that vīrya holds 'zeal.' Xuanzang T.1605 renders 不放逸 ('non-slackening'). Entry 44."
+  },
+  {
+   "sanskrit": "upekṣā",
+   "rough": "letting-go / equanimity",
+   "chosen": "equanimity",
+   "why": "Locked Entry 45. Defined in three progressive stages of śamatha: citta-samatā (mind grows even — the effortful first stage), citta-praśaṭhatā (settles on its own — naturally relaxed middle), cittasya anābhoga-avasthitatā (rests without effort — the mind no longer needing the attention-turn move). The three nominatives stacked in the Sanskrit read as sequential stages; Xuanzang's 心平等性 / 心正直性 / 心無功用住性 confirms the order. Rests on the three wholesome roots + vīrya — parallel construction to apramāda (Entry 44), structurally pairing apramāda and upekṣā as the wholesome eleven's meta-factors. Function clause saṃkleśa-anavakāśa-saṃniśraya-dāna-karmikā collapses per §9 to 'keep affliction from finding an opening' — same pattern as the three wholesome roots' duścaritāpravṛtti clause. Xuanzang T.1605 renders 捨 ('letting-go'), emphasizing the release-aspect over the resulting evenness; both angles are true."
+  },
+  {
+   "sanskrit": "anābhoga",
+   "rough": "non-bending-toward / non-exertion",
+   "chosen": "without effort",
+   "why": "Third stage of upekṣā in Entry 45. Structurally inverts ābhoga from Entry 29 (manaskāra as cetasa ābhogaḥ — 'the turning of the mind toward'). There, active turning; here, the absence of needing to turn. Same root, opposite valence. The mature mind in śamatha no longer needs the attention-turn move. 'Without effort' lands plainer than 'without exertion' in this register. Entry 45."
+  },
+  {
+   "sanskrit": "praśaṭhatā",
+   "rough": "well-loosened / naturally-relaxed",
+   "chosen": "settles on its own",
+   "why": "Second stage of upekṣā in Entry 45. From pra-śratha (well-loosened, naturally relaxed) — not from śāṭhya (cunning). DSBC's reading. Xuanzang's 正直性 (uprightness) is a different angle on the same middle-stage release. 'Settles on its own' carries the naturally-relaxed quality and reads as the verb-feeling middle stage between 'grows even' (effortful first stage) and 'rests without effort' (third stage). Entry 45."
+  }
+ ],
+ "published": "2026-09-06T16:30:45Z"
+}

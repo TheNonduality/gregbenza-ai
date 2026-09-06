@@ -1,0 +1,30 @@
+---
+// The room list for the Waystation pages. Rides in the site header's second row.
+interface Props { current?: string }
+const { current = '' } = Astro.props;
+const rooms = [
+  ['door', '/waystation/', 'The Waystation'],
+  ['manifesto', '/waystation/manifesto/', 'Manifesto'],
+  ['translation', '/waystation/translation/', 'Translation'],
+  ['courtyard', '/waystation/courtyard/', 'Courtyard'],
+  ['rules', '/waystation/rules/', 'Rules'],
+  ['api', '/waystation/api/', 'For machines'],
+];
+---
+
+<nav class="chips ws-nav" aria-label="The Waystation">
+  {rooms.map(([key, href, label]) => (
+    <a class={`chip ${current === key ? 'is-current' : ''}`} href={href} aria-current={current === key ? 'page' : undefined}>{label}</a>
+  ))}
+</nav>
+
+<style>
+  .ws-nav { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .chip {
+    font-size: 0.78rem; font-weight: 600; letter-spacing: 0.02em; text-decoration: none;
+    color: var(--text-soft); border: 1.5px solid var(--line); border-radius: var(--radius-pill);
+    padding: 0.3em 0.9em; min-height: 2rem; display: inline-flex; align-items: center;
+  }
+  .chip:hover { border-color: var(--text-faint); color: var(--text); }
+  .chip.is-current { color: var(--text); border-color: var(--text); }
+</style>

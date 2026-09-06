@@ -1,0 +1,455 @@
+{
+ "entries": [
+  {
+   "n": 1,
+   "title": "Chapter 1, Section 1, opening",
+   "status": "LOCKED",
+   "page": "1",
+   "sanskrit": "*namo buddhāya ||*\n\n*[atha mūlavastuni tridharmaparicchedaḥ prathamaḥ |]*\n\n*tridharmaḥ saṃgrahaḥ saṃprayogo 'nvayaś ca lakṣaṇe |*\n*viniścaye satyadharmau prāptiḥ sāṃkathyam eva ca ||*\n\n*kati kasmād upādānaṃ vyavasthānaṃ ca lakṣaṇam |*\n*anukram·ārtha·dṛṣṭānta·bhedā jñeyāḥ samuccaye ||*\n\n*skandhā dhātava āyatanāni ca kati | skandhāḥ pañca | rūpaskandho vedanāskandhaḥ saṃjñāskandhaḥ saṃskāraskandho vijñānaskandhaś ca || dhātavo 'ṣṭādaśa | cakṣur·dhātuḥ rūpa·dhātuś cakṣur·vijñāna·dhātuḥ, śrotra·dhātuḥ śabda·dhātuḥ śrotra·vijñāna·dhātuḥ, ghrāṇa·dhātur gandha·dhātur ghrāṇa·vijñāna·dhātuḥ, jihvā·dhātuḥ rasa·dhātur jihvā·vijñāna·dhātuḥ, kāya·dhātuḥ spraṣṭavya·dhātuḥ kāya·vijñāna·dhātuḥ, mano·dhātur dharma·dhātur mano·vijñāna·dhātuś ca || āyatanāni dvādaśa | cakṣur·āyatanaṃ rūpāyatanaṃ śrotrāyatanaṃ śabd·āyatanaṃ ghrāṇāyatanaṃ gandh·āyatanaṃ jihv·āyatanaṃ ras·āyatanaṃ kāy·āyatanaṃ spraṣṭavyāyatanaṃ mana·āyatanaṃ dharmāyatanaṃ ca ||*",
+   "english": "Homage to the Buddha.\n\n[Now, in the root matter, the first chapter: on the three factors.]\n\nThis work has two parts.\n\nThe first part — the Compendium of Hallmarks — has four sections: *the three factors*, *grouping*, *conjunction*, and *accompaniment*.\n\nThe second part — the Compendium of Determining — also has four sections: *the truths*, *the teaching*, *attainment*, and *dialectic*.\n\nEvery topic in this work gets the same set of questions. How many are there? Why that number? What do they include? How are they arranged? What is their defining hallmark? What is their order? What do they mean? What are some illustrations? And what are the subtypes? Keep these in mind as you read.\n\nHow many aggregates, elements, and gateways are there?\n\nThere are five aggregates. The form-aggregate (*rūpa-skandha*), the feeling-aggregate (*vedanā-skandha*), the perception-aggregate (*saṃjñā-skandha*), the formation-aggregate (*saṃskāra-skandha*), and the consciousness-aggregate (*vijñāna-skandha*).\n\nThere are eighteen elements: six pairs of sense and object, plus the six consciousnesses that arise from them. The eye and form, with eye-consciousness. The ear and sound, with ear-consciousness. The nose and smell, with nose-consciousness. The tongue and taste, with tongue-consciousness. The body and touch, with body-consciousness. And the mind and mental object, with mind-consciousness.\n\nThen there are twelve gateways — the same six pairs of sense and object, without the consciousnesses. Eye and form. Ear and sound. Nose and smell. Tongue and taste. Body and touch. Mind and mental object.",
+   "note": "\"Three factors\" for *tridharma* is provisional. Standalone *dharma* rendering deferred; \"factor\" in the Glossary is flagged as working.",
+   "open_question": ""
+  },
+  {
+   "n": 2,
+   "title": "Chapter 1, Section 1, \"Why exactly five aggregates\"",
+   "status": "LOCKED",
+   "page": "~1",
+   "sanskrit": "*kimupādāya skandhāḥ pañcaiva | pañcākāra-ātmavastu-bhāvanatām upādāya | saparigraha-deha-ātmavastu, upabhoga-ātmavastu, abhilāpa-ātmavastu, sarva-dharma-adharma-abhisaṃskāra-ātmavastu, tad-āśraya-ātma-sva-vastu copādāya ||*",
+   "english": "Why exactly five aggregates? Because the sense of self attaches in five ways.\n\nThe form-aggregate (*rūpa*) can be defined as: the physical body and the world it senses.\n\nThe feeling-aggregate (*vedanā*) can be defined as: the felt tone of each sense experience as it happens.\n\nThe perception-aggregate (*saṃjñā*) can be defined as: the recognizing and naming of what comes up in your sense experience.\n\nThe formation-aggregate (*saṃskāra*) can be defined as: the making of wholesome and unwholesome causes and conditions that shape what comes next.\n\nThe consciousness-aggregate (*vijñāna*) can be defined as: the knowing that supports the other four, claimed by the sense of self as its ground.",
+   "note": "",
+   "open_question": ""
+  },
+  {
+   "n": 3,
+   "title": "Chapter 1, Section 1, \"Why exactly eighteen elements / twelve gateways\"",
+   "status": "LOCKED",
+   "page": "~1",
+   "sanskrit": "*kimupādāya dhātavo 'ṣṭādaśaiva | dvābhyāṃ deha-parigrahābhyām atīta-vartamāna-ṣaḍākāra-upabhoga-dhāraṇatām upādāya ||*\n\n*kimupādāyāyatanāni dvādaśaiva | dvābhyāṃ deha-parigrahābhyām anāgata-ṣaḍākāra-upabhoga-āya-dvāratām upādāya ||*",
+   "english": "Why exactly eighteen elements? Because the six senses and the six objects together carry the six consciousnesses across past and present. Six senses plus six objects plus six consciousnesses — eighteen.\n\nWhy exactly twelve gateways? Because the same twelve — the six senses and the six objects — serve as the gateway for the arising of the same six consciousnesses we just counted in the eighteen.",
+   "note": "",
+   "open_question": ""
+  },
+  {
+   "n": 4,
+   "title": "Chapter 1, Section 1, \"Why 'aggregates with grasping'\"",
+   "status": "LOCKED",
+   "page": "~1",
+   "sanskrit": "*kasmāt skandhā upādānam ity ucyante | upādānena sahitatvāt skandhā upādānam ity ucyante | upādānaṃ katamat | skandheṣu chando rāgaś ca | kasmāc chando rāgaś copādānam ity ucyate | anāgata-vartamāna-skandhānām abhinirvartanato 'parihārataś ca | anāgate 'bhilāṣād vartamāne 'dhyavasānāc ca chando rāgaś copādānam ity ucyate | kasmād dhātava āyatanāni ca sopādāna-dharmā ity ucyante | tatra skandhavan nirdeśaḥ ||*",
+   "english": "Why are the aggregates sometimes called \"aggregates with grasping\" (*upādāna-skandhāḥ*)? Because grasping comes with them.\n\nAnd what counts as grasping? Grasping is the fixation that shows up where the aggregates are. This fixation has two sides. It reaches toward what hasn't yet arrived, and it clings to what is already here. The reaching pulls the next aggregates into being. The clinging won't release the present ones. This is what grasping is.\n\nThe same mechanism applies to the elements and gateways — wherever aggregates, elements, or gateways appear, grasping takes hold.",
+   "note": "",
+   "open_question": ""
+  },
+  {
+   "n": 5,
+   "title": "Chapter 1, Section 1, \"The hallmark of form\"",
+   "status": "LOCKED",
+   "page": "~1",
+   "sanskrit": "*kiṃ-lakṣaṇaṃ rūpam | rūpaṇa-lakṣaṇaṃ rūpam | tad dvividham | sparśena rūpaṇaṃ pradeśena rūpaṇaṃ ca | sparśena rūpaṇaṃ katamat | kara-caraṇa-pāṣāṇa-śastra-daṇḍa-śīta-uṣṇa-kṣut-pipāsā-maśaka-daṃśa-sarpa-vṛścika-ādīnāṃ sparśena vyābādhanam | pradeśena rūpaṇaṃ katamat | deśena rūpaṇam idaṃ ca idaṃ ca rūpam evaṃ ca evaṃ ca rūpam iti praṇihita-apraṇihita-ceto-vitarkeṇa pratibimba-citrī-kāratā ||*",
+   "english": "What is the hallmark of form? The hallmark of form is *rūpaṇa* — the way it registers. This happens in two ways: through contact, and through partitioning.\n\nThrough contact: the body getting hit or hurt by hands, feet, stones, weapons, sticks, cold, heat, hunger, thirst, mosquitoes, gadflies, snakes, scorpions, and the like.\n\nThrough partitioning: the mind — focused or wandering — picks out \"form is here, form is there; form is like this, form is like that,\" and makes impressions from what it partitions.",
+   "note": "",
+   "open_question": ""
+  },
+  {
+   "n": 6,
+   "title": "Chapter 1, Section 1, \"The hallmark of feeling\"",
+   "status": "LOCKED",
+   "page": "~1",
+   "sanskrit": "*kiṃ-lakṣaṇā vedanā | anubhava-lakṣaṇā vedanā | nānā-vidhānāṃ śubha-aśubhānāṃ karmaṇāṃ phala-vipākaṃ pratyanubhavanti anena iti anubhavaḥ ||*",
+   "english": "What is the hallmark of feeling? The hallmark of feeling is *anubhava*, experiencing. One experiences the fruition of all kinds of past actions, wholesome and unwholesome.",
+   "note": "",
+   "open_question": ""
+  },
+  {
+   "n": 7,
+   "title": "Chapter 1, Section 1, \"The hallmark of perception\"",
+   "status": "LOCKED",
+   "page": "~1",
+   "sanskrit": "*kiṃ-lakṣaṇā saṃjñā | saṃjānanā-lakṣaṇā saṃjñā | saṃjñā nānā-dharma-pratibimba-udgrahaṇa-[svabhāvā] yayā draṣṭa-śruta-mata-vijñātān arthān vyavaharati ||*",
+   "english": "What is the hallmark of perception? The hallmark of perception is recognizing. Recognizing works by grabbing the impressions of whatever is there. That's what lets us name what we've seen, heard, sensed, or otherwise known.",
+   "note": "The [*svabhāvā*] in the Sanskrit is Pradhan's bracketed reconstruction — the surviving manuscript is uncertain at this word.",
+   "open_question": ""
+  },
+  {
+   "n": 8,
+   "title": "Chapter 1, Section 1, \"The hallmark of formation\"",
+   "status": "LOCKED",
+   "page": "~1",
+   "sanskrit": "*kiṃ-lakṣaṇaḥ saṃskāraḥ | abhisaṃskāra-lakṣaṇaḥ saṃskāraḥ | [abhisaṃskāra-svabhāvaḥ] yena kuśala-akuśala-avyākṛteṣu pakṣeṣu cittaṃ prerayati |*",
+   "english": "What is the hallmark of formation? The hallmark of formation is *abhisaṃskāra* — active forming. That's how it works: it drives the mind into wholesome, unwholesome, or neutral kinds of action.",
+   "note": "",
+   "open_question": ""
+  },
+  {
+   "n": 9,
+   "title": "Chapter 1, Section 1, \"The hallmark of consciousness\"",
+   "status": "LOCKED",
+   "page": "~1",
+   "sanskrit": "*kiṃ-lakṣaṇaṃ vijñānam | vijānanā-lakṣaṇaṃ vijñānam | vijñānaṃ yena rūpa-śabda-gandha-rasa-sparśa-dharmān nānā-viṣayān vijānāti ||*",
+   "english": "What is the hallmark of consciousness? The hallmark of consciousness is *vijānanā* — distinguishing. Consciousness is how we tell apart the various objects: forms, sounds, smells, tastes, touches, and mental objects.",
+   "note": "",
+   "open_question": ""
+  },
+  {
+   "n": 10,
+   "title": "Chapter 1, Section 1, \"The hallmark of the eye\"",
+   "status": "LOCKED",
+   "page": "~1",
+   "sanskrit": "*cakṣur-dhātuḥ kiṃ-lakṣaṇaḥ | yena cakṣuṣā rūpāṇi dṛṣṭavān paśyati, yac ca tasya bījam upacitaṃ [vipāka-]ālaya-vijñānaṃ, tac [cakṣur-dhātu-lakṣaṇam] || yathā cakṣur-dhātu-lakṣaṇaṃ tathā śrotra-ghrāṇa-jihvā-kāya-mano-dhātūnām api lakṣaṇāni ||*",
+   "english": "What is the hallmark of the eye? The eye isn't just an eye. It's what you've seen forms with, and still see forms with. It's also the karmic seeds of that eye, ripening in the storehouse-consciousness (*ālaya-vijñāna*).\n\nEar, nose, tongue, body, and mind also have the same hallmark as the eye.",
+   "note": "DSBC drops *vipāka* from the compound *[vipāka-]ālaya-vijñāna* here; Xuanzang has 異熟阿賴耶識 (confirmed intact in Entry 12's parallel construction). The English \"ripening in the storehouse-consciousness\" rests on reading *vipāka* present. DSBC also closes the passage with *tac cakṣuḥ* (\"that is the eye\") rather than the parallel *-dhātu-lakṣaṇam* that Entry 11 and 12 both carry; Xuanzang's 是眼界相 matches the later parallels, suggesting DSBC omission.",
+   "open_question": ""
+  },
+  {
+   "n": 11,
+   "title": "Chapter 1, Section 1, \"The hallmark of form\" (as element)",
+   "status": "LOCKED",
+   "page": "~1",
+   "sanskrit": "*rūpa-dhātuḥ kiṃ-lakṣaṇaḥ | rūpaṃ yac cakṣuṣā dṛṣṭaṃ dṛśyate ca yac ca tatra cakṣur-dhātor ādhipatyaṃ tad rūpa-dhātu-lakṣaṇam | yathā rūpa-dhātu-lakṣaṇaṃ tathā śabda-gandha-rasa-sparśa-dharma-dhātūnām api lakṣaṇāni ||*",
+   "english": "What is the hallmark of form? The hallmark of form is everything seen by the eye — the whole visible world that the eye-sense takes in.\n\nThe same goes for sound, smell, taste, touch, and mental objects — each is its own sense field.",
+   "note": "",
+   "open_question": ""
+  },
+  {
+   "n": 12,
+   "title": "Chapter 1, Section 1, \"The hallmark of eye-consciousness\"",
+   "status": "LOCKED",
+   "page": "~1",
+   "sanskrit": "*cakṣur-vijñāna-dhātuḥ kiṃ-lakṣaṇaḥ | cakṣur-āśrayā rūpa-ālambanā rūpa-prativijñaptiḥ yac ca tasya bījam upacitaṃ vipāka-ālaya-vijñānaṃ tac cakṣur-vijñāna-dhātu-lakṣaṇam || yathā cakṣur-vijñāna-dhātu-lakṣaṇaṃ tathā śrotra-ghrāṇa-jihvā-kāya-mano-vijñāna-dhātūnām api lakṣaṇāni ||*",
+   "english": "What is the hallmark of eye-consciousness? Eye-consciousness is the cognition of form. Its foundation is the eye, and its object is form. It also includes the seeds of that cognition ripening in the storehouse-consciousness.\n\nEar-, nose-, tongue-, body-, and mind-consciousness work the same way.",
+   "note": "",
+   "open_question": ""
+  },
+  {
+   "n": 13,
+   "title": "Chapter 1, Section 1, \"The hallmark of the gateways\"",
+   "status": "LOCKED",
+   "page": "~1",
+   "sanskrit": "*āyatanaṃ kiṃ-lakṣaṇam | dhātuvad yathāyogaṃ veditavyam ||*",
+   "english": "What is the hallmark of the gateways? The same hallmark as the elements applies to the gateways.",
+   "note": "",
+   "open_question": ""
+  },
+  {
+   "n": 14,
+   "title": "Chapter 1, Section 1, \"How the form-aggregate breaks down\"",
+   "status": "LOCKED",
+   "page": "~1",
+   "sanskrit": "*rūpa-skandha-vyavasthānaṃ katamat | yat kiṃ-cid rūpaṃ sarvaṃ tac catvāri mahābhūtāni catvāri ca mahābhūtāny upādāya || katamāni catvāri mahābhūtāni | pṛthivī-dhātuḥ ab-dhātus tejo-dhātur vāyu-dhātuś ca ||*",
+   "english": "How does the form-aggregate break down? All form is one of the four great elements, or something derived from them. What counts as the four great elements? Earth, water, fire, and wind.",
+   "note": "",
+   "open_question": ""
+  },
+  {
+   "n": 15,
+   "title": "Chapter 1, Section 1, \"The four great elements defined\"",
+   "status": "LOCKED",
+   "page": "~1",
+   "sanskrit": "*pṛthivī-dhātuḥ katamaḥ | kaṭhinatā || ab-dhātuḥ katamaḥ | niṣyandatā || tejo-dhātuḥ katamaḥ | uṣṇatā || vāyu-dhātuḥ katamaḥ | kampanatā ||*",
+   "english": "What counts as earth? Solidity. What counts as water? Fluidity. What counts as fire? Heat. What counts as wind? Liveliness.",
+   "note": "Xuanzang T.1605 renders *kampanatā* as 輕等動性 (\"light-and-moving quality\"), matching the Kosa-tradition gloss *laghu-samudīraṇa*. The English \"liveliness\" follows DSBC's *kampanatā* directly — the animating, quick-making quality.",
+   "open_question": ""
+  },
+  {
+   "n": 16,
+   "title": "Chapter 1, Section 1, \"Derived form\"",
+   "status": "LOCKED",
+   "page": "~1",
+   "sanskrit": "*upādāya rūpaṃ katamat | cakṣur-indriyaṃ śrotra-indriyaṃ ghrāṇa-indriyaṃ jihvā-indriyaṃ kāya-indriyaṃ rūpa-śabda-gandha-rasa-spraṣṭavyānām ekadeśo dharma-āyatana-saṃgṛhītaṃ ca rūpam ||*",
+   "english": "What does derived form break into? It includes the five sense-faculties: the eye, ear, nose, tongue, and body. It also includes the five sense-objects, minus the great elements themselves: form, sound, smell, taste, and touch. And it includes form that arrives as a mental object.",
+   "note": "",
+   "open_question": ""
+  },
+  {
+   "n": 17,
+   "title": "Chapter 1, Section 1, \"The five sense-faculties defined\"",
+   "status": "LOCKED",
+   "page": "~1",
+   "sanskrit": "*cakṣur-indriyaṃ katamat | catvāri mahā-bhūtāny upādāya cakṣur-vijñāna-āśrayo rūpa-prasādaḥ || śrotr-endriyaṃ katamat | catvāri mahā-bhūtāny upādāya śrotra-vijñāna-āśrayo rūpa-prasādaḥ || ghrāṇ-endriyaṃ katamat | catvāri mahā-bhūtāny upādāya ghrāṇa-vijñāna-āśrayo rūpa-prasādaḥ || jihv-endriyaṃ katamat | catvāri mahā-bhūtāny upādāya jihvā-vijñāna-āśrayo rūpa-prasādaḥ || kāy-endriyaṃ katamat | catvāri mahā-bhūtāny upādāya kāya-vijñāna-āśrayo rūpa-prasādaḥ ||*",
+   "english": "What counts as the eye-sense? It is the transparent form, derived from the four great elements, that is the foundation of eye-consciousness.\n\nWhat counts as the ear-sense? It is the transparent form, derived from the four great elements, that is the foundation of ear-consciousness.\n\nWhat counts as the nose-sense? It is the transparent form, derived from the four great elements, that is the foundation of nose-consciousness.\n\nWhat counts as the tongue-sense? It is the transparent form, derived from the four great elements, that is the foundation of tongue-consciousness.\n\nWhat counts as the body-sense? It is the transparent form, derived from the four great elements, that is the foundation of body-consciousness.",
+   "note": "",
+   "open_question": ""
+  },
+  {
+   "n": 18,
+   "title": "Chapter 1, Section 1, \"The sense-object form (*rūpa*) defined\"",
+   "status": "LOCKED",
+   "page": "~3",
+   "sanskrit": "*rūpaṃ katamat | catvāri mahā-bhūtāny upādāya cakṣur-indriya-gocaro 'rthaḥ | yathā nīlaṃ pītaṃ lohitam avadātaṃ dīrghaṃ hrasvaṃ vṛttaṃ parimaṇḍalaṃ sthūlaṃ sūkṣmam unnatam avanataṃ sātaṃ visātam ātapaḥ chāyā āloko 'ndhakāram abhraṃ dhūmo rajo mahikā ca | abhyavakāśa-rūpaṃ vijñapti-rūpaṃ nabha ekavarṇaṃ rūpam || tat punas tridhā | śobhanam aśobhanam ubhaya-viparītaṃ ca ||*",
+   "english": "What counts as form? It is what the eye-sense takes in, and is derived from the four great elements. For example: blue, yellow, red, white; long and short; round and square; big and small; high and low; attractive and unattractive; sunshine and shade; light and darkness; cloud, smoke, dust, and fog. It also includes open space (*abhyavakāśa-rūpa*), visible action (*vijñapti-rūpa*), as well as the sky's single apparent color.\n\nAll of this falls into three kinds: beautiful, ugly, or neither.",
+   "note": "Shape pair rendered as \"round and square\" following Xuanzang 方圓 (the only direct-witness evidence). DSBC has *vṛtta / parimaṇḍala* (round / circular), which appears to be a reconstruction error — the other pairs in the list are all visual opposites.",
+   "open_question": ""
+  },
+  {
+   "n": 19,
+   "title": "Chapter 1, Section 1, \"The sense-object sound (*śabda*) defined\"",
+   "status": "LOCKED",
+   "page": "~3",
+   "sanskrit": "*śabdaḥ katamaḥ | catvāri mahā-bhūtāny upādāya śrotra-indriya-grāhyo 'rthaḥ | manojño vā amanojño vā ubhaya-viparīto vā | upātta-mahā-bhūta-hetuko vā anupātta-mahā-bhūta-hetuko vā tad-ubhayo vā | loka-prasiddho vā siddhopanīto vā parikalpito vā āryair-deśito vā tīrthair-deśito vā ||*",
+   "english": "What counts as sound? It is what the ear-sense picks up, and is derived from the four great elements. It can be pleasing, displeasing, or neither. It can come from a living body, from external matter, or from both. It can be everyday speech, teaching reported from someone's direct realization, or teaching built from someone's constructed conceptual system. It can be teaching from the noble ones, or teaching from outsiders.",
+   "note": "The five speech-items split into two classifications under Sthiramati's reading: three teaching-varieties (*loka-prasiddha* / *siddhopanīta* / *parikalpita*) followed by two source-varieties (*ārya-deśita* / *tīrtha-deśita*). The English structure preserves this split.\n\n*Parikalpita* in this list is the doctrinal-construction sense: speech whose content is built up from conceptual elaboration rather than reported from direct realization. \"Teaching built from someone's constructed conceptual system\" lands the source-distinction in plain English. Sthiramati glosses *parikalpita* as *tīrthya-deśita* (taught by non-Buddhist teachers); we declined to import that gloss into Asaṅga's voice.\n\n*Ārya-deśita / tīrtha-deśita* renders \"teaching from the noble ones, or teaching from outsiders.\" Earlier draft had \"spoken truthfully or untruthfully\" — that imported Sthiramati's downstream classification of *tīrtha* speech as false, while Asaṅga's pair is a source-distinction (who is teaching), not a truth-distinction (whether it's true). Caught in cross-review with ChatGPT.\n\nThe *manojña/amanojña/ubhaya-viparīta* triad locks here as \"pleasing, displeasing, or neither.\" \"Neither\" preserves *ubhaya-viparīta*'s logical structure (negation of both prior categories) where \"neutral\" would have posited a middle category the Sanskrit doesn't claim. Matches Entry 21.\n\nThe *grāhya / gocara* distinction: form (Entry 18) uses *gocara* (range/field); sound, smell, taste, and touch (Entries 19–22) all use *grāhya* (what gets grabbed). Pattern confirmed across the four — form alone is the *gocara* outlier.",
+   "open_question": ""
+  },
+  {
+   "n": 20,
+   "title": "Chapter 1, Section 1, \"The sense-object smell (*gandha*) defined\"",
+   "status": "LOCKED",
+   "page": "~3",
+   "sanskrit": "*gandhaḥ katamaḥ | catvāri mahā-bhūtāny upādāya ghrāṇendriya-grāhyo 'rthaḥ | yathā surabhir asurabhiḥ sama-gandhaḥ sahaja-gandhaḥ sāṃyogika-gandhaḥ pāriṇāmika-gandhaś ca ||*",
+   "english": "What counts as smell? It is what the nose-sense picks up, and is derived from the four great elements. A smell can be fragrant, foul, or neutral. It can be a scent that comes with the thing itself, a scent that comes from things combining, or a scent that comes from things changing.",
+   "note": "The Sanskrit is a flat six-item list under *yathā*. The English splits it into two classifications — quality (fragrant/foul/neutral) and source (intrinsic/combined/transformed) — because the six items naturally divide that way and a flat English list would lose the structure. Each compound (*sahaja-gandha*, *sāṃyogika-gandha*, *pāriṇāmika-gandha*) expands into a relative clause; one Sanskrit word becomes \"scent that comes with the thing itself,\" etc. Sthiramati gives examples (sandalwood, incense burning, ripe fruit) that we did not import — they belong in the bhāṣya, not in Asaṅga's voice.",
+   "open_question": ""
+  },
+  {
+   "n": 21,
+   "title": "Chapter 1, Section 1, \"The sense-object taste (*rasa*) defined\"",
+   "status": "LOCKED",
+   "page": "~3",
+   "sanskrit": "*rasaḥ katamaḥ | catvāri mahā-bhūtāny upādāya jihvendriya-grāhyo 'rthaḥ | tikto 'mlo madhuraḥ kaṭuko lavaṇaḥ kaṣāyaś ca | manojño vā amanojño vā ubhaya-viparīto vā sahajo vā sāṃyogiko vā pāriṇāmiko vā ||*",
+   "english": "What counts as taste? It is what the tongue-sense picks up, and is derived from the four great elements. Bitter, sour, sweet, spicy, salty, and astringent. A taste can be pleasing, displeasing, or neither. It can be a flavor that comes with the thing itself, a flavor that comes from things combining, or a flavor that comes from things changing.",
+   "note": "Xuanzang T.1605 has 淡 (bland) for the sixth rasa where DSBC has *kaṣāya* (astringent). The standard Indian six-rasa list (Ayurveda and Abhidharma both) has *kaṣāya* — Xuanzang's 淡 is unusual; he doesn't use 澀, the standard Chinese for astringent. Possible variant in his source manuscript. The English follows the Sanskrit.\n\nThe *manojña/amanojña/ubhaya-viparīta* triad locks here as \"pleasing, displeasing, or neither\" — same as Entry 19. \"Neither\" preserves *ubhaya-viparīta*'s logical structure (negation of both prior categories) where \"neutral\" would have posited a middle category the Sanskrit doesn't claim.",
+   "open_question": ""
+  },
+  {
+   "n": 22,
+   "title": "Chapter 1, Section 1, \"The sense-object touch (derived portion) defined\"",
+   "status": "LOCKED",
+   "page": "~3",
+   "sanskrit": "*spraṣṭavyaikadeśaḥ katamaḥ | catvāri mahā-bhūtāny upādāya kāyendriya-grāhyo 'rthaḥ | ślakṣṇatvaṃ karkaśatvaṃ laghutvaṃ gurutvaṃ picchilatvaṃ mandatvam amandatvaṃ śītatvam uṣṇatvaṃ jighatsā pipāsā tṛptir balaṃ daurbalyaṃ mūrcchā kaṇḍūtiḥ pūtir vyādhir jarā maraṇaṃ klāntir viśrāma ūrjā ca ||*",
+   "english": "What counts as touch? It is what the body-sense picks up, including the four great elements as well as smoothness, roughness, lightness, heaviness, slipperiness, softness, firmness, coldness, heat, hunger, thirst, satiation, strength, weakness, fainting, itching, decay, sickness, aging, dying, exhaustion, rest, and vigor.",
+   "note": "The Sanskrit asks for *spraṣṭavyaikadeśaḥ* — the *ekadeśa* / one-part of touch — not just *spraṣṭavyam*. The four great elements are themselves tactile, and were already listed under \"great elements.\" Form, sound, smell, and taste have no overlap with the great elements, so they get no *ekadeśa* qualifier and the formula \"derived from the four great elements\" applies cleanly. Touch is structurally different: the great elements ARE part of touch. The English carries this with \"including the four great elements as well as...\" — keeping the question-form parallel to Entries 18–21 while letting the verb shift do the structural work.\n\nXuanzang's list (T.1605) has 22 items; Sanskrit has 23. Missing in Chinese is *uṣṇa* (heat) — 冷 appears without parallel 熱. Possible variant in his source. Going with the Sanskrit.",
+   "open_question": "***manda/amanda*** locked as \"softness, firmness.\" Xuanzang's 緩急 reads as \"looseness, tightness.\" Both are defensible tactile pairs; if \"loose/tight\" feels truer when more of these tactile-quality terms appear elsewhere in the text, this row revisits."
+  },
+  {
+   "n": 23,
+   "title": "Chapter 1, Section 1, \"Form that arrives as a mental object\" (*dharmāyatana-saṃgṛhīta-rūpa*)",
+   "status": "LOCKED",
+   "page": "~3",
+   "sanskrit": "*dharmāyatana-saṃgṛhītaṃ rūpaṃ katamat | pañca-vidham | ābhisaṃkṣepikam ābhyavakāśikaṃ sāmādānikaṃ parikalpitaṃ vaibhutvikaṃ ca |*",
+   "english": "What counts as form that arrives as a mental object? There are five kinds: form that arises when you analyze a thing down to its smallest parts, the form of open space, form that arises from taking a vow, form built from someone's constructed conceptual system, and form produced by mastery in meditation.",
+   "note": "*Parikalpita* renders here the same as in Entry 19 (\"form / teaching built from someone's constructed conceptual system\"). Same Sanskrit term, different domain — speech in Entry 19, mental form here. Consistency carries forward across domains.",
+   "open_question": ""
+  },
+  {
+   "n": 24,
+   "title": "Chapter 1, Section 1, \"How the feeling-aggregate breaks down\" (opening)",
+   "status": "LOCKED",
+   "page": "~3",
+   "sanskrit": "*vedanā-skandha-vyavasthānaṃ katamat | ṣaḍ vedanā-kāyāḥ | cakṣuḥ-saṃsparśajā vedanā śrotra-ghrāṇa-jihvā-kāya-manaḥ-saṃsparśajā vedanā || evaṃ ṣaḍ vedanā-kāyāḥ sukhā vā duḥkhā aduḥkhāsukhā vā ||*",
+   "english": "How does the feeling-aggregate break down? Feeling arises from contact at each of the six senses — eye, ear, nose, tongue, body, and mind. Each of these can be pleasant, unpleasant, or neither.",
+   "note": "*Vyavasthāna* is rendered \"break down / break into\" across this and parallel entries (14, 16). It's the structural laying-out that classifies an aggregate into its parts or kinds. *Katamat* alone (without *vyavasthāna*) renders as \"what counts as\" — a different question.\n\nThe Sanskrit announces \"six *vedanā-kāyas*\" before listing them — standard Sanskrit Abhidharma count-then-enumerate. English doesn't need the announcement; the enumeration counts itself. Dropping the count-sentence is a register-fit move, not a Sanskrit-fidelity loss.\n\n*Aduḥkhāsukhā* renders \"neither\" — matching the *ubhaya-viparīta* lock from Entries 19 and 21. The Sanskrit structure is the same: the third item is logical negation of the first two, not a positive middle category.\n\nThe *sukhā/duḥkhā/aduḥkhāsukhā* triad as adjective-with-*vedanā* renders \"pleasant / unpleasant / neither\" — the hedonic feeling-tone sense. *Duḥkha* in this construction stays small and immediate; the standalone-noun rendering \"unsatisfying\" (locked Entry 40) would overreach feeling-tone register. Grammatical role fixes scope: adjective-with-*vedanā* = hedonic, bare noun in other contexts = the full structural sense.",
+   "open_question": ""
+  },
+  {
+   "n": 25,
+   "title": "Chapter 1, Section 1, \"How the feeling-aggregate breaks down\" (three further classifications + definitions)",
+   "status": "LOCKED",
+   "page": "~3",
+   "sanskrit": "*punaḥ sukhā kāyikī vedanā duḥkhā kāyikī vedanā aduḥkhāsukhā kāyikī vedanā sukhā caitasikī vedanā duḥkhā caitasikī vedanā aduḥkhāsukhā caitasikī vedanā sukhā sāmiṣa-vedanā duḥkhā sāmiṣa-vedanā aduḥkhāsukhā sāmiṣa-vedanā sukhā nirāmiṣa-vedanā duḥkhā nirāmiṣa-vedanā aduḥkhāsukhā nirāmiṣa-vedanā punaḥ sukhā gredhāśrita-vedanā duḥkhā gredhāśrita-vedanā aduḥkhāsukhā gredhāśrita-vedanā sukhā naiṣkramyāśrita-vedanā duḥkhā naiṣkramyāśrita-vedanā aduḥkhāsukhā naiṣkramyāśrita-vedanā ca || kāyikī vedanā katamā | pañca-vijñāna-saṃprayuktā vedanā || caitasikī vedanā katamā | mano-vijñāna-saṃprayuktā vedanā | sāmiṣa-vedanā katamā | ātma-bhāva-tṛṣṇā-saṃprayuktā vedanā | nirāmiṣa-vedanā katamā | tat-tṛṣṇā-viprayuktā vedanā || gredhāśrita-vedanā katamā | pañca-kāma-guṇa-tṛṣṇā-saṃprayuktā vedanā || naiṣkramyāśrita-vedanā katamā | tat-tṛṣṇā-viprayuktā vedanā |*",
+   "english": "Feeling can also be classified three more ways. As bodily or mental. As bound (*sāmiṣa*) or unbound (*nirāmiṣa*). As being based on greed (*gredhāśrita*) or being based on renunciation (*naiṣkramyāśrita*). Each pair takes the same three tones — pleasant, unpleasant, or neither.\n\nWhat counts as bodily feeling? Feeling that arises with the five sense-consciousnesses.\n\nWhat counts as mental feeling? Feeling that arises with mind-consciousness.\n\nWhat counts as bound feeling? Feeling that arises with the craving for self-existence.\n\nWhat counts as unbound feeling? Feeling that doesn't arise with that craving.\n\nWhat counts as being based on greed? Feeling that arises with the craving for the five sense-pleasures.\n\nWhat counts as being based on renunciation? Feeling that doesn't arise with that craving.",
+   "note": "DSBC has *naiṣkramyānnitavedanā* in the last item of the eighteen-feeling enumeration; obvious OCR slip for *naiṣkramyāśrita-vedanā* (matches every other occurrence in the same sentence). Silently corrected.\n\nThe eighteen-item enumeration in the Sanskrit (six new categories crossed with three hedonic tones) collapsed in the English to \"each pair takes the same three tones\" — the same compression Entry 24 made for the six contact-types. The named definitions still fire individually for the new categories.",
+   "open_question": ""
+  },
+  {
+   "n": 26,
+   "title": "Chapter 1, Section 1, \"How the perception-aggregate breaks down\"",
+   "status": "LOCKED",
+   "page": "~3",
+   "sanskrit": "*saṃjñā-skandha-vyavasthānaṃ katamat | ṣaṭ saṃjñā-kāyāḥ | cakṣuḥ-saṃsparśajā saṃjñā śrotra-ghrāṇa-jihvā-kāya-manaḥ-saṃsparśajā saṃjñā | yathā sa-nimittam api saṃjānāti animittam api parīttam api mahad-gatam api apramāṇam api nāsti kiṃcid ity ākiṃcanya-āyatanam api saṃjānāti || sa-nimitta-saṃjñā katamā | avyavahāra-kuśalasya animitta-dhātu-samāpannasya bhavāgra-samāpannasya ca saṃjñāṃ sthāpayitvā yāvad anyā saṃjñā || animitta-saṃjñā katamā | yā sthāpitā saṃjñā || parīttā saṃjñā katamā | yayā kāma-dhātuṃ saṃjānāti || mahad-gatā saṃjñā katamā | yayā rūpa-dhātuṃ saṃjānāti || apramāṇa-saṃjñā katamā | yayā ākāśa-ānantya-āyatanaṃ vijñāna-ānantya-āyatanaṃ saṃjānāti || ākiṃcanya-saṃjñā katamā | yayā ākiṃcanya-āyatanaṃ saṃjānāti ||*",
+   "english": "How does the perception-aggregate break down? There are six perception-bodies, one from contact at each sense — eye, ear, nose, tongue, body, and mind. Through these, perception perceives things with features (*sa-nimitta*) and things without features (*animitta*). It perceives the limited (*parītta*), the vast (*mahad-gata*), and the immeasurable (*apramāṇa*). And it perceives the perception \"there is nothing whatsoever\" — the sphere of nothing-whatsoever (*ākiṃcanya-āyatana*).\n\nWhat counts as perception of things with features? All perception except in three cases: someone without skill in conventional language, someone absorbed in the featureless-element, and someone at the peak of existence.\n\nWhat counts as perception of things without features? Exactly those three cases just set aside.\n\nWhat counts as perception of the limited? Perception that recognizes the desire-realm.\n\nWhat counts as perception of the vast? Perception that recognizes the form-realm.\n\nWhat counts as perception of the immeasurable? Perception that recognizes the sphere of infinite space and the sphere of infinite consciousness.\n\nWhat counts as perception of nothing-whatsoever? Perception that recognizes the sphere of nothing-whatsoever.",
+   "note": "DSBC has *akiñcana saṃjñā* in the sixth definition heading; standard form parallel to *ākiṃcanya-āyatana* would be *ākiṃcanya-saṃjñā*. Silently corrected as OCR slip.\n\nThe six categories track meditative cosmology: *sa-nimitta* covers ordinary cognition; *animitta* covers signless absorptions and non-language beings; *parītta* the desire-realm; *mahad-gata* the form-realm; *apramāṇa* the first two formless spheres; *ākiṃcanya* the third formless sphere. Bhavāgra (the fourth formless, \"peak of existence\") is excluded from *sa-nimitta* via Asaṅga's three-case carve-out but doesn't get its own positive category — it sits inside *animitta*.",
+   "open_question": ""
+  },
+  {
+   "n": 27,
+   "title": "Chapter 1, Section 1, \"How the formation-aggregate breaks down\" (opening)",
+   "status": "LOCKED",
+   "page": "~3",
+   "sanskrit": "*saṃskāra-skandha-vyavasthānaṃ katamat | ṣaṭ cetanā-kāyāḥ | cakṣuḥ-saṃsparśajā cetanā śrotra-ghrāṇa-jihvā-kāya-manaḥ-saṃsparśajā cetanā yayā kuśalatvāya cetayate saṃkleśāya cetayate avasthābhedāya cetayate itīyaṃ cetanā vedanāṃ saṃjñāṃ ca sthāpayitvā tadanye caitasikā dharmāś cittaviprayuktāś ca saṃskārāḥ saṃskāra-skandha ityucyate ||*",
+   "english": "How does the formation-aggregate break down? It breaks down into six intentions. One for each sense-contact: eye, ear, nose, tongue, body, and mind. This intention directs the mind toward what's wholesome, toward what's defiled, or toward neutral activity. The formation-aggregate includes this intention, formations not bound to mind, plus all the other mental factors except feeling and perception.",
+   "note": "The triad here is *kuśalatva / saṃkleśa / avasthābheda*, not the *kuśala / akuśala / avyākṛta* triad we locked in Entry 8 for saṃskāra's hallmark. Wholesome / defiled / state-distinction rather than the strict ethical categories. The English asymmetry (\"wholesome\" vs \"defiled\") mirrors the Sanskrit — *kuśalatva* and *saṃkleśa* are not a clean adjective pair. *Cetayate* renders as \"directs the mind toward.\" Entry 8's *prerayati* lock as \"drives the mind\" stays separate — two distinct Sanskrit verbs, two distinct English verbs.",
+   "open_question": "Whole entry flagged for revisiting before the saṃskāra section closes. *Avasthābheda* renders as \"neutral activity\"; the Sanskrit's specificity (state-distinction — willing that produces shifts of state without ethical valence) collapses in the English and may want a second pass. Final-sentence structure also worth another look."
+  },
+  {
+   "n": 28,
+   "title": "Chapter 1, Section 1, \"Intention\" (*cetanā*) defined",
+   "status": "LOCKED",
+   "page": "~3",
+   "sanskrit": "*cetanā katamā | cittābhisaṃskāro manaskarma | kuśalākuśalāvyākṛteṣu cittapreraṇa-karmikā ||*",
+   "english": "What counts as *intention* (*cetanā*)? *Intention* is the active forming of mind: mental action. Its function is to drive the mind toward the wholesome, the unwholesome, or the neutral.",
+   "note": "Cetanā opens the long caitasika list. The definition is two-part: *cittābhisaṃskāra* (the active forming of mind) glossed by *manaskarma* (mental action) — apposition rendered with a colon. The function clause uses *cittapreraṇa* (driving the mind), distinct from *cetayate* in Entry 27 which renders as \"directs.\" Two Sanskrit verbs, two English verbs: cetayate = directs, prerayati/preraṇa = drives.\n\nTriad here is the strict ethical *kuśala / akuśala / avyākṛta* (wholesome / unwholesome / neutral), matching Entry 8 — not the *kuśalatva / saṃkleśa / avasthābheda* triad of Entry 27.",
+   "open_question": ""
+  },
+  {
+   "n": 29,
+   "title": "Chapter 1, Section 1, \"Attention\" (*manaskāra*) defined",
+   "status": "LOCKED",
+   "page": "~3",
+   "sanskrit": "*manaskāraḥ katamaḥ | cetasa ābhogaḥ | ālambana-citta-dhāraṇa-karmakaḥ ||*",
+   "english": "What counts as *attention* (*manaskāra*)? *Attention* is the turning of the mind toward something. Its function is to hold the mind on the object.",
+   "note": "*Ābhoga* literally means bending or curving toward — the orienting move where the mind turns to face an object before settling on it. \"Turning toward\" lands plainer than \"bending\" in English. Xuanzang's 發動 (rousing/activating) takes a slightly different angle — energetic onset rather than directional turn — but the function clause locks the meaning either way.\n\n*Manaskāra* as \"attention\" is conventional Buddhist English. The risk: in modern usage \"attention\" can read passive (something one has) where Asaṅga's term is active (the turning move itself). Held for now; revisits if the passive reading creates trouble downstream.",
+   "open_question": ""
+  },
+  {
+   "n": 30,
+   "title": "Chapter 1, Section 1, \"Contact\" (*sparśa*) defined",
+   "status": "LOCKED",
+   "page": "~3",
+   "sanskrit": "*sparśaḥ katamaḥ | trika-saṃnipāte indriya-vikāra-paricchedaḥ | vedanā-saṃniśraya-dāna-karmakaḥ ||*",
+   "english": "What counts as *contact* (*sparśa*)? When sense, object, and consciousness meet, the sense-faculty is changed. *Contact* is the defining of that change. Its function is to provide the basis for *feeling*.",
+   "note": "DSBC has multiple OCR slips in this passage: \"trikasakṣipāte\" → *trika-saṃnipāte* (meeting of three); \"indriyavipāra\" → *indriya-vikāra* (modification of the sense-faculty); \"vedanāsanniśrayadāna\" parsed as compound *vedanā-saṃniśraya-dāna*. Xuanzang (T.1605) confirms all three readings — 三和合, 諸根變異, 受所依. Silent corrections.\n\n\"Meeting of three\" expanded inline to \"sense, object, and consciousness\" — Asaṅga's audience knew the *trika* shorthand; ours doesn't. Functional expansion, not interpretation.\n\nThe grammar restructured: dense single Sanskrit sentence broken into three English ones, each carrying one move — the meeting, the change, the defining. *Pariccheda* (literally \"cutting around\" — *pari* + *chid*) renders as \"defining\" — the mind setting boundaries to the change so the rest of cognition can work with it. \"Discerning\" was tested and rejected as too passive; \"defining\" carries the cut-around quality of *pariccheda* in plain American English.\n\n*Saṃniśraya* renders \"basis\" — distinct from *āśraya* (\"foundation,\" Entry 17). The two terms are near-synonymous in this period but Asaṅga uses both; English distinction preserves the Sanskrit. *Saṃniśraya-dāna* in caitasika function-clauses is the load-bearing single-source support that the next factor rests on. Locked Entry 34; applied retroactively here.\n\nThis is the formal definition of *sparśa* as caitasika. Earlier appearances at Entry 5 (sparśa as bodily-impact mode of form's registering) and Entries 24/25/26/27 (saṃsparśa as the meeting-event at each sense generating the six aggregate-types) used the term informally. The earlier renderings stand.",
+   "open_question": ""
+  },
+  {
+   "n": 31,
+   "title": "Chapter 1, Section 1, \"Wanting\" (*chanda*) defined",
+   "status": "LOCKED",
+   "page": "~3",
+   "sanskrit": "*chandaḥ katamaḥ | īpsite vastuni tat-tad-upasaṃhatā kartṛ-kāmatā | vīryādāna-saṃniśraya-dāna-karmakaḥ ||*",
+   "english": "What counts as *wanting* (*chanda*)? When there is something sought, *wanting* is the wish to act on it, pulling together whatever the action involves. Its function is to provide the basis for taking up effort.",
+   "note": "DSBC has minor variants *upasaṃhatā* / *upasaṃhitā* and *vīryādāna* / *vīryārambha*. Going with DSBC; Xuanzang's 引發 / 精進 fits either.",
+   "open_question": ""
+  },
+  {
+   "n": 32,
+   "title": "Chapter 1, Section 1, \"Conviction\" (*adhimokṣa*) defined",
+   "status": "LOCKED",
+   "page": "~3",
+   "sanskrit": "*adhimokṣaḥ katamaḥ | niścite vastuni yathā-niścayaṃ dhāraṇā | asaṃhāryatā-karmakaḥ ||*",
+   "english": "What counts as *conviction* (*adhimokṣa*)? Once something has been determined, *conviction* is what makes the determination hold just as it was determined. Its function is to keep from being swayed.",
+   "note": "Xuanzang's 印持 (\"seal-holding\") concretizes *dhāraṇā* into a seal-stamping image. Not imported — it's a Chinese metaphor, not Sanskrit content, and would read narrower in English than the Sanskrit warrants.",
+   "open_question": ""
+  },
+  {
+   "n": 33,
+   "title": "Chapter 1, Section 1, \"Mindfulness\" (*smṛti*) defined",
+   "status": "LOCKED",
+   "page": "~3",
+   "sanskrit": "*smṛtiḥ katamā | saṃsṛte vastuni cetaso 'saṃpramoṣo 'vikṣepa-karmikā ||*",
+   "english": "What counts as *mindfulness* (*smṛti*)? *Mindfulness* is the mind not losing hold of what is already in mind. Its function is to keep the mind from drifting.",
+   "note": "DSBC has *saṃsṛte* — likely an OCR slip for *saṃstute*, the standard reading in Sthiramati's bhāṣya. Xuanzang's 串習 supports *saṃstute*. Functional sense identical either way.",
+   "open_question": ""
+  },
+  {
+   "n": 34,
+   "title": "Chapter 1, Section 1, \"Concentration\" (*samādhi*) defined",
+   "status": "LOCKED",
+   "page": "~3",
+   "sanskrit": "*samādhiḥ katamaḥ | upaparīkṣye vastuni cittasyaikāgratā | jñāna-saṃniśraya-dāna-karmakaḥ ||*",
+   "english": "What counts as *concentration* (*samādhi*)? When there is something being examined, *concentration* is single-pointed focus on it. Its function is to provide the basis for knowing.",
+   "note": "DSBC has *vittasya* — OCR slip for *cittasya*. Xuanzang's 令心一境 confirms.",
+   "open_question": ""
+  },
+  {
+   "n": 35,
+   "title": "Chapter 1, Section 1, \"Discernment\" (*prajñā*) defined",
+   "status": "LOCKED",
+   "page": "~3",
+   "sanskrit": "*prajñā katamā | upaparīkṣya eva vastuni dharmāṇāṃ pravicayaḥ | saṃśaya-vyāvartana-karmikā ||*",
+   "english": "What counts as *discernment* (*prajñā*)? *Discernment* analyzes the factors of what you're examining. Its function is to dispel uncertainty.",
+   "note": "DSBC has *upaparīkṣya* where Entry 34 has *upaparīkṣye* (locative). Likely inflectional variant; functional sense identical.",
+   "open_question": ""
+  },
+  {
+   "n": 36,
+   "title": "Chapter 1, Section 1, \"*Confidence*\" (*śraddhā*) defined",
+   "status": "LOCKED",
+   "page": "~3",
+   "sanskrit": "*śraddhā katamā | astitva-guṇavattva-śaktatveṣv abhisaṃpratyayaḥ prasādo 'bhilāṣaḥ | chanda-saṃniśraya-dāna-karmikā ||*",
+   "english": "What counts as *confidence* (*śraddhā*)? Concerning what exists, what has virtue, and what is capable, *confidence* is full conviction, clarity of mind, and aspiration. Its function is to provide the basis for *wanting*.",
+   "note": "DSBC has *abhilāpaḥ* (speech) — OCR slip for *abhilāṣaḥ* (longing/aspiration). Xuanzang's 希望 confirms. DSBC also has *cchandasakṣiśrayadāna* — same *sakṣi*-for-*saṃni* OCR pattern as Entries 30, 31, 33, 34. Reading *chanda-saṃniśraya-dāna*.",
+   "open_question": ""
+  },
+  {
+   "n": 37,
+   "title": "Chapter 1, Section 1, \"*Self-respect*\" (*hrī*) defined",
+   "status": "LOCKED",
+   "page": "~3",
+   "sanskrit": "*hrīḥ katamā | svayam avadyena lajjanā | duścarita-saṃyama-saṃniśraya-dāna-karmikā ||*",
+   "english": "What counts as *self-respect* (*hrī*)? *Self-respect* is the inward recoil at one's own wrongdoing. Its function is to provide the basis for restraint from misconduct.",
+   "note": "\"Self-respect\" carries *hrī* as a standing wholesome factor whose activity is the recoil from one's own wrongdoing. Conventional Buddhist English is \"shame,\" but in 2026 American register that word imports therapy-culture / toxic-shame baggage *hrī* doesn't carry. \"Conscience\" was tested — cognitively closer to the faculty but loses *lajjanā*'s affective recoil. \"Self-respect\" inverts surface polarity (positive standing trait rather than negative event) but accurately names the wholesome moral self-regard that *hrī* is and that produces the recoil-activity Asaṅga defines.\n\nThe structural pair *apatrāpya* fires next — same definition with *parato* (by others) replacing *svayam* (oneself).",
+   "open_question": ""
+  },
+  {
+   "n": 38,
+   "title": "Chapter 1, Section 1, \"*Decency*\" (*apatrāpya*) defined",
+   "status": "LOCKED",
+   "page": "~3",
+   "sanskrit": "*apatrāpyaṃ katamat | parato 'vadyena lajjanā | tat-karmakam eva ||*",
+   "english": "What counts as *decency* (*apatrāpya*)? *Decency* is the inward recoil at one's own wrongdoing as seen by others. Its function is the same.",
+   "note": "Pairs structurally with *hrī* (Entry 37). Asaṅga's Sanskrit is a single-word change: *svayam* (oneself) becomes *parato* (from another). The English mirrors this — same verb, same object, \"as seen by others\" carries the perspective shift. Sthiramati glosses *hrī* and *apatrāpya* as the *lokapālau*, the two guardians of the world: the inward and outward sides of the same wholesome move. *Tat-karmakam eva* — \"its function is the same one\" — refers back to *hrī*'s function clause: providing the basis for restraint from misconduct.",
+   "open_question": ""
+  },
+  {
+   "n": 39,
+   "title": "Chapter 1, Section 1, \"*Non-greed*\" (*alobha*) defined",
+   "status": "LOCKED",
+   "page": "~3",
+   "sanskrit": "*alobhaḥ katamaḥ | bhave bhavopakaraṇeṣu vā anāsaktiḥ | duścaritāpravṛtti-saṃniśraya-dāna-karmakaḥ ||*",
+   "english": "What counts as *non-greed* (*alobha*)? *Non-greed* is non-attachment to existence or to the supports of existence. Its function is to prevent misconduct from arising.",
+   "note": "First of the three wholesome roots. *Alobha* is defined entirely through *anāsakti* (non-attachment) — a wholesome factor named through what it isn't. First *caitasika* in the list to fire this way.\n\nThe function clause *duścaritāpravṛtti-saṃniśraya-dāna-karmakaḥ* fires identically across all three wholesome roots (*alobha*, *adveṣa*, *amoha*). In English, the *saṃniśraya-dāna* (basis-providing) machinery is redundant here because *duścaritāpravṛtti* (non-arising of misconduct) names the factor's own direct effect, not a structurally separate downstream caitasika. Where *saṃniśraya-dāna* grounds a different factor downstream (sparśa → vedanā, chanda → vīrya, samādhi → jñāna, śraddhā → chanda, hrī/apatrāpya → saṃyama), the basis-language stays. For the three wholesome roots, the function collapses to \"prevent misconduct from arising.\" Locked here; applied to Entries 40 and 41.",
+   "open_question": ""
+  },
+  {
+   "n": 40,
+   "title": "Chapter 1, Section 1, \"*Non-hatred*\" (*adveṣa*) defined",
+   "status": "LOCKED",
+   "page": "~3",
+   "sanskrit": "*adveṣaḥ katamaḥ | sattveṣu duḥkhe duḥkha-sthānīyeṣu ca dharmeṣv anāghātaḥ | duścaritāpravṛtti-saṃniśraya-dāna-karmakaḥ ||*",
+   "english": "What counts as *non-hatred* (*adveṣa*)? *Non-hatred* is the mind not lashing out, whether at other beings, at the unsatisfying, or at what brings on the unsatisfying. Its function is to prevent misconduct from arising.",
+   "note": "The three locatives — *sattveṣu* (at sentient beings), *duḥkhe* (at the unsatisfying), *duḥkha-sthānīyeṣu dharmeṣu* (at what brings on the unsatisfying) — mark the three occasions where the lashing-out reflex (*āghāta*) would otherwise fire. Not three objects of attitude. Asaṅga uses the same three locatives later to define *pratigha* (anger — the unwholesome opposite), confirming the locatives as triggers-for-strike-out, not things-to-feel-good-about. English grammar matters here: \"non-hatred toward suffering\" reads as \"you should not hate suffering,\" importing an attitude-toward-suffering reading the Sanskrit doesn't carry. The locked English (\"the mind not lashing out, whether at... or at...\") names the absence-of-strike-out without that import.\n\nThis entry produced the *duḥkha* lock for the whole project. *Duḥkha* renders here as \"the unsatisfying\" — the bare-noun rendering for *duḥkha* outside the *vedanā* adjective form. See Glossary. *Duḥkha-sthānīya-dharma* renders \"what brings on the unsatisfying\" — the source-direction (things that produce *duḥkha*, not what *duḥkha* produces). Xuanzang's 苦具 (\"instruments of suffering\") confirms the source-reading.\n\nSthiramati waves off the wholesome eleven entirely: *hryādayaḥ sugamatvānna vibhajyante* — \"*hrī* and the rest are not analyzed because they're easy to understand.\" Doctrinal content for *adveṣa* recovered from his commentary downstream (especially the *pratigha* and *āghāta* glosses, which name *āghāta* as the mental state of a mind already striking out).\n\nFunction clause: same machinery as Entries 39 and 41; collapses in English to \"prevent misconduct from arising\" per the §9 saṃniśraya-dāna rule.",
+   "open_question": ""
+  },
+  {
+   "n": 41,
+   "title": "Chapter 1, Section 1, \"*Non-delusion*\" (*amoha*) defined",
+   "status": "LOCKED",
+   "page": "~3",
+   "sanskrit": "*amohaḥ katamaḥ | vipākato vā āgamato vā adhigamato vā jñānaṃ pratisaṃkhyā | duścaritāpravṛtti-saṃniśraya-dāna-karmakaḥ ||*",
+   "english": "What counts as *non-delusion* (*amoha*)? *Non-delusion* is the kind of knowing that sorts things out clearly, whether from karmic ripening, from study, or from direct realization. Its function is to prevent misconduct from arising.",
+   "note": "Third wholesome root; closes the *alobha / adveṣa / amoha* triad. The three sources (*vipāka* = karmic ripening, *āgama* = study/scripture, *adhigama* = direct realization/attainment) match Xuanzang's 報教證 exactly.\n\n*Jñānaṃ pratisaṃkhyā* is two near-synonyms in apposition — \"knowing, [that is,] careful discernment.\" English compresses them into one phrase (\"the kind of knowing that sorts things out clearly\") because the Sanskrit appositional stack reads stiff in plain English.\n\nFunction clause same as Entries 39 and 40 — the three wholesome roots share \"prevent misconduct from arising\" per the §9 saṃniśraya-dāna rule. Sthiramati waves this one off too (covered by his *hryādayaḥ sugamatvānna vibhajyante* skip-comment at the head of the wholesome eleven).",
+   "open_question": ""
+  },
+  {
+   "n": 42,
+   "title": "Chapter 1, Section 1, \"*Zeal*\" (*vīrya*) defined",
+   "status": "PROVISIONAL",
+   "page": "~3",
+   "sanskrit": "*vīryaṃ katamat | kuśale cetaso 'bhyutsāhaḥ sannāhe vā prayoge vā alīnatve vā avyāvṛttau vā asantuṣṭau vā | kuśala-pakṣa-paripūraṇa-pariniṣpādana-karmakam ||*",
+   "english": "What counts as *zeal* (*vīrya*)? *Zeal* is the mind exerting itself toward what is wholesome — in armoring up, in engaging the work, in not shrinking back, in not turning away, in not stopping short. Its function is to fulfill and complete what is wholesome.",
+   "note": "The five locatives map a Mahayana sequence: *sannāha* (initial resolve, the armor-stage), *prayoga* (actually engaging the work), *alīna* (not collapsing back when difficulty hits), *avyāvṛtti* (not reversing under setback), *asantuṣṭi* (not stopping at partial gain). Sthiramati treats these as the stages where *vīrya* operates. Sanskrit and Xuanzang match item-by-item — 被甲 / 方便 / 無下 / 無退 / 無足. *Abhyutsāha* is literally \"up-rising-out-toward\" — vigor with directional lift. Function clause is *karmakam* alone — direct function, not *saṃniśraya-dāna*. Sits with the three wholesome roots in this non-saṃniśraya pattern.",
+   "open_question": "*Vīrya* rendered as \"zeal\" provisionally. The category is wholesome by construction — not direction-neutral. *Vīrya* names this charge only when directed toward the wholesome; if directed at the unwholesome it would be a kleśa (*rāga*, *krodha*). The English needs to carry that built-in wholesome direction along with the lift/charge. \"Energy\" tested and rejected (too inert — describes a battery). \"Wholeheartedness\" tested — carried both built-wholesome and charge, but didn't capture the zealous-enthusiastic feeling. \"Zeal\" carries the charge and directedness but doesn't carry the built-in wholesomeness. Revisit when *vīrya* fires in technical clusters downstream — seven bodhyaṅgas, four right exertions, noble eightfold path."
+  },
+  {
+   "n": 43,
+   "title": "Chapter 1, Section 1, \"*Ease*\" (*praśrabdhi*) defined",
+   "status": "LOCKED",
+   "page": "~3",
+   "sanskrit": "*praśrabdhiḥ katamā | kāya-citta-dauṣṭhulyānāṃ pratipraśrabdheḥ kāya-citta-karmaṇyatā | sarvāvaraṇa-niṣkarṣaṇa-karmikā ||*",
+   "english": "What counts as *ease* (*praśrabdhi*)? *Ease* is the workability of body and mind that arises when their heaviness subsides. Its function is to dispel all obstructions.",
+   "note": "DSBC has *aśrabdhiḥ* in the opening — OCR slip for *praśrabdhiḥ*. The function clause itself uses *pratipraśrabdheḥ* (same root), and Xuanzang's 安 corresponds to *praśrabdhi*. Silently corrected.\n\n*Praśrabdhi* carries technical *śamatha* weight — marker of meditative workability at the threshold of access concentration. The parenthetical Sanskrit carries that for readers who want it; the function clause (dispelling all obstructions) keeps the English from going soft. Function is *karmikā* alone — direct, not *saṃniśraya-dāna*. *Karmaṇyatā* (workability, fit-for-work) is the structural noun *ease* names. The factor is the workable-state, not the calming-event — per the standing-factor discipline.",
+   "open_question": "*Dauṣṭhulya* renders as \"heaviness.\" Xuanzang's 麁重 (\"coarse-heavy\") supports the somatic-mental drag. But *dauṣṭhulya* is load-bearing across the system — it's the unworkable karmic residue that *āśraya-parāvṛtti* targets, and the English needs to hold that technical weight when it fires in non-*praśrabdhi* contexts. \"Difficulty\" tested and rejected (flattens to generic obstacle, loses the somatic-load specificity). Revisit when *dauṣṭhulya* fires structurally downstream."
+  },
+  {
+   "n": 44,
+   "title": "Chapter 1, Section 1, \"*Diligence*\" (*apramāda*) defined",
+   "status": "PROVISIONAL",
+   "page": "~3",
+   "sanskrit": "*apramādaḥ katamaḥ | sa-vīryakān alobha-adveṣa-amohān niśritya yā kuśalānāṃ dharmāṇāṃ bhāvanā sāsravebhyaś ca dharmebhyaś cittārakṣā | sa ca laukika-lokottara-sampatti-paripūraṇa-pariniṣpādana-karmakaḥ ||*",
+   "english": "What counts as *diligence* (*apramāda*)? *Diligence* — resting on *non-greed*, *non-hatred*, *non-delusion*, together with *zeal* — cultivates what is wholesome and guards the mind from contaminating dharmas (*sāsrava-dharma*). Its function is to fulfill and complete mundane (*laukika*) and supramundane (*lokottara*) attainment.",
+   "note": "DSBC has *amramādaḥ* and *dharmāṇāmbhāvanā* — OCR slips. Silently corrected. Structurally a meta-factor: rests on four others (three wholesome roots + *vīrya*) and does two things — cultivates wholesome dharmas, guards mind from contaminated. Parallel construction to *upekṣā* (Entry 45) — Asaṅga structurally pairs *apramāda* and *upekṣā* as the wholesome eleven's meta-factors. Function clause covers both *laukika* and *lokottara sampatti* — the biggest scope in the wholesome eleven so far.",
+   "open_question": "*Apramāda* rendered as \"diligence\" — provisionally. Tied to *vīrya*'s open question: if *vīrya* moves off \"zeal,\" diligence may need to move back to *vīrya*. \"Heedfulness\" the conventional Buddhist English but archaic in 2026 American. \"Vigilance\" biases the guarding side over the cultivation side. \"Conscientiousness\" too administrative."
+  },
+  {
+   "n": 45,
+   "title": "Chapter 1, Section 1, \"*Equanimity*\" (*upekṣā*) defined",
+   "status": "LOCKED",
+   "page": "~3",
+   "sanskrit": "*upekṣā katamā | sa-vīryakān alobha-adveṣa-amohān niśritya yā saṃkliṣṭa-vihāra-vairodhikī citta-samatā citta-praśaṭhatā cittasya anābhoga-avasthitatā | saṃkleśa-anavakāśa-saṃniśraya-dāna-karmikā ||*",
+   "english": "What counts as *equanimity* (*upekṣā*)? *Equanimity* — resting on *non-greed*, *non-hatred*, *non-delusion*, together with *zeal* — is what counters a defiled mind: first the mind grows even, then it settles on its own, then it rests without effort. Its function is to keep affliction from finding an opening.",
+   "note": "The three-stage gloss — *citta-samatā* (mind grows even) → *citta-praśaṭhatā* (settles on its own) → *cittasya anābhoga-avasthitatā* (rests without effort) — reads as progressive stages of *upekṣā* in *śamatha*. Xuanzang's 心平等性 / 心正直性 / 心無功用住性 presents the same three in the same order. *Anābhoga* recalls *ābhoga* from Entry 29 (*manaskāra* as the active turning of mind toward an object); here, the third stage is the mind no longer needing the attention-turn move. Same root, opposite valence. *Praśaṭhatā* reads from *pra-śratha* (well-loosened, naturally relaxed) rather than *śāṭhya* (cunning); Xuanzang's 正直性 (uprightness) is a different angle on the same middle-stage release.\n\nSame opening as Entry 44 (*apramāda*): both rest on the three wholesome roots + *vīrya*. Asaṅga structurally pairs *apramāda* and *upekṣā* as the wholesome eleven's meta-factors. Function clause *saṃkleśa-anavakāśa-saṃniśraya-dāna-karmikā* collapses per §9 to \"keep affliction from finding an opening\" — same pattern as the three wholesome roots' *duścaritāpravṛtti* clause. Xuanzang renders *upekṣā* as 捨 (letting-go) — emphasis on the release rather than the resulting evenness; both angles are true.",
+   "open_question": ""
+  }
+ ],
+ "published": "2026-09-06T16:30:45Z"
+}

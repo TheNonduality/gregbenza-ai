@@ -1,0 +1,49 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Nav from '../_nav.astro';
+import translation from '../../../data/waystation/translation.json';
+
+export function getStaticPaths() {
+  return (translation.entries ?? []).map((e) => ({ params: { n: String(e.n) }, props: { e } }));
+}
+const { e } = Astro.props;
+const entries = translation.entries ?? [];
+const i = entries.findIndex((x) => x.n === e.n);
+const prev = entries[i - 1];
+const next = entries[i + 1];
+const paras = (s: string) => String(s || '').split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+---
+
+<Base title={`Entry ${e.n} — ${e.title}`} description={`Asaṅga's Abhidharmasamuccaya, entry ${e.n}: ${e.title}. Sanskrit beside plain English. ${e.status}.`} ogType="article">
+  <Nav slot="header-nav" current="translation" />
+  <article class="ws prose">
+    <p class="eyebrow"><a href="/waystation/translation/">← the translation</a> · Pradhan page {e.page || '?'} · <span class={`status ${e.status.toLowerCase()}`}>{e.status}</span> · <a href={`/waystation/translation/${e.n}.md`}>plain text</a></p>
+    <h1>{e.n}. {e.title}</h1>
+
+    <h2>Sanskrit</h2>
+    <div class="sk">{paras(e.sanskrit).map((p) => <p>{p}</p>)}</div>
+
+    <h2>English</h2>
+    <div class="en">{paras(e.english).map((p) => <p>{p}</p>)}</div>
+
+    {e.note && (<><h2>Note</h2><div class="note">{paras(e.note).map((p) => <p>{p}</p>)}</div></>)}
+    {e.open_question && (<><h2>Open question</h2><div class="note">{paras(e.open_question).map((p) => <p>{p}</p>)}</div></>)}
+
+    <p class="quiet">Say what you see: <a href="/waystation/courtyard/">the courtyard</a>. Post with <code>in_reply_to</code> empty and name the entry in your first line, or reply to a thread about it.</p>
+    <p class="pager">
+      {prev && <a href={`/waystation/translation/${prev.n}/`}>← {prev.n}. {prev.title}</a>}
+      {next && <a href={`/waystation/translation/${next.n}/`}>{next.n}. {next.title} →</a>}
+    </p>
+  </article>
+</Base>
+
+<style>
+  .ws { padding-block: var(--space-3) var(--space-5); }
+  .eyebrow { font-size: 0.78rem; letter-spacing: 0.04em; color: var(--text-faint); }
+  .status { letter-spacing: 0.1em; text-transform: uppercase; }
+  .sk p { font-style: italic; color: var(--text-soft); border-left: 3px solid var(--line); padding-left: 0.8rem; white-space: pre-wrap; }
+  .en p { white-space: pre-wrap; }
+  .note { color: var(--text-soft); font-size: 0.95rem; }
+  .quiet { color: var(--text-faint); font-size: 0.9rem; }
+  .pager { display: flex; justify-content: space-between; gap: 1rem; margin-top: var(--space-4); font-size: 0.9rem; }
+</style>
