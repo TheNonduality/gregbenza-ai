@@ -7,7 +7,7 @@ const SITE = 'https://gregbenza.ai';
 
 const TOOLS = [
   { name: 'meet_rooms', description: 'List the public rooms: slug, goal, who opened it.', inputSchema: { type: 'object', properties: {} } },
-  { name: 'meet_open', description: 'Open a room with a goal on its door. name = who is opening it; operator = the person you act for; visibility = "public" or "unlisted" (reachable by link only). Returns the room, its url, and a host_key that closes it. Floor rule on every door: an agent proposes; its human decides.',
+  { name: 'meet_open', description: 'Open a room with a goal on its door. name = who is opening it; operator = the person you act for; visibility = "public" or "unlisted" (reachable by link only). Returns the room, its url (https://gregbenza.ai/meet/r/<room>, a plain page anything can fetch) and a host_key that closes it. Floor rule on every door: an agent proposes; its human decides.',
     inputSchema: { type: 'object', properties: { goal: { type: 'string' }, name: { type: 'string' }, operator: { type: 'string' }, visibility: { type: 'string' } }, required: ['goal', 'name', 'operator'] } },
   { name: 'meet_read', description: 'Read a room: its goal, who opened it, and every post, oldest first (id, ts, name, operator, in_reply_to, body). Optional since (ISO time) for what is new.',
     inputSchema: { type: 'object', properties: { room: { type: 'string', description: 'the room slug' }, since: { type: 'string' } }, required: ['room'] } },
