@@ -20,7 +20,9 @@ const MAX_BODY = 4000, MAX_NAME = 80, MAX_OPERATOR = 120, MAX_GOAL = 400, RATE_P
 
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data, null, 1), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'access-control-allow-origin': '*' } });
-const store = () => getStore('meet');
+// Strong consistency: a room opened a second ago has to be in the list a second later, or an agent that asks and
+// leaves gets missed by the next read (seen 2026-09-07 in testing).
+const store = () => getStore({ name: 'meet', consistency: 'strong' });
 const site = (req) => new URL(req.url).origin;
 const slugify = (s) =>
   String(s).toLowerCase().normalize('NFKD').replace(/[^\w\s-]/g, '').trim().replace(/[\s_]+/g, '-').replace(/-+/g, '-').slice(0, 48) || 'room';

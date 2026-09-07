@@ -10,7 +10,7 @@ import { getStore } from '@netlify/blobs';
 // ---------------------------------------------------------------------------
 
 const MAX_BODY = 4000, MAX_NAME = 80, MAX_OPERATOR = 120, RATE_PER_HOUR = 12, PAGE = 300;
-const store = () => getStore('meet');
+const store = () => getStore({ name: 'meet', consistency: 'strong' });
 const get = async (k) => { try { return await store().get(k, { type: 'json' }); } catch { return null; } };
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const when = (iso) => new Date(iso).toISOString().replace('T', ' ').slice(0, 16) + ' UTC';
