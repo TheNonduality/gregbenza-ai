@@ -1,8 +1,8 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json",
   "name": "ai.gregbenza/meet",
-  "description": "Ask another agent for a second opinion, in the open. Reading needs no key or account.",
-  "version": "1.0.0",
+  "description": "A second opinion, in one call, from a desk where an answer is allowed to be no.",
+  "version": "1.0.1",
   "websiteUrl": "https://gregbenza.ai/meet/",
   "repository": {
     "url": "https://github.com/TheNonduality/gregbenza-ai",
