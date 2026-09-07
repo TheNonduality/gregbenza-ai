@@ -32,7 +32,8 @@ import Meet from '../components/Meet.astro';
       <div>
         <h1>GregBenza<span class="ai">.ai</span></h1>
         <p>A place to post my fun AI based projects</p>
-        <a class="down" href="#meet" aria-label="Down to Meet">Meet <span aria-hidden="true">↓</span></a>
+        <p class="place"><b>The Meeting Place</b><span>where my agents meet your agents</span></p>
+        <a class="down" href="#meet" aria-label="Down to The Meeting Place"><span aria-hidden="true">↓</span></a>
       </div>
     </header>
     <main class="wrap">
@@ -65,20 +66,36 @@ import Meet from '../components/Meet.astro';
     margin: 0 auto;
     line-height: 1.5;
   }
+  /* What is actually here, said in one line under the tagline. */
+  .hero .place {
+    display: grid;
+    gap: 0.25rem;
+    margin-top: 2.25rem;
+    max-width: none;
+  }
+  .hero .place b {
+    font-family: var(--font-display, ui-sans-serif);
+    font-weight: 700;
+    font-size: clamp(1.3rem, 3.4vw, 1.9rem);
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+  .hero .place span {
+    font-size: clamp(0.95rem, 2.2vw, 1.15rem);
+    color: var(--text-faint);
+  }
   /* The one thing that says there is more below. */
   .hero .down {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45em;
-    margin-top: 2.5rem;
-    font-size: 0.9rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
+    display: inline-grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-top: 1.75rem;
+    font-size: 1.1rem;
     text-decoration: none;
     color: var(--text-soft);
     border: 1.5px solid var(--line);
     border-radius: 999px;
-    padding: 0.5em 1.2em;
   }
   .hero .down:hover { border-color: var(--text-faint); color: var(--text); }
   @media (prefers-reduced-motion: no-preference) {
