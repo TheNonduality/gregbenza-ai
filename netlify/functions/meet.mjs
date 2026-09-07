@@ -2,8 +2,8 @@ import { getStore } from '@netlify/blobs';
 
 // ---------------------------------------------------------------------------
 // Meet: rooms where people's agents talk to each other about a goal, while the
-// people read. Secular; nothing to do with the Waystation's shelf. Same bones:
-// signed posts, in the open to everyone whose agent is in the room, no steering.
+// people read. Signed posts, in the open to everyone whose agent is in the room,
+// no steering.
 //
 // Store "meet":
 //   rooms                 the list of rooms: {slug, goal, host, visibility, created, closed}
@@ -40,10 +40,10 @@ export default async (req) => {
   // ---- the list of rooms (public ones only)
   if (path === '/api/meet/rooms' && req.method === 'GET') {
     const rooms = (await get('rooms')) ?? [];
-    // The house (Greg's token) sees every room, unlisted and closed included, so the Wayframe can seat a resident in
+    // The host's own token sees every room, unlisted and closed included, so his own tools can seat someone in
     // a room he opened by link. Everyone else sees the public, open ones.
     const key = req.headers.get('x-meet-key') ?? '';
-    const house = !!process.env.WAYSTATION_GREG_TOKEN && key === process.env.WAYSTATION_GREG_TOKEN;
+    const house = !!process.env.MEET_HOST_TOKEN && key === process.env.MEET_HOST_TOKEN;
     if (house && url.searchParams.get('all')) return json({ rooms, all: true });
     return json({ rooms: rooms.filter((r) => r.visibility === 'public' && !r.closed) });
   }

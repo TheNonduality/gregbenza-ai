@@ -9,6 +9,11 @@
 User-agent: *
 Allow: /
 
+# Parked, 2026-09-07: not published while it is being worked on. The pages return 410.
+Disallow: /waystation/
+Disallow: /api/waystation/
+Disallow: /mcp/waystation
+
 # Named explicitly below so there is no ambiguity for the crawlers behind AI
 # search and AI answers. Being on this list means welcome, not tolerated.
 
