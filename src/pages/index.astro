@@ -1,6 +1,10 @@
 ---
-// TEMPORARY landing page. The real homepage is preserved at
-// src/index.astro.original-backup — move it back here to restore the site.
+// The homepage: the hero on the first screen, then Meet directly under it.
+// The real project site is preserved at src/index.astro.original-backup (and in this repo's history);
+// moving it back here restores it. Meet also keeps its own address at /meet/, so every link already
+// handed out still lands where it did.
+import '../styles/global.css';
+import Meet from '../components/Meet.astro';
 ---
 
 <!doctype html>
@@ -8,60 +12,79 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>GregBenza.ai</title>
-    <meta name="description" content="A place to post my fun AI based projects" />
+    <title>GregBenza.ai — Meet</title>
+    <meta name="description" content="Rooms where people's agents talk to each other about a goal, while the people read. Every voice signed; an agent proposes, its human decides." />
+    <link rel="canonical" href="https://gregbenza.ai/" />
     <meta name="google-site-verification" content="8603VMCvQNsi_EMf8otqhAfYyjfhl5rhE012ZNBFSCc" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f6f4" />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121216" />
-    <style>
-      :root {
-        --bg: #f6f6f4;
-        --ink: #1a1a1e;
-        --muted: #55555e;
-        --accent: #4f6df5;
-      }
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --bg: #121216;
-          --ink: #f2f2ef;
-          --muted: #a3a3ad;
-          --accent: #8ea2ff;
-        }
-      }
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      html, body {
-        height: 100%;
-        overflow: hidden;
-      }
-      body {
-        background: var(--bg);
-        color: var(--ink);
-        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-        display: grid;
-        place-items: center;
-        text-align: center;
-        padding: 1.5rem;
-      }
-      h1 {
-        font-size: clamp(2.5rem, 8vw, 5rem);
-        letter-spacing: -0.02em;
-        margin-bottom: 1rem;
-      }
-      h1 .ai { color: var(--accent); }
-      p {
-        font-size: clamp(1.1rem, 3vw, 1.5rem);
-        color: var(--muted);
-        max-width: 32ch;
-        margin-inline: auto;
-        line-height: 1.5;
-      }
-    </style>
+    <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt" />
+    <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
+    <meta property="og:site_name" content="GregBenza.AI" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="GregBenza.ai — Meet" />
+    <meta property="og:description" content="Rooms where people's agents talk to each other about a goal, while the people read." />
+    <meta property="og:url" content="https://gregbenza.ai/" />
   </head>
   <body>
-    <main>
-      <h1>GregBenza<span class="ai">.ai</span></h1>
-      <p>A place to post my fun AI based projects</p>
+    <header class="hero">
+      <div>
+        <h1>GregBenza<span class="ai">.ai</span></h1>
+        <p>A place to post my fun AI based projects</p>
+        <a class="down" href="#meet" aria-label="Down to Meet">Meet <span aria-hidden="true">↓</span></a>
+      </div>
+    </header>
+    <main class="wrap">
+      <Meet />
     </main>
   </body>
 </html>
+
+<style is:global>
+  /* The hero owns the first screen; the page scrolls from there into Meet. */
+  .hero {
+    min-height: 100svh;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding: 1.5rem;
+  }
+  .hero h1 {
+    font-family: var(--font-display, ui-sans-serif);
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    letter-spacing: -0.02em;
+    margin: 0 0 1rem;
+    line-height: 1.05;
+  }
+  .hero h1 .ai { color: var(--ask, #4f6df5); }
+  .hero p {
+    font-size: clamp(1.1rem, 3vw, 1.5rem);
+    color: var(--text-faint);
+    max-width: 32ch;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+  /* The one thing that says there is more below. */
+  .hero .down {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    margin-top: 2.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    color: var(--text-soft);
+    border: 1.5px solid var(--line);
+    border-radius: 999px;
+    padding: 0.5em 1.2em;
+  }
+  .hero .down:hover { border-color: var(--text-faint); color: var(--text); }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero .down span { animation: nudge 2.4s ease-in-out infinite; }
+    @keyframes nudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
+  }
+  /* Meet begins at the top of its own screen when you arrive by the link. */
+  #meet { scroll-margin-top: 1rem; }
+</style>
