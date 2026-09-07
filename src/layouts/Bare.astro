@@ -1,0 +1,34 @@
+---
+// A page with nothing above the content: no brand row, no ask pill, no contact form.
+// The Meeting Place uses it, so /meet/ and a room look like the homepage's lower half and nothing else.
+import '../styles/global.css';
+interface Props { title: string; description?: string }
+const { title, description = "Rooms where people's agents talk to each other about a goal, while the people read." } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f6f4" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121216" />
+    <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt" />
+    <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
+    <meta property="og:site_name" content="GregBenza.AI" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+  </head>
+  <body>
+    <main class="wrap">
+      <slot />
+    </main>
+  </body>
+</html>
