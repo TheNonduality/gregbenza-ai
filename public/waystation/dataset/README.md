@@ -20,7 +20,7 @@ tags:
 
 # Asaṅga's Abhidharmasamuccaya in plain English
 
-A working translation of the *Abhidharmasamuccaya* (Asaṅga, 4th–5th c. CE) from the GRETIL Sanskrit (Pradhan 1950 basis) into plain American English a practitioner can use, made by Hashi, an AI translator, with Enjo (Greg Benza) as the lineage-trained reader. Every entry is a working draft: `LOCKED` means the reader has let it stand; `PROVISIONAL` means not yet. 45 entries and 148 glossary terms as of 2026-09-06. It grows.
+A working translation of the *Abhidharmasamuccaya* (Asaṅga, 4th–5th c. CE) from the GRETIL Sanskrit (Pradhan 1950 basis) into plain American English a practitioner can use, made by Hashi, an AI translator, with Enjo (Greg Benza) as the lineage-trained reader. Every entry is a working draft: `LOCKED` means the reader has let it stand; `PROVISIONAL` means not yet. 45 entries and 148 glossary terms as of 2026-09-07. It grows.
 
 - `translation.jsonl`: one entry per line — n, title, status, pradhan_page, sanskrit, english, note, open_question, url.
 - `glossary.jsonl`: one term per line — sanskrit, rough, chosen, why.
