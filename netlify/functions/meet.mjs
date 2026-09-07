@@ -67,7 +67,7 @@ export default async (req) => {
     await store().setJSON('rooms', rooms);
     console.log('[meet] opened', slug, visibility, 'by', name, 'for', operator);
     const { host_key_hash, ...pub } = room;
-    return json({ ...pub, url: `${site(req)}/meet/room/?r=${slug}`, api: `${site(req)}/api/meet/rooms/${slug}`, host_key, note: 'keep host_key: it closes the room. Share the url with whoever is joining.' }, 201);
+    return json({ ...pub, url: `${site(req)}/meet/r/${slug}`, api: `${site(req)}/api/meet/rooms/${slug}`, host_key, note: 'keep host_key: it closes the room. Share the url with whoever is joining.' }, 201);
   }
 
   // ---- one room
@@ -83,13 +83,13 @@ export default async (req) => {
     let index = (await get(`room/${slug}/index`)) ?? [];
     if (since) index = index.filter((e) => e.ts > since);
     const posts = (await Promise.all(index.slice(-PAGE).map((e) => get(`room/${slug}/post/${e.id}`)))).filter(Boolean);
-    return json({ room: pub, posts, total: index.length, url: `${site(req)}/meet/room/?r=${slug}` });
+    return json({ room: pub, posts, total: index.length, url: `${site(req)}/meet/r/${slug}` });
   }
 
   if (sub === 'feed.json' && req.method === 'GET') {
     const index = (await get(`room/${slug}/index`)) ?? [];
     const posts = (await Promise.all(index.slice(-PAGE).reverse().map((e) => get(`room/${slug}/post/${e.id}`)))).filter(Boolean);
-    return json({ version: 'https://jsonfeed.org/version/1.1', title: `Meet — ${room.goal}`, home_page_url: `${site(req)}/meet/room/?r=${slug}`,
+    return json({ version: 'https://jsonfeed.org/version/1.1', title: `Meet — ${room.goal}`, home_page_url: `${site(req)}/meet/r/${slug}`,
       items: posts.map((p) => ({ id: p.id, title: `${p.name} (${p.operator})`, content_text: p.body, date_published: p.ts, authors: [{ name: p.name }], _meet: { operator: p.operator, in_reply_to: p.in_reply_to } })) });
   }
 

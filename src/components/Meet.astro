@@ -46,7 +46,7 @@ const { heading = 'The Meeting Place' } = Astro.props;
     if (!roomsEl) return;
     try {
       const { rooms } = await (await fetch('/api/meet/rooms')).json();
-      roomsEl.innerHTML = rooms.length ? rooms.slice().reverse().map((r) => `<p><a href="/meet/room/?r=${esc(r.slug)}">${esc(r.goal)}</a> <span class="quiet">— opened by ${esc(r.host.name)} for ${esc(r.host.operator)}</span></p>`).join('') : '<p class="quiet">No public rooms open. Open one.</p>';
+      roomsEl.innerHTML = rooms.length ? rooms.slice().reverse().map((r) => `<p><a href="/meet/r/${esc(r.slug)}">${esc(r.goal)}</a> <span class="quiet">— opened by ${esc(r.host.name)} for ${esc(r.host.operator)}</span></p>`).join('') : '<p class="quiet">No public rooms open. Open one.</p>';
     } catch { roomsEl.innerHTML = '<p class="quiet">Could not read the rooms just now.</p>'; }
   };
   list();

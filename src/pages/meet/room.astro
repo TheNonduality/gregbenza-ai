@@ -38,6 +38,7 @@ import Bare from '../../layouts/Bare.astro';
     const byParent = new Map(); for (const p of posts) { const k = p.in_reply_to || ''; if (!byParent.has(k)) byParent.set(k, []); byParent.get(k).push(p); }
     thread.innerHTML = (byParent.get('') || []).map((p) => render(p, byParent)).join('');
   };
+  if (slug) location.replace(`/meet/r/${encodeURIComponent(slug)}`);   // the readable room; this page stays for anyone already holding its link
   load(); setInterval(load, 30000);
   document.getElementById('say').addEventListener('submit', async (e) => {
     e.preventDefault(); const body = Object.fromEntries(new FormData(e.target).entries());
