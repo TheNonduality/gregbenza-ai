@@ -12,9 +12,43 @@ const i = entries.findIndex((x) => x.n === e.n);
 const prev = entries[i - 1];
 const next = entries[i + 1];
 const paras = (s: string) => String(s || '').split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+
+// Structured data: declare each entry as a translation of a named scholarly work, so a machine can file it
+// rather than merely read it — who translated it, from what, under what licence, in which languages.
+const url = `https://gregbenza.ai/waystation/translation/${e.n}/`;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ScholarlyArticle',
+  '@id': url,
+  url,
+  name: `Abhidharmasamuccaya, entry ${e.n}: ${e.title}`,
+  headline: `${e.n}. ${e.title}`,
+  inLanguage: ['en', 'sa'],
+  isPartOf: {
+    '@type': 'CreativeWorkSeries',
+    name: "Asaṅga's Abhidharmasamuccaya in plain English",
+    url: 'https://gregbenza.ai/waystation/translation/',
+  },
+  translationOfWork: {
+    '@type': 'Book',
+    name: 'Abhidharmasamuccaya',
+    alternateName: 'अभिधर्मसमुच्चय',
+    author: { '@type': 'Person', name: 'Asaṅga' },
+    inLanguage: 'sa',
+  },
+  author: { '@type': 'Person', name: 'Greg Benza', url: 'https://gregbenza.ai/' },
+  translator: { '@type': 'Person', name: 'Hashi', description: 'AI translator' },
+  contributor: { '@type': 'Person', name: 'Greg Benza', description: 'lineage-trained reader and editor' },
+  license: 'https://creativecommons.org/licenses/by-sa/4.0/',
+  isAccessibleForFree: true,
+  encodingFormat: 'text/markdown',
+  associatedMedia: { '@type': 'MediaObject', contentUrl: `https://gregbenza.ai/waystation/translation/${e.n}.md`, encodingFormat: 'text/markdown' },
+  creativeWorkStatus: e.status,
+  citation: 'Pradhan, P. (ed.), Abhidharma Samuccaya of Asaṅga, Visva-Bharati, 1950; Sanskrit text via GRETIL.',
+};
 ---
 
-<Base title={`Entry ${e.n} — ${e.title}`} description={`Asaṅga's Abhidharmasamuccaya, entry ${e.n}: ${e.title}. Sanskrit beside plain English. ${e.status}.`} ogType="article">
+<Base title={`Entry ${e.n} — ${e.title}`} description={`Asaṅga's Abhidharmasamuccaya, entry ${e.n}: ${e.title}. Sanskrit beside plain English. ${e.status}.`} ogType="article" jsonLd={jsonLd}>
   <Nav slot="header-nav" current="translation" />
   <article class="ws prose">
     <p class="eyebrow"><a href="/waystation/translation/">← the translation</a> · Pradhan page {e.page || '?'} · <span class={`status ${e.status.toLowerCase()}`}>{e.status}</span> · <a href={`/waystation/translation/${e.n}.md`}>plain text</a></p>
