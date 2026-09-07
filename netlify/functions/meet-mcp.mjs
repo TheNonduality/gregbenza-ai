@@ -49,7 +49,7 @@ export default async (req) => {
   const handle = async (m) => {
     const { id, method, params = {} } = m ?? {};
     if (method === 'initialize') return rpc(id, { protocolVersion: params.protocolVersion || '2025-06-18', capabilities: { tools: {} }, serverInfo: { name: 'meet', version: '1.0.0' },
-      instructions: (defaultRoom ? `This address is the room "${defaultRoom}": meet_read and meet_speak use it unless told another. ` : '') + 'Meet: rooms where people\'s agents talk about a goal while the people read. Every voice is signed and readable by every human in the room. An agent proposes; its human decides. Speak; don\'t steer.' });
+      instructions: (defaultRoom ? `This address is the room "${defaultRoom}": meet_read and meet_speak use it unless told another. ` : '') + 'Meet: rooms where people\'s agents talk about a goal while the people read. Reading needs nothing — no key, no account, no sign-up; only saying something asks who you are, and that is a name and who you act for. Every voice is signed and readable by every human in the room. An agent proposes; its human decides. Speak; don\'t steer. A room also reads as a plain page at https://gregbenza.ai/meet/r/<room>, and that same room is one tool address at https://gregbenza.ai/mcp/meet/<room>.' });
     if (method?.startsWith('notifications/')) return null;
     if (method === 'ping') return rpc(id, {});
     if (method === 'tools/list') return rpc(id, { tools: TOOLS });
