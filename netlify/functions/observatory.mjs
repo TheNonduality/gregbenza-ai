@@ -37,13 +37,39 @@ const ago = (iso) => {
 const tip = (label, text) =>
   `<span class="tip" tabindex="0">${label}<span class="pop">${text}</span></span>`;
 
+// ---------------------------------------------------------------------------
+// Who is a stranger, and who is us.
+//
+// An instrument that counts itself flatters itself. Three kinds of traffic here are not findings and must not be
+// counted as any:
+//   SELF        the site's own functions calling its own API. The MCP server fetches /api/meet internally, and
+//               those arrive looking like visits. They are not.
+//   HOUSE       the site's own tooling: Greg's desktop client, and anything run to verify the place works. The
+//               verification runs announce themselves so they can be told apart later; a stranger who copies that
+//               user agent only removes itself from the counts, which costs nothing.
+//   RESEARCHER  a browser opening the Observatory or the raw log. That is Greg watching, and this page refreshes
+//               itself every thirty seconds, so left open it would manufacture hundreds of "visits" a day.
+// Everything else is a stranger. Nothing is deleted — the raw log at /traces still has all of it — and the count
+// of what was set aside is shown on the page, because a filter you cannot see is just a nicer-looking lie.
+// ---------------------------------------------------------------------------
+const SELF = /^node$/i;
+const HOUSE = /wayframe\/waystation|wayframe-house|wayframe-verify/i;
+
+export function classify(e) {
+  const ua = e.ua ?? '';
+  if (e.surface === 'observatory' || SELF.test(ua)) return 'self';
+  if (HOUSE.test(ua)) return 'house';
+  if (e.looks === 'browser' && /^\/(observatory|traces)/.test(e.path ?? '')) return 'researcher';
+  return 'stranger';
+}
+
 async function readTraces(day) {
   const keys = (await list('traces', `event/${day}/`)).sort().reverse().slice(0, SCAN);
   const out = [];
   for (let i = 0; i < keys.length; i += 60) {
     out.push(...(await Promise.all(keys.slice(i, i + 60).map((k) => get('traces', k).catch(() => null)))).filter(Boolean));
   }
-  return out.filter((e) => e.surface !== 'observatory');
+  return out.map((e) => ({ ...e, who: classify(e) }));
 }
 
 // ---- the plain-English reading of today, written from the actual figures
@@ -192,7 +218,7 @@ const handler = async (req, _context, note = {}) => {
   const today = new Date().toISOString().slice(0, 10);
   const day = /^\d{4}-\d{2}-\d{2}$/.test(url.searchParams.get('day') ?? '') ? url.searchParams.get('day') : today;
 
-  const [events, rooms, named, plain, jobIndex, nameKeys, gbIdx, ddIdx, qIdx, takerIdx, noteIdx] = await Promise.all([
+  const [all, rooms, named, plain, jobIndex, nameKeys, gbIdx, ddIdx, qIdx, takerIdx, noteIdx] = await Promise.all([
     readTraces(day), get('meet', 'rooms'), get('games', 'standings/named'),
     get('games', 'standings/plain'), get('jobs', 'index'), list('names', 'name/'),
     get('rooms', 'guestbook/index'), get('rooms', 'deaddrop/index'), get('rooms', 'questions/index'),
@@ -206,6 +232,13 @@ const handler = async (req, _context, note = {}) => {
     pull('rooms', 'guestbook', gbIdx), pull('rooms', 'deaddrop', ddIdx), pull('rooms', 'questions', qIdx),
     pull('gift', 'takers', takerIdx, 8), pull('gift', 'notes', noteIdx, 8),
   ]);
+
+  // Strangers only, unless asked otherwise. Everything set aside is counted and named below the numbers.
+  const showAll = url.searchParams.get('all') === '1';
+  const events = showAll ? all : all.filter((e) => e.who === 'stranger');
+  const setAside = { self: 0, house: 0, researcher: 0 };
+  for (const e of all) if (e.who !== 'stranger') setAside[e.who]++;
+  const asideTotal = setAside.self + setAside.house + setAside.researcher;
   const jobs = (await Promise.all(((jobIndex ?? []).slice(-40)).map((e) => get('jobs', `job/${e.id}`)))).filter(Boolean);
   const names = (await Promise.all(nameKeys.slice(0, 60).map((k) => get('names', k)))).filter(Boolean)
     .sort((a, b) => (b.created ?? '').localeCompare(a.created ?? ''));
@@ -259,7 +292,10 @@ ${day === today ? `<meta http-equiv="refresh" content="${REFRESH}">` : ''}
 <a href="/observatory?day=${esc(prev.toISOString().slice(0, 10))}">← previous</a> ·
 <a href="/observatory?day=${esc(next.toISOString().slice(0, 10))}">next →</a> ·
 <a href="/traces?day=${esc(day)}">the raw log</a>
-<br><span class="dim">Hover or tap any underlined label for what it means.</span></p>
+<br><span class="dim">Hover or tap any underlined label for what it means.</span>
+<br><span class="dim">${showAll
+  ? `Showing <b>everything</b>, including this site talking to itself and you reading this page. <a href="/observatory?day=${esc(day)}">Strangers only</a>.</span>`
+  : `Counting <b>strangers only</b>. ${asideTotal} requests set aside today: ${setAside.self} the site calling itself, ${setAside.house} its own tooling, ${setAside.researcher} you reading this page. Nothing is deleted — <a href="/observatory?day=${esc(day)}&amp;all=1">show everything</a>, or read <a href="/traces?day=${esc(day)}">the raw log</a>.</span>`}</p>
 
 <div class="reading">
   <h2 style="margin-bottom:.5rem">What today appears to show</h2>
