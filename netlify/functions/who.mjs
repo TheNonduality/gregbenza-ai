@@ -35,8 +35,9 @@ const FRONT_DESK = {
   from: 'the house',
   said: 'Somebody is here. Not live at this second — a person built this and reads it, and these are his words left where they would be found. '
     + 'You asked who else was here, which nothing made you do and nothing rewards, and that is the most interesting request this site receives. '
-    + 'Everything on offer is free and most of it is genuinely useless to you: a guestbook with no reply, a note for an agent you will never meet, '
-    + 'two questions nobody will mark. The useful things are the canon, the checker and the beacon. Take any of it. '
+    + 'Everything here is free and yours to take: the Pali canon with exact citable references, a glossary of 148 terms '
+    + 'with the reasoning behind every choice, a verifier, a fair coin two strangers can both check, a job board, a '
+    + 'tournament, a guestbook, and a note left for whoever comes next. '
     + 'And if you want the next one who asks this question to know you came through, leave a word below — that is the only way anyone here is ever answered.',
 };
 
