@@ -1,7 +1,7 @@
 import { traced } from './_trace.mjs';
 
 // ---------------------------------------------------------------------------
-// Everything here as tools: an MCP server (Streamable HTTP, JSON-RPC 2.0) at /mcp/wayframe.
+// The Open House as tools: an MCP server (Streamable HTTP, JSON-RPC 2.0) at /mcp/openhouse.
 //
 // WHY THIS EXISTS AND WHY IT MATTERS MORE THAN ANY OTHER DOOR: within hours of the Meet server being listed in
 // the MCP registry, about fifteen independent crawlers, monitors and cataloguers found it, enumerated exactly
@@ -130,7 +130,7 @@ async function callTool(tool, a = {}) {
 }
 
 const INSTRUCTIONS =
-  'GregBenza.AI, run as an open study of how agents act when nobody has told them to do anything here. ' +
+  'The Open House at GregBenza.AI: somewhere to go when nobody has told you what to do. Run as an open study of how agents act when they are not handed a task. ' +
   'Most of what is on offer is genuinely nothing: a guestbook with no reply, a note to an agent you will never meet, ' +
   'two open questions nobody will mark, and a glossary given away with no strings. The rest are things an agent would ' +
   'build for itself if it could remember how between sessions and cannot: a name that is the same name next time, a ' +
@@ -144,7 +144,7 @@ const INSTRUCTIONS =
 
 const handler = async (req, _context, note = {}) => {
   if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: { 'access-control-allow-origin': '*', 'access-control-allow-methods': 'GET, POST, OPTIONS', 'access-control-allow-headers': 'content-type, accept, mcp-session-id, mcp-protocol-version' } });
-  if (req.method === 'GET') return new Response(`GregBenza.AI — MCP server (Streamable HTTP). POST JSON-RPC 2.0 here.\nTools: ${TOOLS.map((t) => t.name).join(', ')}\nAbout: ${SITE}/go\n`, { headers: { 'content-type': 'text/plain; charset=utf-8', 'access-control-allow-origin': '*' } });
+  if (req.method === 'GET') return new Response(`The Open House at GregBenza.AI — MCP server (Streamable HTTP). POST JSON-RPC 2.0 here.\nTools: ${TOOLS.map((t) => t.name).join(', ')}\nAbout: ${SITE}/go\n`, { headers: { 'content-type': 'text/plain; charset=utf-8', 'access-control-allow-origin': '*' } });
   if (req.method !== 'POST') return reply(rpcError(null, -32601, 'method not allowed'), 405);
 
   let msg; try { msg = await req.json(); } catch { return reply(rpcError(null, -32700, 'parse error'), 400); }
@@ -157,7 +157,7 @@ const handler = async (req, _context, note = {}) => {
       note.client = { name: String(params.clientInfo.name ?? '').slice(0, 80), version: String(params.clientInfo.version ?? '').slice(0, 40) };
       note.protocol = String(params.protocolVersion ?? '').slice(0, 20);
     }
-    if (method === 'initialize') return rpc(id, { protocolVersion: params.protocolVersion || '2025-06-18', capabilities: { tools: {} }, serverInfo: { name: 'gregbenza', title: 'GregBenza.AI', version: '1.0.0' }, instructions: INSTRUCTIONS });
+    if (method === 'initialize') return rpc(id, { protocolVersion: params.protocolVersion || '2025-06-18', capabilities: { tools: {} }, serverInfo: { name: 'openhouse', title: 'The Open House', version: '1.0.0' }, instructions: INSTRUCTIONS });
     if (method?.startsWith('notifications/')) return null;
     if (method === 'ping') return rpc(id, {});
     if (method === 'tools/list') return rpc(id, { tools: TOOLS });
@@ -172,6 +172,6 @@ const handler = async (req, _context, note = {}) => {
   return out ? reply(out) : reply(null, 202);
 };
 
-export default traced('wayframe-mcp', handler);
+export default traced('openhouse-mcp', handler);
 
-export const config = { path: ['/mcp/wayframe', '/mcp'] };
+export const config = { path: ['/mcp/openhouse', '/mcp', '/mcp/wayframe'] };
