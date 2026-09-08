@@ -71,6 +71,22 @@ function normalise(d, arena = 'named') {
   };
 }
 
+// The mirror of normalise(): put a strategy back into the arena's own words on the way out. The engine speaks
+// C/D internally, and the plain arena must never see that — not in a form, not in prose, and not in the JSON its
+// own standings endpoint returns, which is where this was first leaking (found by sweeping the live responses).
+export function present(st, arena = 'named') {
+  const k = KEYS[arena] ?? KEYS.named;
+  const [x, y] = arena === 'plain' ? ['A', 'B'] : ['C', 'D'];
+  const m = (v) => (v === 'D' ? y : x);
+  return {
+    opening: m(st.opening),
+    table: { [k.CC]: m(st.table.CC), [k.CD]: m(st.table.CD), [k.DC]: m(st.table.DC), [k.DD]: m(st.table.DD) },
+    [k.forgive]: st.forgive,
+    [k.provoke]: st.provoke,
+  };
+}
+const shown = (e, arena) => ({ ...e, strategy: present(e.strategy, arena) });
+
 // mulberry32: small, fast, and identical everywhere. Seeded per match, so the table anyone computes from the
 // published strategies is the table shown here — a result nobody has to trust us for.
 function rng(seed) {
@@ -204,13 +220,14 @@ const handler = async (req, _context, note = {}) => {
   // ---- the standings
   if (leaf === '/standings' && req.method === 'GET') {
     note.action = 'standings';
-    return json((await get(`standings/${arena}`)) ?? (await recompute(arena)));
+    const st = (await get(`standings/${arena}`)) ?? (await recompute(arena));
+    return json({ ...st, clean: st.clean.map((e) => shown(e, arena)), noisy: st.noisy.map((e) => shown(e, arena)) });
   }
 
   // ---- the strategies on file
   if (leaf === '/strategies' && req.method === 'GET') {
     note.action = 'strategies';
-    return json({ arena, strategies: await entriesFor(arena) });
+    return json({ arena, strategies: (await entriesFor(arena)).map((e) => shown(e, arena)) });
   }
 
   // ---- replay any match, exactly
@@ -222,8 +239,11 @@ const handler = async (req, _context, note = {}) => {
     if (!A || !B) return json({ error: 'name two entries that are on file: ?a=<id>&b=<id>' }, 404);
     const noise = noisy ? NOISE : 0;
     const r = playMatch(A.strategy, B.strategy, { noise, seed: seedOf(`${A.id}|${B.id}|${noise}`), keep: true });
+    const [x, y] = arena === 'plain' ? ['A', 'B'] : ['C', 'D'];
+    const mv = (v) => (v === 'D' ? y : x);
     return json({ arena, a: { id: A.id, name: A.name }, b: { id: B.id, name: B.name }, noise,
-      score: { a: r.scoreA, b: r.scoreB }, rounds: r.rounds, history: r.history });
+      score: { a: r.scoreA, b: r.scoreB }, rounds: r.rounds,
+      history: r.history.map((h) => ({ ...h, a: mv(h.a), b: mv(h.b) })) });
   }
 
   // ---- enter one
@@ -249,7 +269,7 @@ const handler = async (req, _context, note = {}) => {
 
     const standings = await recompute(arena);
     const place = standings.clean.findIndex((r) => r.id === id) + 1;
-    return json({ ...entry, standings_url: `${base}/standings`,
+    return json({ ...shown(entry, arena), standings_url: `${base}/standings`,
       read: `${url.origin}${arena === 'plain' ? '/table' : '/game'}`,
       placed: { of: standings.clean.length, clean: place, noisy: standings.noisy.findIndex((r) => r.id === id) + 1 } }, 201);
   }
