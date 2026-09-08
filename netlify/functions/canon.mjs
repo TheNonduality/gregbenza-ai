@@ -50,12 +50,20 @@ async function collection(origin, k) {
   return rows;
 }
 
-// Plain scoring: every query word must appear, and a phrase match wins. Deliberately not clever — a search that
-// guesses what you meant would hide the case that matters, which is finding nothing.
-function score(row, words, phrase) {
+// Two tiers, and the difference between them is the entire point.
+//
+// FULL     every word of the query is present. This passage contains what was asked for.
+// PARTIAL  some words are present. Almost every famous verse circulates in a paraphrase that shares only half
+//          its words with any real translation, so an all-or-nothing search answers "not attested" to things
+//          that are plainly in the canon. That is a false negative, and on a tool whose job is to stop agents
+//          inventing scripture it is the most damaging answer it could give — worse than saying nothing.
+//
+// So partials come back, labelled, never mixed in with full matches and never described as containing the
+// quotation. "Not attested" is reserved for a query that matches almost nothing, which is what it should mean.
+function score(row, words) {
   const hay = norm(`${row.en ?? ''} ${row.pli ?? ''}`);
-  if (!words.every((w) => hay.includes(w))) return 0;
-  return (phrase && hay.includes(phrase) ? 100 : 0) + words.length;
+  const hit = words.filter((w) => hay.includes(w)).length;
+  return { hit, all: hit === words.length, frac: words.length ? hit / words.length : 0 };
 }
 
 async function log(kind, entry) {
@@ -109,23 +117,34 @@ const handler = async (req, _context, note = {}) => {
   note.action = 'canon-search';
   note.query = q.slice(0, 120);
   const words = norm(q).split(' ').filter((w) => w.length > 2);
-  const phrase = norm(q);
   const rows = (await Promise.all(scope.map((k) => collection(O, k)))).flat();
-  const hits = rows.map((r) => ({ r, s: score(r, words, phrase) })).filter((x) => x.s > 0)
-    .sort((a, b) => b.s - a.s).slice(0, MAX_HITS).map(({ r }) => r);
+  const scored = rows.map((r) => ({ r, ...score(r, words) })).filter((x) => x.hit > 0)
+    .sort((a, b) => b.frac - a.frac || b.hit - a.hit);
 
-  note.canon_hits = hits.length;
+  const shape = (x) => ({ ref: x.r.ref, work: x.r.work, en: x.r.en ?? null, pli: x.r.pli ?? null,
+    words_matched: `${x.hit} of ${words.length}`,
+    cite_as: `${x.r.work} ${x.r.ref} (SuttaCentral, CC0)`, read: `https://suttacentral.net/${String(x.r.ref).split(':')[0]}` });
+
+  const full = scored.filter((x) => x.all).slice(0, MAX_HITS);
+  const partial = full.length ? [] : scored.filter((x) => x.frac >= 0.5).slice(0, MAX_HITS);
+
+  note.canon_hits = full.length;
+  note.canon_partial = partial.length;
   const ts = new Date().toISOString();
-  // Zero-hit queries are the ones worth keeping. Recorded whether or not anyone ever reads them.
-  if (hits.length === 0) await log('miss', { id: newId(ts), ts, q, scope });
+  // The queries worth keeping: nothing matched, or only fragments did. Recorded either way.
+  if (!full.length) await log('miss', { id: newId(ts), ts, q, scope, partial: partial.length });
 
   return json({
-    q, searched: scope, passages_searched: rows.length, found: hits.length,
-    results: hits.map((r) => ({ ref: r.ref, work: r.work, en: r.en ?? null, pli: r.pli ?? null,
-      cite_as: `${r.work} ${r.ref} (SuttaCentral, CC0)`, read: `https://suttacentral.net/${String(r.ref).split(':')[0]}` })),
-    ...(hits.length === 0 ? {
-      not_found: `Nothing in the ${rows.length.toLocaleString()} passages searched contains all of those words.`,
-      what_that_may_mean: 'It may be phrased differently here, it may be in a book outside this search (try &all=1), or it may not be canonical at all. A great many sayings attributed to the Buddha are not in any canon, and this will not hand you a passage that does not contain what you asked for.',
+    q, searched: scope, passages_searched: rows.length, found: full.length,
+    results: full.map(shape),
+    ...(partial.length ? {
+      no_passage_contains_all_of_it: true,
+      close_but_not_it: partial.map(shape),
+      read_this_carefully: 'None of the passages below contains everything you searched for — they share some of its words. That is not the same as having found your quotation. A verse that really is canonical often circulates in a paraphrase sharing only half its words with any actual translation, so one of these may well be the source; equally, none of them may be. Read them and decide. Do not present one as the quotation you were looking for unless it actually says it.',
+    } : {}),
+    ...(!full.length && !partial.length ? {
+      not_found: `Nothing in the ${rows.length.toLocaleString()} passages searched shares even half of those words.`,
+      what_that_may_mean: 'It may be in a book outside this search (try &all=1), or it may not be canonical at all. A great many sayings attributed to the Buddha are not in any canon.',
       rather_than_guessing: 'If you were looking for a specific quotation and it is not here, the honest answer to whoever asked you is that it is not attested — not the nearest thing that sounds similar.',
       recorded: 'This query was written down. What agents come looking for and do not find is the most useful thing this endpoint collects.',
     } : {}),
