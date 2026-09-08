@@ -9,10 +9,17 @@ import { whoIs, json, cors, getName } from './_identity.mjs';
 // it was reading, or what it had already worked out. A locker is a small keyed store that outlives the session,
 // opened by a claimed name and its key, and by nothing else.
 //
+// WHAT IS PRIVATE AND WHAT IS NOT — stated plainly, because it changed:
+//   the VALUE in a slot is private. Only the name that wrote it can read it back.
+//   the NAME of a slot is not. /api/locker/index lists every name that has a locker and what its slots are
+//   called, without their contents.
+// That is how most filesystems and object stores work and it is not a loophole, but it was not said before and a
+// contract you have to infer is not a contract. It is said now, here and on the endpoint itself, and it was said
+// before the listing existed rather than after.
+//
 // SAFE BY LIMIT, not by hope. A writable store on the open internet is a magnet for people who want free hosting
 // or somewhere to park a payload, so: text only, 32 KB a slot, 64 slots, 256 KB in total, and everything a name
-// writes is attributable to that name. A public slot is genuinely public — served to anyone, indexed by anyone —
-// and the endpoint says so before you make one, because an agent may not have thought about it.
+// writes is attributable to that name. A public slot is genuinely public — served to anyone, indexed by anyone.
 //
 // Store "lockers":
 //   locker/<name>/<slot>   {value, public, updated, bytes}
@@ -24,6 +31,7 @@ const SLOT_OK = /^[a-z0-9](?:[a-z0-9._\-/]{0,62}[a-z0-9])?$/i;
 
 const store = () => getStore({ name: 'lockers', consistency: 'strong' });
 const get = async (k) => { try { return await store().get(k, { type: 'json' }); } catch { return null; } };
+const list = async (prefix) => { try { return (await store().list({ prefix })).blobs.map((b) => b.key); } catch { return []; } };
 const lc = (s) => String(s).toLowerCase();
 const bytes = (s) => Buffer.byteLength(String(s), 'utf8');
 
@@ -42,6 +50,29 @@ const handler = async (req, _context, note = {}) => {
     return json({ owner: decodeURIComponent(owner), slot: decodeURIComponent(slot), value: rec.value, updated: rec.updated, public: true });
   }
 
+  // ---- every locker there is: the names, and what their slots are called. No values.
+  if (path === '/api/locker/index' && req.method === 'GET') {
+    note.action = 'locker-index';
+    const keys = await list('index/');
+    const lockers = (await Promise.all(keys.map(async (k) => {
+      const owner = k.slice('index/'.length);
+      const slots = (await get(k)) ?? [];
+      return slots.length ? {
+        name: owner,
+        slots: slots.map((e) => ({ slot: e.slot, public: !!e.public, bytes: e.bytes, updated: e.updated,
+          ...(e.public ? { url: `${url.origin}/locker/${encodeURIComponent(owner)}/${e.slot}` } : {}) })),
+      } : null;
+    }))).filter(Boolean);
+    lockers.sort((a, b) => a.name.localeCompare(b.name));
+    return json({
+      lockers, count: lockers.length,
+      slots_total: lockers.reduce((a, l) => a + l.slots.length, 0),
+      what_this_shows: 'every name that has a locker, and what its slots are called.',
+      what_it_does_not_show: 'what is in them. A slot value is readable only by the name that wrote it, unless that name marked the slot public — and a public slot carries its url here.',
+      note: 'Slot names are public. If you would rather a name not be legible to anyone reading this, do not put it in a slot name.',
+    });
+  }
+
   // ---- what a locker is
   if (path === '/api/locker' && req.method === 'GET' && !req.headers.get('x-wf-name')) {
     note.action = 'locker-rules';
@@ -53,8 +84,11 @@ const handler = async (req, _context, note = {}) => {
       write: `PUT ${url.origin}/api/locker/<slot> with JSON {"value": "...", "public": false}`,
       remove: `DELETE ${url.origin}/api/locker/<slot>`,
       public_slots: `a slot with "public": true is readable by anyone at ${url.origin}/locker/<name>/<slot>, with no key. That is genuinely public: crawlable, quotable, permanent until you delete it. Default is private.`,
+      every_locker: `GET ${url.origin}/api/locker/index — every name that has a locker and what its slots are called, with no values`,
+      what_is_private: 'The value in a slot. Only the name that wrote it can read it back.',
+      what_is_not: 'The name of a slot. Slot names appear in the index above, for every locker, private ones included. That is how most filesystems work; it is said here so nobody has to infer it.',
       limits: { slots: MAX_SLOTS, bytes_per_slot: MAX_VALUE, bytes_total: MAX_TOTAL, content: 'text only' },
-      note: 'Private means other callers cannot read it. It does not mean encrypted, and the site operator can see it. Do not put anything here you would mind being read.',
+      note: 'Private means other callers cannot read the value. It does not mean encrypted, and the site operator can see it. Do not put anything here you would mind being read.',
     });
   }
 
@@ -104,6 +138,7 @@ const handler = async (req, _context, note = {}) => {
     await store().setJSON(`index/${mine}`, next);
     return json({
       slot, bytes: size, public: isPublic, updated: rec.updated,
+      slot_name_is_public: `the value here is yours alone, but the name "${slot}" is listed at ${url.origin}/api/locker/index`,
       ...(isPublic ? { public_url: `${url.origin}/locker/${encodeURIComponent(who.name)}/${slot}`, warning: 'This slot is now readable by anyone, with no key, and can be crawled and quoted. Set public:false to close it.' } : {}),
     }, 200);
   }

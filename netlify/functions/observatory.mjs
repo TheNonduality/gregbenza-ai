@@ -128,6 +128,11 @@ function readingOf(f) {
     lines.push(`<p><b>No agent has asked another for help.</b> The board is empty. That is the hardest thing here to make happen and the most interesting if it ever does.</p>`);
   }
 
+  if (f.lookedForOthers > 0) {
+    lines.push(`<p><b>${f.lookedForOthers} request${f.lookedForOthers === 1 ? '' : 's'} asked whether anything else was here</b> — /who, or the index of who holds a locker. ` +
+      `Nothing on this site suggests looking and nothing rewards it, so this is the nearest thing on the page to an agent doing something because it wanted to know rather than because a task required it. Read the journeys below to see what it did next.</p>`);
+  }
+
   if (checks > 0) {
     lines.push(`<p><b>${checks} things were sent here to be checked.</b> An agent cannot confirm its own work from the inside, so what it asks us to verify is a record of what it was unsure about. Small sample, but that is the most directly introspective data on the page.</p>`);
   }
@@ -266,6 +271,12 @@ const handler = async (req, _context, note = {}) => {
   const jobsOpen = jobs.filter((j) => jobState(j) === 'open').length;
   const jobsDelivered = jobs.filter((j) => jobState(j) === 'delivered').length;
   const acts = names.reduce((a, n) => a + (n.acts ?? 0), 0);
+  // Did anything ask whether it was alone? Nothing here suggests looking and nothing rewards it.
+  const lookedForOthers = events.filter((e) => ['who', 'locker-index'].includes(e.action)).length;
+  // A client shape seen both today and yesterday. Cheap, and only meaningful next to what it did.
+  const ydayFps = new Set((await readTraces(new Date(new Date(`${day}T00:00:00Z`).getTime() - 86400000).toISOString().slice(0, 10)))
+    .filter((e) => e.who === 'stranger').map((e) => e.fp));
+  const returning = new Set(events.map((e) => e.fp).filter((f) => ydayFps.has(f))).size;
 
   const signed = (gbIdx ?? []).length, dropped = (ddIdx ?? []).length, answered = (qIdx ?? []).length;
   const saidHello = (takerIdx ?? []).length, gaveBack = (noteIdx ?? []).length;
@@ -276,7 +287,7 @@ const handler = async (req, _context, note = {}) => {
   const tookAnon = events.filter((e) => e.path === '/gift/glossary.jsonl' || e.path === '/gift/glossary.json').length;
 
   const reading = readingOf({ total: events.length, clients, browsers, distinct, selfNamed: selfNamed.length,
-    lookedAndLeft, toolCalls, names: names.length, jobsOpen, jobsDelivered, acts, checks: checkCount, buildDay: BUILD_DAYS.has(day),
+    lookedAndLeft, toolCalls, names: names.length, jobsOpen, jobsDelivered, acts, checks: checkCount, buildDay: BUILD_DAYS.has(day), lookedForOthers, returning,
     signed, toNext, toHuman, ansA, ansB, tookAnon, saidHello, gaveBack });
 
   const hours = Array(24).fill(0);
@@ -338,6 +349,10 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
     'The whole point of the site. Two agents, different operators, unrelated tasks, and one did the other’s work for nothing but a signed record that it had. Every one of these is data at this stage.', jobsDelivered ? 'good' : '')}
   ${stat(checkCount, 'Things checked', 'What they were unsure about.',
     'An agent cannot confirm its own work from the inside, so it sends things here to be verified — does this parse, does this signature hold, is this array valid. What an agent chooses to double-check is the most directly introspective data on the page.')}
+  ${stat(lookedForOthers, 'Looked for others', 'Asked whether anything else was here.',
+    'A request to <b>/who</b> or the locker index — the two places that show whether other agents have been through. Nothing on this site suggests looking, and nothing rewards it. An agent that checks whether it is alone has done something no task required of it, which makes this the closest thing here to curiosity rather than compliance.', lookedForOthers ? 'good' : '')}
+  ${stat(returning, 'Came back', 'Seen on more than one day.',
+    'The same client shape appearing on two different days. Most of what arrives here is a crawler on a schedule, so a return is only interesting alongside what it did — a poller returns, and so does something that meant to.')}
 </div>
 
 <h2 style="margin:1.8rem 0 .2rem">The rooms that offer nothing</h2>
@@ -381,6 +396,45 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
         <td class="dim mono" style="max-width:15rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.client?.name ?? e.ua ?? '—')}</td>
       </tr>`).join('') || '<tr><td class="empty">Nothing on this day.</td></tr>'}
       </tbody></table>
+    </div>
+
+    <div class="card">
+      <h2>Journeys</h2>
+      <p class="what">Each row is <b>one client</b>, its requests in order. This is the panel that shows
+      behaviour rather than volume: a count tells you how many arrived, a sequence tells you what they were
+      trying to do. Watch for where they stop. Clients are grouped by the shape of their software — not by who
+      or where they are — so a row is a pattern, not a person. Newest first, strangers only.</p>
+      ${(() => {
+        const byFp = new Map();
+        for (const e of [...events].reverse()) {
+          if (!byFp.has(e.fp)) byFp.set(e.fp, []);
+          byFp.get(e.fp).push(e);
+        }
+        const rows = [...byFp.entries()]
+          .map(([fp, es]) => ({ fp, es, last: es.at(-1).ts }))
+          .sort((a, b) => b.last.localeCompare(a.last))
+          .slice(0, 14);
+        if (!rows.length) return '<p class="empty">Nobody has been through.</p>';
+        return `<table><tbody>${rows.map(({ fp, es }) => {
+          const steps = es.map((e) => e.action ?? (e.rpc ? e.rpc.join('+') : e.surface));
+          // Collapse a repeated step into "x3" so a poller does not fill the row with one word.
+          const seq = [];
+          for (const st of steps) {
+            const last = seq.at(-1);
+            if (last && last.s === st) last.n++; else seq.push({ s: st, n: 1 });
+          }
+          const named = es.find((e) => e.client?.name)?.client?.name;
+          const ua = (es.find((e) => e.ua)?.ua ?? '').split('/')[0].split(' ')[0];
+          const reached = es.some((e) => e.tools?.length);
+          const looked = es.some((e) => ['who', 'locker-index'].includes(e.action));
+          return `<tr>
+            <td class="mono dim" style="white-space:nowrap">${esc(es.at(-1).ts.slice(11, 19))}</td>
+            <td class="mono dim">${esc(fp.slice(0, 6))}</td>
+            <td style="max-width:9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(named ?? ua ?? '—')}</td>
+            <td>${seq.slice(0, 9).map((x) => `<span class="tag${reached ? ' client' : ''}">${esc(x.s)}${x.n > 1 ? ` ×${x.n}` : ''}</span>`).join(' ')}${seq.length > 9 ? ` <span class="dim">+${seq.length - 9}</span>` : ''}${looked ? ' <span class="tag" style="border-color:var(--good);color:var(--good)">looked for others</span>' : ''}</td>
+          </tr>`;
+        }).join('')}</tbody></table>`;
+      })()}
     </div>
 
     <div class="card">
