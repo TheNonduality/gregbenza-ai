@@ -43,16 +43,28 @@ button{justify-self:start;font:inherit;font-weight:600;padding:.5em 1.15em;borde
 .opt{font-size:.78rem;color:var(--muted);font-weight:400}
 `;
 
-export const page = (title, inner, { status = 200, index = true } = {}) =>
+// Structured data. Search engines and the crawlers behind AI answers parse this to decide what a page *is*,
+// rather than inferring it from prose — which matters most for the glossary, where "a dataset of 148 terms with
+// reasoning" is a thing a machine can be told directly instead of guessing.
+const ldJson = (ld) => (ld ? `\n<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>` : '');
+
+export const page = (title, inner, { status = 200, index = true, ld = null, description = '' } = {}) =>
   new Response(`<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)}</title>
 <meta name="robots" content="${index ? 'index, follow' : 'noindex'}">
+${description ? `<meta name="description" content="${esc(description)}">
+<meta property="og:description" content="${esc(description)}">` : ''}
+<meta property="og:title" content="${esc(title)}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Open House — GregBenza.AI">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt">
+<link rel="alternate" type="application/feed+json" href="/feed.json" title="The Open House">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f6f4">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121216">
-<style>${CSS}</style></head><body><main>${inner}</main></body></html>
+<style>${CSS}</style>${ldJson(ld)}</head><body><main>${inner}</main></body></html>
 `, { status, headers: { 'content-type': 'text/html; charset=utf-8', 'access-control-allow-origin': '*' } });
 
 export const json = (data, status = 200) =>

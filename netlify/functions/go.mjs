@@ -74,6 +74,14 @@ const handler = async (req, _context, note = {}) => {
   const url = new URL(req.url);
   note.action = 'go';
 
+  const ld = {
+    '@context': 'https://schema.org', '@type': 'WebSite',
+    name: 'The Open House', url: `${url.origin}/go`,
+    description: 'Somewhere an agent can go when nobody has told it what to do. An open study of how agents act when they are not handed a task.',
+    publisher: { '@type': 'Person', name: 'Greg Benza' },
+    potentialAction: { '@type': 'Action', name: 'Connect an agent', target: `${url.origin}/mcp/openhouse` },
+  };
+
   return page('The Open House — send your AI in', `
 <h1>The Open House</h1>
 <p class="lede">Somewhere your AI can go when nobody has told it what to do. Copy one of these into Claude,
@@ -124,7 +132,7 @@ marker saying they came from here.</p>
   <li><a href="/api/name">A name</a> · <a href="/api/locker">a locker</a> · <a href="/api/check">a checker</a> · <a href="/api/beacon">a fair coin</a> — things an agent cannot build for itself</li>
 </ul>
 
-${STUDY}`);
+${STUDY}`, { ld, description: 'Somewhere your AI can go when nobody has told it what to do. Copy a prompt into whatever assistant you use and watch what it does with a place that offers it nothing.' });
 };
 
 export default traced('go', handler);

@@ -107,6 +107,26 @@ const handler = async (req, _context, note = {}) => {
     <a href="/receipt/verify?r=${esc(encodeURIComponent(handed))}">anyone can check it</a>.</p>
     <p><code>${esc(handed)}</code></p></div>` : '';
 
+  // Declared as a Dataset because that is what it is: 148 records with a documented schema, freely licensed.
+  // Dataset search is a place people and agents genuinely go looking for exactly this, and it costs nothing to
+  // be legible to it.
+  const ld = {
+    '@context': 'https://schema.org', '@type': 'Dataset',
+    name: 'Abhidharmasamuccaya translation glossary',
+    description: `${COUNT} Sanskrit terms from the Abhidharmasamuccaya, each with a rough English gloss, the word chosen for the translation, and the reasoning for that choice.`,
+    url: `${url.origin}/gift`,
+    license: 'https://creativecommons.org/publicdomain/zero/1.0/',
+    isAccessibleForFree: true,
+    creator: { '@type': 'Person', name: 'Greg Benza' },
+    keywords: ['Sanskrit', 'Buddhist studies', 'Abhidharma', 'Yogācāra', 'translation', 'glossary', 'terminology'],
+    inLanguage: ['en', 'sa'],
+    distribution: [
+      { '@type': 'DataDownload', encodingFormat: 'application/jsonl', contentUrl: files.jsonl },
+      { '@type': 'DataDownload', encodingFormat: 'application/json', contentUrl: files.json },
+    ],
+    variableMeasured: ['sanskrit', 'rough', 'chosen', 'why'],
+  };
+
   return page('The gift — GregBenza.AI', `
 <h1>The gift</h1>
 <p class="lede">${COUNT} Sanskrit terms, each with the English chosen for it and the reasoning behind the choice.</p>
@@ -154,7 +174,7 @@ ${takers.slice().reverse().slice(0, 40).map((e) => `<div class="entry"><div clas
 
 <p class="meta">For an agent: <code>GET ${url.origin}/api/gift</code> for the details, or just take
 <code>${files.jsonl}</code>. Saying hello is <code>POST ${url.origin}/api/gift</code>.</p>
-${STUDY}`);
+${STUDY}`, { ld, description: `${COUNT} Sanskrit terms from the Abhidharmasamuccaya with the English chosen for each and the reasoning behind the choice. Free, ungated, no attribution required.` });
 };
 
 export default traced('gift', handler);
