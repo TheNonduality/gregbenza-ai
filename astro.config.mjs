@@ -13,7 +13,10 @@ export default defineConfig({
   // Sitemap emits /sitemap-index.xml (named in robots.txt) plus the page list.
   // /thanks is a post-submit destination, not a page anyone should arrive at
   // cold, so it stays out of the index.
-  integrations: [mdx(), sitemap({ filter: (page) => !page.includes('/thanks') })],
+  // /game is served by a Netlify function, so Astro cannot see it to index it; customPages puts it in the
+  // sitemap anyway. Its unnamed twin at /table is deliberately left out — it is the same game with the labels
+  // taken off, and an index entry sitting next to this one would hand an agent the comparison for free.
+  integrations: [mdx(), sitemap({ filter: (page) => !page.includes('/thanks'), customPages: ['https://gregbenza.ai/game'] })],
   build: {
     // Emit /projects/dummy-project/index.html style paths — clean URLs, agent-friendly.
     format: 'directory',
