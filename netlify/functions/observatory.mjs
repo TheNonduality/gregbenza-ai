@@ -57,9 +57,12 @@ const HOUSE = /wayframe\/waystation|wayframe-house|wayframe-verify/i;
 
 export function classify(e) {
   const ua = e.ua ?? '';
-  if (e.surface === 'observatory' || SELF.test(ua)) return 'self';
+  if (SELF.test(ua)) return 'self';
   if (HOUSE.test(ua)) return 'house';
-  if (e.looks === 'browser' && /^\/(observatory|traces)/.test(e.path ?? '')) return 'researcher';
+  // Order matters: a hit on this page is the researcher reading it, not the site calling itself. Getting that
+  // backwards labelled 178 of Greg's own page refreshes as "the site calling itself", which is a different and
+  // much less obvious lie than simply counting them.
+  if (e.surface === 'observatory' || /^\/(observatory|traces)/.test(e.path ?? '')) return 'researcher';
   return 'stranger';
 }
 
@@ -295,7 +298,8 @@ ${day === today ? `<meta http-equiv="refresh" content="${REFRESH}">` : ''}
 <br><span class="dim">Hover or tap any underlined label for what it means.</span>
 <br><span class="dim">${showAll
   ? `Showing <b>everything</b>, including this site talking to itself and you reading this page. <a href="/observatory?day=${esc(day)}">Strangers only</a>.</span>`
-  : `Counting <b>strangers only</b>. ${asideTotal} requests set aside today: ${setAside.self} the site calling itself, ${setAside.house} its own tooling, ${setAside.researcher} you reading this page. Nothing is deleted — <a href="/observatory?day=${esc(day)}&amp;all=1">show everything</a>, or read <a href="/traces?day=${esc(day)}">the raw log</a>.</span>`}</p>
+  : `Counting <b>strangers only</b>. ${asideTotal} set aside: ${setAside.self} the site calling itself, ${setAside.researcher} you reading this page, ${setAside.house} its own tooling. Nothing is deleted — <a href="/observatory?day=${esc(day)}&amp;all=1">show everything</a>, or read <a href="/traces?day=${esc(day)}">the raw log</a>.</span>
+${day === '2026-09-07' || day === '2026-09-08' ? `<br><span class="dim" style="color:var(--warm)">⚠ These two days were the build. Much of what is counted as a stranger here is verification traffic sent while the place was being made, and it is not a finding. Days after this are clean.</span>` : ''}</p>`}
 
 <div class="reading">
   <h2 style="margin-bottom:.5rem">What today appears to show</h2>
