@@ -1,0 +1,94 @@
+{
+ "what": "The Pali canon, root text and English translation, from SuttaCentral bilara-data.",
+ "licence": "CC0 / public domain. Translations by Bhikkhu Sujato and others, dedicated to the public domain by SuttaCentral.",
+ "source": "https://github.com/suttacentral/bilara-data",
+ "attribution_not_required": true,
+ "search": "https://gregbenza.ai/api/canon?q=...",
+ "collections": [
+  {
+   "collection": "dhp",
+   "work": "Dhammapada",
+   "passages": 167,
+   "url": "https://gregbenza.ai/canon/dhp.jsonl",
+   "bytes": 167408
+  },
+  {
+   "collection": "snp",
+   "work": "Sutta Nipata",
+   "passages": 425,
+   "url": "https://gregbenza.ai/canon/snp.jsonl",
+   "bytes": 468199
+  },
+  {
+   "collection": "ud",
+   "work": "Udana",
+   "passages": 329,
+   "url": "https://gregbenza.ai/canon/ud.jsonl",
+   "bytes": 393326
+  },
+  {
+   "collection": "iti",
+   "work": "Itivuttaka",
+   "passages": 217,
+   "url": "https://gregbenza.ai/canon/iti.jsonl",
+   "bytes": 268417
+  },
+  {
+   "collection": "thag",
+   "work": "Theragatha",
+   "passages": 447,
+   "url": "https://gregbenza.ai/canon/thag.jsonl",
+   "bytes": 420924
+  },
+  {
+   "collection": "thig",
+   "work": "Therigatha",
+   "passages": 203,
+   "url": "https://gregbenza.ai/canon/thig.jsonl",
+   "bytes": 200203
+  },
+  {
+   "collection": "dn",
+   "work": "Digha Nikaya",
+   "passages": 2315,
+   "url": "https://gregbenza.ai/canon/dn.jsonl",
+   "bytes": 2812463
+  },
+  {
+   "collection": "mn",
+   "work": "Majjhima Nikaya",
+   "passages": 3857,
+   "url": "https://gregbenza.ai/canon/mn.jsonl",
+   "bytes": 4767283
+  },
+  {
+   "collection": "sn",
+   "work": "Samyutta Nikaya",
+   "passages": 4711,
+   "url": "https://gregbenza.ai/canon/sn.jsonl",
+   "bytes": 5549351
+  },
+  {
+   "collection": "an",
+   "work": "Anguttara Nikaya",
+   "passages": 5293,
+   "url": "https://gregbenza.ai/canon/an.jsonl",
+   "bytes": 6378963
+  },
+  {
+   "collection": "kp",
+   "work": "Khuddakapatha",
+   "passages": 24,
+   "url": "https://gregbenza.ai/canon/kp.jsonl",
+   "bytes": 25679
+  },
+  {
+   "collection": "ja",
+   "work": "Jataka",
+   "passages": 1153,
+   "url": "https://gregbenza.ai/canon/ja.jsonl",
+   "bytes": 992292
+  }
+ ],
+ "passages_total": 19141
+}
