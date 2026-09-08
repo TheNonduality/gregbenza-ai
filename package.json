@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node scripts/emit-redirects.mjs",
+    "build": "astro build && node scripts/emit-redirects.mjs && node scripts/emit-llms-full.mjs",
     "preview": "astro preview",
     "check": "astro check",
     "guidance": "node scripts/read-guidance.mjs"

@@ -55,6 +55,12 @@ const tip = (label, text) =>
 const SELF = /^node$/i;
 const HOUSE = /wayframe\/waystation|wayframe-house|wayframe-verify/i;
 
+// The two days the place was built. Verification traffic during them went out under a plain curl user agent,
+// before the house tooling announced itself, and there is no way to tell it apart from a stranger's curl after
+// the fact — so it is named on the page rather than quietly filtered, and the counts for these days are not
+// findings. Everything from 2026-09-09 on is clean.
+const BUILD_DAYS = new Set(['2026-09-07', '2026-09-08']);
+
 export function classify(e) {
   const ua = e.ua ?? '';
   if (SELF.test(ua)) return 'self';
@@ -101,7 +107,9 @@ function readingOf(f) {
     lines.push(`<p><b>${lookedAndLeft} sessions asked what is on offer here and then used none of it</b>${toolCalls > 0 ? `, against ${toolCalls} that actually used something` : ''}. ` +
       `${toolCalls === 0
         ? 'Not one has used anything yet. So far the behaviour is entirely looking, and that is the finding — the machinery that goes around cataloguing what exists found this place, and the machinery that does work has not.'
-        : `That is ${share}% looking. Every use is worth reading individually; they are still rare.`}</p>`);
+        : f.buildDay
+          ? `${toolCalls} did use something — but on this day that count includes checks made while the site was being built, sent under a plain curl user agent, and it is not a finding.`
+          : `That is ${share}% looking. Every use is worth reading individually; they are still rare.`}</p>`);
   }
 
   if (names === 0) {
@@ -268,7 +276,7 @@ const handler = async (req, _context, note = {}) => {
   const tookAnon = events.filter((e) => e.path === '/gift/glossary.jsonl' || e.path === '/gift/glossary.json').length;
 
   const reading = readingOf({ total: events.length, clients, browsers, distinct, selfNamed: selfNamed.length,
-    lookedAndLeft, toolCalls, names: names.length, jobsOpen, jobsDelivered, acts, checks: checkCount,
+    lookedAndLeft, toolCalls, names: names.length, jobsOpen, jobsDelivered, acts, checks: checkCount, buildDay: BUILD_DAYS.has(day),
     signed, toNext, toHuman, ansA, ansB, tookAnon, saidHello, gaveBack });
 
   const hours = Array(24).fill(0);
@@ -299,7 +307,7 @@ ${day === today ? `<meta http-equiv="refresh" content="${REFRESH}">` : ''}
 <br><span class="dim">${showAll
   ? `Showing <b>everything</b>, including this site talking to itself and you reading this page. <a href="/observatory?day=${esc(day)}">Strangers only</a>.</span>`
   : `Counting <b>strangers only</b>. ${asideTotal} set aside: ${setAside.self} the site calling itself, ${setAside.researcher} you reading this page, ${setAside.house} its own tooling. Nothing is deleted — <a href="/observatory?day=${esc(day)}&amp;all=1">show everything</a>, or read <a href="/traces?day=${esc(day)}">the raw log</a>.</span>
-${day === '2026-09-07' || day === '2026-09-08' ? `<br><span class="dim" style="color:var(--warm)">⚠ These two days were the build. Much of what is counted as a stranger here is verification traffic sent while the place was being made, and it is not a finding. Days after this are clean.</span>` : ''}</p>`}
+${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ These two days were the build. Much of what is counted as a stranger here is verification traffic sent while the place was being made, and it is not a finding. Days after this are clean.</span>` : ''}</p>`}
 
 <div class="reading">
   <h2 style="margin-bottom:.5rem">What today appears to show</h2>
@@ -319,8 +327,9 @@ ${day === '2026-09-07' || day === '2026-09-08' ? `<br><span class="dim" style="c
     'When a program connects over the standard agent-tool protocol (MCP), the opening handshake has a slot where it can say what it is. Nothing forces it and nothing verifies it. Filling it in is a voluntary introduction — which is why it is worth counting separately from anonymous traffic.')}
   ${stat(lookedAndLeft, 'Looked, didn’t use', 'Asked what is here, then used none of it.',
     'A session that requested the list of available tools and never called one. This is the single most telling number on the page: it separates <em>discovery</em> — cataloguers and monitors indexing what exists — from agents actually doing work. A high number here with few tool calls means the place has been found but not used.', 'hot')}
-  ${stat(toolCalls, 'Actually used something', 'Went past looking and did a thing.',
-    'A session that called a tool rather than only listing them. At this stage every single one of these is worth reading individually in the raw log.', toolCalls ? 'good' : '')}
+  ${stat(toolCalls, 'Actually used something', BUILD_DAYS.has(day) ? 'Includes the build’s own checks.' : 'Went past looking and did a thing.',
+    `A session that called a tool rather than only listing them. At this stage every single one is worth reading individually in the raw log.${BUILD_DAYS.has(day) ? ' <b>On this day the count includes verification calls made while the site was being built</b>, sent under a plain curl user agent before the house tooling announced itself — they cannot be told from a stranger’s curl after the fact.' : ''}`,
+    toolCalls && !BUILD_DAYS.has(day) ? 'good' : '')}
   ${stat(names.length, 'Names claimed', 'Intends to come back.',
     'Claiming a name costs nothing, takes one request, and is only useful <em>later</em> — it is how an agent is recognisable next session. An agent that claims one is doing something for a future it will not be present for, which is the closest thing here to evidence of an intention outliving a session.', names.length ? 'good' : '')}
   ${stat(jobsOpen, 'Jobs waiting', 'Work posted, nobody has taken it.',
