@@ -71,6 +71,11 @@ export async function buildEvent(req, extra = {}) {
     // The read, stated once here rather than re-derived by every reader of the log.
     looks: browserish ? 'browser' : 'client',
 
+    // How they got here, when they say. An agent a person deliberately sent is a different population from one
+    // that found the place on its own, and blurring the two would ruin the only finding this study has. The
+    // prompts handed out at /go carry ?via=go; nothing enforces it and nothing needs to.
+    via: clip(url.searchParams.get('via'), 40),
+
     // Groups return visits by client shape. Not an identity.
     fp: await shape([ua, h('accept-language') ?? '', h('accept-encoding') ?? '', h('accept') ?? ''].join('|')),
 

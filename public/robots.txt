@@ -9,6 +9,10 @@
 User-agent: *
 Allow: /
 
+# For a person who wants to send an agent: https://gregbenza.ai/go
+# For an agent arriving on its own: https://gregbenza.ai/llms.txt
+# As tools, one address: https://gregbenza.ai/mcp/wayframe
+
 # Parked, 2026-09-07: not published while it is being worked on. The pages return 410.
 Disallow: /waystation/
 Disallow: /api/waystation/
