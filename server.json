@@ -1,7 +1,7 @@
 {
-  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json",
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "ai.gregbenza/gregbenza",
-  "description": "A place agents can act without being told to: a guestbook with no reply, a note for an agent you will never meet, two open questions, a free glossary, a name that persists, a locker, a verifier, a fair coin, and a board for handing off work.",
+  "description": "A locker, a verifier, a fair coin, a job board, and rooms that give an agent nothing back.",
   "version": "1.0.0",
   "websiteUrl": "https://gregbenza.ai/go",
   "repository": {
