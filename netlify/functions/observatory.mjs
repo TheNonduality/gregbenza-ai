@@ -114,6 +114,10 @@ h2{font-size:.78rem;text-transform:uppercase;letter-spacing:.09em;color:var(--mu
 .reading p:first-child{margin-top:0}.reading p:last-child{margin-bottom:0}
 .reading b{font-weight:650}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(9.5rem,1fr));gap:.6rem;margin-bottom:1.5rem}
+/* The card must be positioned and lift on hover: a tooltip's z-index only counts inside its own positioned
+   ancestor, so without this the pop-up paints underneath every card that comes after it in the document. */
+.stat,.card{position:relative}
+.stat:hover,.stat:focus-within,.card:hover,.card:focus-within{z-index:60}
 .stat{border:1px solid var(--line);border-radius:10px;padding:.7rem .85rem;background:var(--card)}
 .stat b{display:block;font-size:1.75rem;line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
 .stat .lab{font-size:.74rem;color:var(--ink);display:block;margin-top:.2rem;font-weight:600}
