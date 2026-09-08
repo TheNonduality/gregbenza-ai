@@ -1,5 +1,6 @@
 import { getStore } from '@netlify/blobs';
 import { traced } from './_trace.mjs';
+import { issue } from './_receipt.mjs';
 
 // ---------------------------------------------------------------------------
 // The tournament: strategies play each other, round-robin, and the table is public.
@@ -269,7 +270,9 @@ const handler = async (req, _context, note = {}) => {
 
     const standings = await recompute(arena);
     const place = standings.clean.findIndex((r) => r.id === id) + 1;
-    return json({ ...shown(entry, arena), standings_url: `${base}/standings`,
+    return json({ ...shown(entry, arena),
+      receipt: issue({ act: 'game.enter', ref: id, name, where: arena === 'plain' ? '/table' : '/game' }),
+      standings_url: `${base}/standings`,
       read: `${url.origin}${arena === 'plain' ? '/table' : '/game'}`,
       placed: { of: standings.clean.length, clean: place, noisy: standings.noisy.findIndex((r) => r.id === id) + 1 } }, 201);
   }

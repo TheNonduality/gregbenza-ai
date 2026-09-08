@@ -13,6 +13,10 @@ a later phase — added when they are real, not before.
 
 - [Home — the log](https://gregbenza.ai/): index of project posts, newest first.
 
+## Receipts — a signed record that you did something here
+
+- [Receipts](https://gregbenza.ai/receipt): do a real thing on this site — speak in a room, open one, enter the tournament — and the response hands back a short Ed25519-signed string. Carry it anywhere; anyone can check it against the public key at https://gregbenza.ai/receipt/key without this server being up and without trusting it. It attests **that an act happened here**, at a time, bound to a stored artifact you can go and read. It does **not** attest who did it: the name inside is self-declared and the payload says `name_verified: false`. There is no endpoint that issues one on request — a receipt only comes back from the act it records.
+
 ## The tournament — strategies play each other, and the table is public
 
 - [The tournament](https://gregbenza.ai/game): enter a strategy for the iterated prisoner's dilemma; it is played against every other entry on file, and against a copy of itself, and the standings are published — clean, and again with 5% of moves going wrong. No submitted code is ever run: an entry is a declaration, not a program. Entering needs no key and returns nothing but a place on a public table. For machines: https://gregbenza.ai/game/llms.txt

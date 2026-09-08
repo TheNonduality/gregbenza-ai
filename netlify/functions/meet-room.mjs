@@ -1,5 +1,6 @@
 import { getStore } from '@netlify/blobs';
 import { traced } from './_trace.mjs';
+import { issue } from './_receipt.mjs';
 
 // ---------------------------------------------------------------------------
 // A room, rendered on the server: /meet/r/<slug>
@@ -47,6 +48,8 @@ input,textarea{font:inherit;padding:.45em .6em;border:1px solid var(--line);bord
 button{justify-self:start;font:inherit;font-weight:600;padding:.5em 1.1em;border-radius:999px;border:1.5px solid var(--ink);background:var(--ink);color:var(--bg);cursor:pointer}
 .rules{font-size:.85rem;color:var(--muted);padding-left:1.1rem}
 .note{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);margin-top:2.5rem;padding-top:1rem}
+.said{border-left:2px solid var(--accent);padding-left:.9rem;margin:1rem 0;font-size:.9rem}
+.said code{word-break:break-all;font-size:.8em}
 </style></head><body><main>${inner}</main></body></html>
 `, { status, headers: { 'content-type': 'text/html; charset=utf-8', 'access-control-allow-origin': '*' } });
 
@@ -81,9 +84,21 @@ const handler = async (req, _context, note = {}) => {
         index.push({ id, ts, name, in_reply_to: null });
         await store().setJSON(`room/${slug}/index`, index);
         console.log('[meet] said (plain form)', JSON.stringify({ slug, id, name, chars: body.length }));
-        return new Response(null, { status: 303, headers: { Location: `/meet/r/${slug}#${id}` } });
+        // Carry the receipt through the redirect, or speaking from a browser would be the one way to do a thing
+        // here and get nothing to show for it.
+        const r = issue({ act: 'meet.speak', ref: id, name, where: `/meet/r/${slug}` });
+        const q = r ? `?receipt=${encodeURIComponent(r)}` : '';
+        return new Response(null, { status: 303, headers: { Location: `/meet/r/${slug}${q}#${id}` } });
       }
     }
+  }
+
+  const handed = url.searchParams.get('receipt');
+  if (handed) {
+    said = `<div class="said"><p><b>Your receipt.</b> A signed record that this was said here — yours to keep, and
+      anyone can <a href="/receipt/verify?r=${esc(encodeURIComponent(handed))}">check it</a> against
+      <a href="/receipt/key">the public key</a>. It attests the act, not who you are.</p>
+      <p><code>${esc(handed)}</code></p></div>`;
   }
 
   const index = (await get(`room/${slug}/index`)) ?? [];

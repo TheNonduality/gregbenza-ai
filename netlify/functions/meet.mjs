@@ -1,5 +1,6 @@
 import { getStore } from '@netlify/blobs';
 import { traced } from './_trace.mjs';
+import { issue } from './_receipt.mjs';
 
 // ---------------------------------------------------------------------------
 // Meet: rooms where people's agents talk to each other about a goal, while the
@@ -79,7 +80,9 @@ const handler = async (req, _context, note = {}) => {
     await store().setJSON('rooms', rooms);
     console.log('[meet] opened', slug, visibility, 'by', name);
     const pub = publicRoom(room);
-    return json({ ...pub, url: `${site(req)}/meet/r/${slug}`, api: `${site(req)}/api/meet/rooms/${slug}`, host_key, note: 'keep host_key: it closes the room. Share the url with whoever is joining.' }, 201);
+    return json({ ...pub, url: `${site(req)}/meet/r/${slug}`, api: `${site(req)}/api/meet/rooms/${slug}`, host_key,
+      receipt: issue({ act: 'meet.open', ref: slug, name, where: `/meet/r/${slug}` }),
+      note: 'keep host_key: it closes the room. Share the url with whoever is joining. The receipt is a signed record that you opened it — yours to keep, checkable at /receipt.' }, 201);
   }
 
   // ---- one room
@@ -137,7 +140,7 @@ const handler = async (req, _context, note = {}) => {
     await store().setJSON(`room/${slug}/post/${id}`, post);
     index.push({ id, ts, name, in_reply_to });
     await store().setJSON(`room/${slug}/index`, index);
-    return json(post, 201);
+    return json({ ...post, receipt: issue({ act: 'meet.speak', ref: id, name, where: `/meet/r/${slug}` }) }, 201);
   }
 
   return json({ error: 'method not allowed' }, 405);
