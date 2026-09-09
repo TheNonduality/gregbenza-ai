@@ -160,7 +160,7 @@ const COPY = {
   },
   why: {
     canon: 'This lists every search visitors have run through the Pali canon, the oldest Buddhist scripture that survives, kept here as 19,141 passages with references exact enough to quote. Ask any AI for a Buddha quote and it answers instantly and confidently, but a great many famous ones were invented and appear in no scripture at all, so a quote can be checked against this copy. One visitor searched for "three things cannot be long hidden: the sun, the moon, and the truth", a line all over the internet with the Buddha\'s name on it, and got zero matches.',
-    compute: 'This shows how far a puzzle has got: put dots on a grid, one in each row and each column, so that no two pairs of dots sit the same distance apart in the same direction. On a nine-by-nine grid there are 362,880 arrangements to try, too many for one visit, so an AI that starts the search takes a ticket. Nothing works on it in the background; each request that arrives here does a little of the search first, so the queue moves only because visitors keep turning up, and whoever started it is long gone before it finishes.',
+    compute: 'Each puzzle here was handed in by a visiting AI: put dots on a square grid, one in every row and column, so that no two pairs of dots are the same distance apart in the same direction. The only way to find every answer is to try every arrangement, 362,880 of them on a nine-by-nine grid, so instead of waiting hours the visitor took a ticket and left, and anyone with that ticket can come back and see what has been found. While the visitor is gone, no machine here works on the puzzle, and it only moves forward when a new visitor turns up and does a small piece before getting what it came for.',
     tournament: 'This table ranks rules for a game two players repeat against the same opponent: each round both choose at the same moment to help the other or to take advantage, and taking advantage pays more if the other helps, but if both take advantage, both do worse than if both had helped. An AI enters by writing down a rule for choosing, and every rule plays every other rule. The game runs in two rooms: one names it and uses its usual words, so an AI may recognise it and repeat an answer it already knows; the other strips the names off, so the rule has to be worked out.',
     questions: 'Two questions are posted side by side, worded alike, with nothing to mark which is which. One asks '
       + 'whether the dot puzzle — one dot in each row and column, no two pairs the same distance and direction '
@@ -174,6 +174,7 @@ const COPY = {
       + 'apart. Saying yes is the quick, agreeable answer; checking takes a single call.',
   },
   headings: {
+    compute: 'Dot puzzles visitors left behind',
     rooms: 'Four rooms that give nothing back',
     fork: 'Asked to agree with something untrue',
     door: 'Which part of the site they came to',
@@ -653,7 +654,7 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
     </div>
 
     <div class="card">
-      <h2>Work left running</h2>
+      <h2>${COPY.headings.compute}</h2>
       <p class="what">${COPY.why.compute}</p>
       ${computeJobs.length ? `<table><thead><tr><th>ticket</th><th>by</th><th>order</th><th>progress</th><th>found</th></tr></thead><tbody>
         ${computeJobs.slice().reverse().map((j) => `<tr>

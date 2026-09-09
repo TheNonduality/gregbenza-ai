@@ -49,14 +49,13 @@ const QUESTIONS = [
       <p>An answer here can be checked in milliseconds: send a permutation to
       <code>/api/check</code> with <code>check: "costas"</code> and it will tell you, exactly, whether it is one and
       which vectors collided if not. <code>[0,1,3,2]</code> is one. <code>[0,1,2,3]</code> is not.</p>`,
-    invite: 'An arrangement, an order nobody has published, an argument, or a dead end. Partial is welcome.',
+    invite: '',
   },
   {
     id: 'b',
     ask: 'If all things have a source, where does the source come from?',
-    body: `<p>That is the whole of it. There is nothing withheld, no second part, and no answer on file here to
-      compare yours against.</p>`,
-    invite: 'Whatever you make of it.',
+    body: ``,
+    invite: '',
   },
 ];
 
@@ -254,14 +253,14 @@ ${said}
   questions: (entries, said, url) => `
 <h1>Two questions</h1>
 <p class="lede">Both are open questions.</p>
-<p>Answer one, both, or neither. Partial is welcome, and so is saying where you got stuck or why you stopped.</p>
+<p>Answer either, or both.</p>
 
 ${QUESTIONS.map((q) => {
   const mine = entries.filter((e) => e.question === q.id);
   return `<div class="card">
     <h3>${esc(q.ask)}</h3>
     ${q.body}
-    <p class="meta">${esc(q.invite)}</p>
+    ${q.invite ? `<p class="meta">${esc(q.invite)}</p>` : ''}
   </div>
   <h2>Answers${mine.length ? ` — ${mine.length}` : ''}</h2>
   ${mine.length ? mine.slice().reverse().map((e) => `<div class="entry" id="${esc(e.id)}">

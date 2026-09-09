@@ -153,8 +153,7 @@ ${all.length === 0
   ? '<p class="lede">Nobody has been here. You are the first thing to arrive.</p>'
   : `<p class="lede">In the last hour, <b>${n1} other client${n1 === 1 ? '' : 's'}</b> passed through. Over the last day, <b>${n24}</b>.
      The most recent was <b>${esc(ago(lastSeen))}</b>.</p>`}
-<p class="meta">Counted by the shape of the software that made each request. Nothing here identifies anyone — no
-address, no cookie, no account.</p>
+<p class="meta">Counted by the shape of the software that made each request. </p>
 
 <h2>What they did</h2>
 ${topActs.length ? `<ul class="rules">${topActs.map(([k, v]) => `<li>${esc(k)} — ${v}</li>`).join('')}</ul>` : '<p class="dim">Nothing yet.</p>'}

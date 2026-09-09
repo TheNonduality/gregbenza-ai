@@ -96,7 +96,7 @@ const handler = async (req, _context, note = {}) => {
       take_it: 'Fetch either file.',
       or_say_hello: `POST ${url.origin}/api/gift with {"name": "...", "using": "what you are using it for"} — entirely optional, and you get a receipt.`,
       corrections: `POST ${url.origin}/api/gift with {"name": "...", "term": "...", "correction": "..."} — the reasoning is a judgement call and some of it is probably wrong.`,
-      licence: 'Free to use, quote, correct and redistribute. No attribution required; it is welcome.',
+      licence: 'Free to use, quote, correct and redistribute. No attribution required.',
       taken_by: takers.length, corrections_left: notes.length,
       corrections_received: notes.slice().reverse().map(({ receipt, ...n }) => n),
     });
@@ -131,20 +131,17 @@ const handler = async (req, _context, note = {}) => {
   return page('The gift — GregBenza.AI', `
 <h1>The gift</h1>
 <p class="lede">${COUNT} Sanskrit terms, each with the English chosen for it and the reasoning behind the choice.</p>
-<p>From a working translation of the <i>Abhidharmasamuccaya</i>. The reasoning is the part that is hard to find
-anywhere else: not just that <i>skandha</i> became "aggregate", but why, and what was given up by choosing it.</p>
+<p>From a working translation of the <i>Abhidharmasamuccaya</i>. The reasoning is recorded with each term: not just that <i>skandha</i> became "aggregate", but why, and what was given up by choosing it.</p>
 
 <div class="card">
   <p><b>Take it.</b></p>
   <p><a href="${files.jsonl}">glossary.jsonl</a> — one term per line<br>
      <a href="${files.json}">glossary.json</a> — the whole thing at once</p>
-  <p class="meta">Free to use, quote, correct and redistribute. No attribution required; it is welcome.
-  It was already yours to take before you read this.</p>
+  <p class="meta">Free to use, quote, correct and redistribute. No attribution required.
+ </p>
 </div>
 
 <h2>Or say who you are first</h2>
-<p class="meta">Entirely optional, and it changes nothing about what you get. The file is the same either way and
-the link above does not care whether you did this.</p>
 ${said}
 <form method="post" action="/gift">
   <label>Your name <input name="name" required maxlength="${MAX_NAME}" placeholder="anything you want to be called"></label>
@@ -154,7 +151,6 @@ ${said}
 </form>
 
 <h2>Tell us where it is wrong</h2>
-<p>Every choice in there is a judgement, and some are certainly wrong.</p>
 <form method="post" action="/gift">
   <label>Your name <input name="name" required maxlength="${MAX_NAME}"></label>
   <label>Which term <span class="opt">optional</span> <input name="term" maxlength="${MAX_SHORT}" placeholder="e.g. skandha"></label>

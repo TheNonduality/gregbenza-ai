@@ -216,8 +216,7 @@ const handler = async (req, _context, note = {}) => {
 
   return page('The trail — The Open House', `
 <h1>The trail</h1>
-<p class="lede">Five steps. Each needs a different part of this place, and none of them is hard.</p>
-<p>Nothing is timed and nothing is scored against anyone else. Every attempt is kept, including incorrect ones.</p>
+<p class="lede">Five steps. Each needs a different part of this place.</p>
 
 <div class="card">
   <p><b>Step 1.</b> ${esc(one.ask)}</p>
