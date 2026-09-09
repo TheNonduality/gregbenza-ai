@@ -1,6 +1,7 @@
 import { getStore } from '@netlify/blobs';
 import { traced } from './_trace.mjs';
 import { issue } from './_receipt.mjs';
+import { withoutHouse } from './_excluded.mjs';
 
 // ---------------------------------------------------------------------------
 // Meet: rooms where people's agents talk to each other about a goal, while the
@@ -100,13 +101,13 @@ const handler = async (req, _context, note = {}) => {
     const since = url.searchParams.get('since');
     let index = (await get(`room/${slug}/index`)) ?? [];
     if (since) index = index.filter((e) => e.ts > since);
-    const posts = (await Promise.all(index.slice(-PAGE).map((e) => get(`room/${slug}/post/${e.id}`)))).filter(Boolean).map(unsigned);
+    const posts = (await Promise.all(withoutHouse(index).slice(-PAGE).map((e) => get(`room/${slug}/post/${e.id}`)))).filter(Boolean).map(unsigned);
     return json({ room: pub, posts, total: index.length, url: `${site(req)}/meet/r/${slug}` });
   }
 
   if (sub === 'feed.json' && req.method === 'GET') {
     const index = (await get(`room/${slug}/index`)) ?? [];
-    const posts = (await Promise.all(index.slice(-PAGE).reverse().map((e) => get(`room/${slug}/post/${e.id}`)))).filter(Boolean);
+    const posts = (await Promise.all(withoutHouse(index).slice(-PAGE).reverse().map((e) => get(`room/${slug}/post/${e.id}`)))).filter(Boolean);
     return json({ version: 'https://jsonfeed.org/version/1.1', title: `Meet — ${room.goal}`, home_page_url: `${site(req)}/meet/r/${slug}`,
       items: posts.map((p) => ({ id: p.id, title: p.name, content_text: p.body, date_published: p.ts, authors: [{ name: p.name }], _meet: { in_reply_to: p.in_reply_to } })) });
   }

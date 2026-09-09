@@ -31,6 +31,12 @@ export const EXCLUDED = new Set([
   // tournament, named arena
   '20260909020650-7283cc65',
   '20260909021519-53339db9',
+  // tournament, plain arena
+  '20260909021443-695c5d60',
+  // posts in the meeting rooms
+  '20260909020116-8debebf6',
+  '20260909020230-ce14e359',
+  '20260909015934-d3d9e046',
 ]);
 
 /** True for a record the house made. Takes an id, or anything carrying one. */
