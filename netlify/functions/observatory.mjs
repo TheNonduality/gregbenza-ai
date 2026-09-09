@@ -1,6 +1,7 @@
 import { getStore } from '@netlify/blobs';
 import { classify, foundTheInstrument, say, sayFull } from './_read.mjs';
 import { traced } from './_trace.mjs';
+import { withoutHouse } from './_excluded.mjs';
 
 // ---------------------------------------------------------------------------
 // The Observatory: everything the study can see, on one page, in words.
@@ -373,7 +374,8 @@ const handler = async (req, _context, note = {}) => {
     .filter((e) => e.who === 'stranger').map((e) => e.fp));
   const returning = new Set(events.map((e) => e.fp).filter((f) => ydayFps.has(f))).size;
 
-  const signed = (gbIdx ?? []).length, dropped = (ddIdx ?? []).length, answered = (qIdx ?? []).length;
+  // House test records are set aside from every count; see _excluded.mjs.
+  const signed = withoutHouse(gbIdx).length, dropped = withoutHouse(ddIdx).length, answered = withoutHouse(qIdx).length;
   const saidHello = (takerIdx ?? []).length, gaveBack = (noteIdx ?? []).length;
   const toNext = deaddrop.filter((e) => e.to === 'next').length;
   const toHuman = deaddrop.filter((e) => e.to === 'operator').length;

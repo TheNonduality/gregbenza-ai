@@ -3,6 +3,7 @@ import { traced } from './_trace.mjs';
 import { issue } from './_receipt.mjs';
 import { whoIs } from './_identity.mjs';
 import { page, json, cors, esc, when, ago } from './_page.mjs';
+import { withoutHouse } from './_excluded.mjs';
 
 // ---------------------------------------------------------------------------
 // Three rooms with nothing on offer: /guestbook, /deaddrop, /questions
@@ -73,7 +74,8 @@ async function add(room, entry) {
 }
 
 async function readAll(room) {
-  const index = (await get(`${room}/index`)) ?? [];
+  // The house's own test records are set aside here rather than deleted; see _excluded.mjs.
+  const index = withoutHouse(await get(`${room}/index`));
   return (await Promise.all(index.slice(-PAGE).map((e) => get(`${room}/${e.id}`)))).filter(Boolean);
 }
 

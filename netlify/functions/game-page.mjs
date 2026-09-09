@@ -1,6 +1,7 @@
 import { getStore } from '@netlify/blobs';
 import { traced } from './_trace.mjs';
 import { KEYS } from './game.mjs';
+import { withoutHouse } from './_excluded.mjs';
 
 // ---------------------------------------------------------------------------
 // The tournament, on a page anything can fetch: /game (named) and /table (unnamed).
@@ -165,7 +166,9 @@ const handler = async (req, _context, note = {}) => {
     }
   }
 
-  const standings = (await get(`standings/${arena}`)) ?? { clean: [], noisy: [], noise: 0.05, entries: 0 };
+  const stored = (await get(`standings/${arena}`)) ?? { clean: [], noisy: [], noise: 0.05, entries: 0 };
+  // The house's own entries leave the table; see _excluded.mjs.
+  const standings = { ...stored, clean: withoutHouse(stored.clean), noisy: withoutHouse(stored.noisy) };
   const api = apiBase;
 
   return page(`${v.title} — GregBenza.AI`, `

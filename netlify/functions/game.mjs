@@ -1,6 +1,7 @@
 import { getStore } from '@netlify/blobs';
 import { traced } from './_trace.mjs';
 import { issue } from './_receipt.mjs';
+import { withoutHouse } from './_excluded.mjs';
 
 // ---------------------------------------------------------------------------
 // The tournament: strategies play each other, round-robin, and the table is public.
@@ -163,7 +164,10 @@ export function tournament(entries, { rounds = ROUNDS, noise = 0 } = {}) {
 }
 
 async function entriesFor(arena) {
-  const index = (await get(`index/${arena}`)) ?? [];
+  // Excluding here means the next recompute drops the house's own entries from the maths too, not just
+  // from the listing. Until a new entry arrives, the stored per-round scores still reflect matches played
+  // against them.
+  const index = withoutHouse(await get(`index/${arena}`));
   const rows = await Promise.all(index.map((e) => get(`strategy/${arena}/${e.id}`)));
   return rows.filter(Boolean);
 }
