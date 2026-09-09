@@ -191,6 +191,30 @@ tr:last-child td{border-bottom:0}
 .legend dd{margin:.1rem 0 0;line-height:1.5}
 .raw{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.72em;color:var(--muted);opacity:.75}
 footer{margin-top:2rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.78rem;color:var(--muted)}
+
+/* ---- on a phone ------------------------------------------------------------------------------------
+   A table cell holding a user agent or a hash has nowhere to wrap, so one long token drags the whole page
+   sideways. Make each table its own horizontal scroller instead, and let long tokens break anywhere. */
+@media(max-width:48rem){
+  main{padding:1.1rem .8rem 3rem}
+  h1{font-size:1.4rem}
+  .sub{font-size:.78rem;margin-bottom:1rem}
+  .reading{padding:.85rem .95rem}
+  .reading p{font-size:.88rem}
+  .stats{grid-template-columns:repeat(auto-fit,minmax(7.5rem,1fr));gap:.45rem}
+  .stat{padding:.6rem .7rem}
+  .stat b{font-size:1.45rem}
+  .card{padding:.8rem .85rem}
+  table{display:block;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  td,th{overflow-wrap:anywhere}
+  .bars div{grid-template-columns:minmax(4rem,8rem) 1fr auto;gap:.4rem;font-size:.74rem}
+  /* A popover anchored left inside a half-width card runs off the screen. Span the card instead. */
+  .tip .pop{width:auto;left:0;right:0;max-width:none}
+  .stat:nth-child(n+4) .tip .pop{left:0;right:0}
+  .hours{height:42px}
+}
+/* Hashes, tickets and fingerprints have no natural break points anywhere. */
+.mono{overflow-wrap:anywhere}
 `;
 
 // ---------------------------------------------------------------------------
@@ -214,6 +238,10 @@ const COPY = {
     what: 'Where each visitor came from, and whether anyone sent it. <code>via=go</code> means a person pointed it '
       + 'here on purpose. <code>via=mcp</code> means it came through the tool interface. No marker means it arrived '
       + 'on its own. Three different groups; adding them up describes none of them.',
+    ownTag: 'To find one particular visit in here, give it a marker of your own. Tell your AI to add '
+      + '<code>?via=</code> and any word you like to the end of the first address it opens \u2014 '
+      + '<code>?via=my-test</code>, say \u2014 and that word appears below with everything that visit did. '
+      + 'Without one, a visit can only be found by roughly when it happened.',
     canonRoads: 'The canon can be fetched three ways: through the tool interface, through the search address, or as '
       + 'whole files. The first two are counted. The whole files are served straight off the storage network and never '
       + 'reach the part of the site that keeps this record, so that column is blank rather than zero.',
@@ -367,9 +395,28 @@ const handler = async (req, _context, note = {}) => {
   const foundHere = all.filter(foundTheInstrument).sort((a, b) => (b.ts ?? '').localeCompare(a.ts ?? ''));
 
   // How each visit arrived. Three different populations; adding them together describes none of them.
-  const sentHere = events.filter((e) => e.via === 'go').length;
+  // Any marker except the tool server's own means a person put it there: the page tells people to swap `go`
+  // for a word of their own, so counting only `go` would lose exactly the visits somebody meant to track.
+  const sentHere = events.filter((e) => e.via && e.via !== 'mcp').length;
   const viaTools = events.filter((e) => e.via === 'mcp').length;
   const onItsOwn = events.filter((e) => !e.via).length;
+
+  // A visitor can be told to carry any marker: ?via=<anything>, up to 40 characters. `go` and `mcp` are ours;
+  // anything else is somebody tagging their own run so they can find it in here afterwards.
+  const OURS = new Set(['go', 'mcp', 'probe', 'swarm']);
+  const ownTags = new Map();
+  for (const e of events) {
+    if (!e.via || OURS.has(e.via)) continue;
+    if (!ownTags.has(e.via)) ownTags.set(e.via, []);
+    ownTags.get(e.via).push(e);
+  }
+  const taggedRuns = [...ownTags.entries()].map(([tag, es]) => ({
+    tag,
+    requests: es.length,
+    first: es.map((e) => e.ts).sort()[0],
+    last: es.map((e) => e.ts).sort().at(-1),
+    did: [...new Set(es.map((e) => say(e.action ?? e.surface)).filter(Boolean))].slice(0, 6),
+  })).sort((a, b) => (b.last ?? '').localeCompare(a.last ?? ''));
   const canonEvents = events.filter((e) => String(e.action ?? '').startsWith('canon'));
   const canonViaTools = canonEvents.filter((e) => e.via === 'mcp').length;
   const canonViaApi = canonEvents.length - canonViaTools;
@@ -492,6 +539,15 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
         ${stat('\u2014', 'Whole files', 'Not counted \u2014 see below.', 'These files are handed out directly by the network that stores them, so a download never reaches the part of the site that keeps this record.')}
       </div>
       <p class="what">${COPY.arrivals.canonRoads}</p>
+      <h3 style="font-size:.8rem;margin:1.2rem 0 .3rem">Visits carrying a marker of their own</h3>
+      <p class="what">${COPY.arrivals.ownTag}</p>
+      ${taggedRuns.length ? `<table><thead><tr><th>marker</th><th>requests</th><th>what it did</th><th>when</th></tr></thead><tbody>
+        ${taggedRuns.slice(0, 12).map((r) => `<tr>
+          <td class="mono"><b>${esc(r.tag)}</b></td>
+          <td class="dim">${r.requests}</td>
+          <td class="dim">${esc(r.did.join(', ') || '\u2014')}</td>
+          <td class="dim">${esc(ago(r.last))}</td></tr>`).join('')}</tbody></table>`
+        : '<p class="empty">No visit has carried a marker of its own.</p>'}
     </div>
 
     <div class="card">

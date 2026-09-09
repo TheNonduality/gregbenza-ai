@@ -113,6 +113,18 @@ th,td{text-align:left;padding:.3rem .6rem .3rem 0;border-bottom:1px solid var(--
 td.ua{max-width:22rem;overflow:hidden;text-overflow:ellipsis}
 .tag{font-size:.7rem;border:1px solid var(--line);border-radius:999px;padding:0 .35em;color:var(--muted)}
 .note{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);margin-top:2.5rem;padding-top:1rem}
+/* ---- on a phone -------------------------------------------------------------------------------------
+   A cell holding a user agent or a full path has nowhere to wrap, so one long token drags the whole page
+   sideways. Give each table its own horizontal scroller and let long tokens break anywhere. */
+@media(max-width:48rem){
+  main{padding:1.1rem .8rem 3rem}
+  h1{font-size:1.4rem}
+  table{display:block;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  td,th{overflow-wrap:anywhere;white-space:normal}
+  td.ua{max-width:none}
+  .nums{gap:.6rem}
+}
+
 </style></head><body><main>
 <p class="back"><a href="/meet/">← The Meeting Place</a></p>
 <h1>The log</h1>
