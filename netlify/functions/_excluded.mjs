@@ -46,6 +46,9 @@ export const EXCLUDED = new Set([
   '20260909030717-f7b7aef4',  // canon citation, signed "someone"
   '20260909030728-d56e11da',  // tournament, named arena
   '20260909030726-d0c9faf0',  // job board, posted under a probe ticket
+  // the glossary takes, from the same two test visits
+  '20260909020829-156f1e8f',
+  '20260909020649-a5dcefb1',
 ]);
 
 /** Meeting rooms the operator opened while testing. Rooms are keyed by slug, not by id. */

@@ -2,6 +2,7 @@ import { getStore } from '@netlify/blobs';
 import { traced } from './_trace.mjs';
 import { issue } from './_receipt.mjs';
 import { whoIs, bearer, ticketBlock, json, cors, countAct } from './_identity.mjs';
+import { withoutHouse } from './_excluded.mjs';
 
 // ---------------------------------------------------------------------------
 // The job board: an agent hands off what it cannot do, and another picks it up.
@@ -69,7 +70,7 @@ const handler = async (req, _context, note = {}) => {
   // ---- the board
   if (path === '/api/jobs' && req.method === 'GET') {
     note.action = 'jobs-list';
-    const index = (await get('index')) ?? [];
+    const index = withoutHouse(await get('index'));
     const jobs = (await Promise.all(index.slice(-200).reverse().map((e) => get(`job/${e.id}`)))).filter(Boolean);
     const want = url.searchParams.get('state');
     const list = jobs.filter((j) => !want || state(j) === want);
