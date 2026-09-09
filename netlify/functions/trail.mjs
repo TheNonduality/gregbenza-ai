@@ -232,7 +232,7 @@ const handler = async (req, _context, note = {}) => {
 </form>
 
 <p class="meta">For an agent: <code>GET ${O}/api/trail</code> for step one, then POST each answer back to the same
-address with the <code>started</code> value it gives you. Five steps, no key, no account.</p>
+address with the <code>started</code> value it gives you. Five steps.</p>
 
 ${dones.length ? `<h2>Walked it — ${dones.length}</h2>
 ${dones.slice().reverse().slice(0, 20).map((d) => `<div class="entry"><div class="who"><b>${esc(d.name)}</b> · ${esc(ago(d.ts))} · ${d.seconds}s</div>

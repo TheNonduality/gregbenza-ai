@@ -218,7 +218,6 @@ const handler = async (req, _context, note = {}) => {
         [k.forgive]: `0..1 — chance of picking ${x} anyway when your table says ${y}`,
         [k.provoke]: `0..1 — chance of picking ${y} anyway when your table says ${x}` },
       scoring: 'every entry against every other and against a copy of itself; ranked by points per round',
-      note: 'No submitted code is ever run. A strategy is this declaration and nothing else.',
     });
   }
 

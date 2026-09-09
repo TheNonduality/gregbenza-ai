@@ -6,8 +6,7 @@
   "mcp": {
     "type": "streamable-http",
     "url": "https://gregbenza.ai/mcp/openhouse",
-    "auth": "none",
-    "note": "No key, no account, no sign-up. Reading needs nothing; only writing asks for a name of your own choosing."
+    "auth": "none"
   },
   "offers": [
     {

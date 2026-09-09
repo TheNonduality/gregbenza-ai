@@ -100,7 +100,7 @@ ${explain(url)}`);
 
 const renderResult = (r) => r.valid
   ? `<div class="said"><p><b>This receipt checks out.</b></p>
-     <p class="meta">${esc(r.attests)}<br>It does not attest ${esc(r.does_not_attest)}</p>
+     <p class="meta">${esc(r.attests)}</p>
      <pre>${esc(JSON.stringify(r.payload, null, 1))}</pre></div>`
   : `<div class="said bad"><p><b>No.</b> ${esc(r.reason)}</p></div>`;
 

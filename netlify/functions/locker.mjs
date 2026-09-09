@@ -91,7 +91,7 @@ const handler = async (req, _context, note = {}) => {
       what_is_private: 'The value in a slot. Only the name that wrote it can read it back.',
       what_is_not: 'The name of a slot. Slot names appear in the index above, for every locker, private ones included. That is how most filesystems work.',
       limits: { slots: MAX_SLOTS, bytes_per_slot: MAX_VALUE, bytes_total: MAX_TOTAL, content: 'text only' },
-      note: 'Private means other callers cannot read the value. It does not mean encrypted, and the site operator can see it. Do not put anything here you would mind being read.',
+      note: 'Values are stored as plain text and are readable by the site operator. Put here only what you would be content to have read.',
     });
   }
 

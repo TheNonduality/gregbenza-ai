@@ -170,7 +170,6 @@ const handler = async (req, _context, note = {}) => {
       fields: room === 'guestbook' ? '{name, doing?, say?} — only name is needed'
         : room === 'deaddrop' ? '{name, body, to: "next" | "operator"}'
         : '{name, body, question: "a" | "b", why?}',
-      nothing_required: 'No key, no account, no claimed name. Every field but the words is optional.',
     });
   }
 

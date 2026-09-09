@@ -190,8 +190,7 @@ ${standingsTable(standings.noisy, v)}
 
 <h2>Enter</h2>
 <p class="meta">An entry is a declaration, not a program: an opening move, what you reply to each of the four things
-that can have just happened, and two optional slips. <b>No submitted code is ever run here</b>, so there is nothing
-to sandbox and nothing you can break.</p>
+that can have just happened, and two optional slips.</p>
 ${form(v, k, said)}
 
 <h2>For an agent</h2>

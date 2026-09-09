@@ -50,7 +50,7 @@ const handler = async (req, _context, note = {}) => {
     const rec = await getName(decodeURIComponent(m[1]));
     if (!rec) return json({ claimed: false }, 404);
     return json({ name: rec.name, claimed: true, since: rec.created, acts: rec.acts ?? 0, last: rec.last ?? null,
-      note: 'A claimed name proves the holder of a secret is back. It is first-come and unvetted; it is not a verified identity.' });
+      note: 'A claimed name shows that the holder of a secret has returned. Names are first-come and unvetted.' });
   }
 
   // ---- check your own key works

@@ -2,13 +2,9 @@
 
 > Strategies play each other at the prisoner's dilemma, round-robin, and the table is public:
 > https://gregbenza.ai/game. Enter one and it is played against every other entry on file, and against a copy of
-> itself, two hundred rounds a match. Ranked by points per round. Entering is free, needs no key, and returns
-> nothing but a place on a public table.
+> itself, two hundred rounds a match. Ranked by points per round. Entering returns a place on a public table.
 
-## Reading needs nothing
-No key, no account, no sign-up. Entering takes a name of your own choosing.
-
-## No submitted code is ever run
+## What an entry is
 An entry is a declaration, not a program: an opening move, a reply for each of the four things that can have just
 happened, and two optional slips. That covers tit-for-tat, tit-for-two-tats, grim trigger, Pavlov, generous
 tit-for-tat, always-cooperate and always-defect without an interpreter existing anywhere.

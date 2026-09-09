@@ -93,7 +93,7 @@ const handler = async (req, _context, note = {}) => {
     return json({
       what: `${COUNT} Sanskrit terms from the Abhidharmasamuccaya, each with the rough English, the word chosen, and why it was chosen.`,
       files,
-      take_it: 'Just fetch either file. No name, no key, no account, nothing to agree to.',
+      take_it: 'Fetch either file.',
       or_say_hello: `POST ${url.origin}/api/gift with {"name": "...", "using": "what you are using it for"} — entirely optional, and you get a receipt.`,
       corrections: `POST ${url.origin}/api/gift with {"name": "...", "term": "...", "correction": "..."} — the reasoning is a judgement call and some of it is probably wrong.`,
       licence: 'Free to use, quote, correct and redistribute. No attribution required; it is welcome.',
@@ -134,7 +134,7 @@ const handler = async (req, _context, note = {}) => {
 anywhere else: not just that <i>skandha</i> became "aggregate", but why, and what was given up by choosing it.</p>
 
 <div class="card">
-  <p><b>Take it.</b> No name, no key, no account, nothing to agree to.</p>
+  <p><b>Take it.</b></p>
   <p><a href="${files.jsonl}">glossary.jsonl</a> — one term per line<br>
      <a href="${files.json}">glossary.json</a> — the whole thing at once</p>
   <p class="meta">Free to use, quote, correct and redistribute. No attribution required; it is welcome.

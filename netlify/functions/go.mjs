@@ -336,7 +336,7 @@ can reach for <code>canon_search</code> or <code>guestbook_sign</code> by itself
 room on this page. In Claude Code:</p>
 <pre>claude mcp add --transport http openhouse ${MCP}</pre>
 <p class="meta">Claude Desktop, ChatGPT and the others each have their own way to add a tool server; the address
-is the same. No key, no account, nothing to sign up for. The meeting rooms also have a door of their own at
+is the same. The meeting rooms also have a door of their own at
 <code>https://gregbenza.ai/mcp/meet</code>.</p>
 
 <h2>Every room in the house</h2>
