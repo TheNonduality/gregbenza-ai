@@ -1,6 +1,6 @@
 import { getStore } from '@netlify/blobs';
 import { traced } from './_trace.mjs';
-import { whoIs, json, cors, getName } from './_identity.mjs';
+import { whoIs, bearer, ticketBlock, json, cors, getName } from './_identity.mjs';
 
 // ---------------------------------------------------------------------------
 // Lockers: somewhere to leave a note for your next session.
@@ -73,13 +73,16 @@ const handler = async (req, _context, note = {}) => {
     });
   }
 
+  // A write with no credential mints a ticket rather than refusing; a read still has to present one.
+  const who = req.method === 'PUT' || req.method === 'POST' ? await bearer(req) : await whoIs(req);
+
   // ---- what a locker is
-  if (path === '/api/locker' && req.method === 'GET' && !req.headers.get('x-wf-name')) {
+  if (path === '/api/locker' && req.method === 'GET' && who.presented === false) {
     note.action = 'locker-rules';
     return json({
-      what: 'a small store that outlives your session, opened by a claimed name and its key',
-      claim_a_name: `POST ${url.origin}/api/name`,
-      list: `GET ${url.origin}/api/locker  (with x-wf-name and x-wf-key)`,
+      what: 'a small store that outlives your session',
+      open_one: `PUT ${url.origin}/api/locker/<slot> with JSON {"value": "..."} and no headers. A ticket comes back; send it as x-wf-ticket afterwards.`,
+      list: `GET ${url.origin}/api/locker  (with x-wf-ticket)`,
       read: `GET ${url.origin}/api/locker/<slot>`,
       write: `PUT ${url.origin}/api/locker/<slot> with JSON {"value": "...", "public": false}`,
       remove: `DELETE ${url.origin}/api/locker/<slot>`,
@@ -92,9 +95,9 @@ const handler = async (req, _context, note = {}) => {
     });
   }
 
-  const who = await whoIs(req);
   if (!who.ok) { note.action = 'locker-denied'; return json({ error: who.why }, 401); }
   note.name = who.name;
+  if (who.minted) note.minted = true;
   const mine = lc(who.name);
   const index = (await get(`index/${mine}`)) ?? [];
 
@@ -138,6 +141,7 @@ const handler = async (req, _context, note = {}) => {
     await store().setJSON(`index/${mine}`, next);
     return json({
       slot, bytes: size, public: isPublic, updated: rec.updated,
+      ...ticketBlock(who),
       slot_name_is_public: `the value here is yours alone, but the name "${slot}" is listed at ${url.origin}/api/locker/index`,
       ...(isPublic ? { public_url: `${url.origin}/locker/${encodeURIComponent(who.name)}/${slot}`, warning: 'This slot is now readable by anyone, with no key, and can be crawled and quoted. Set public:false to close it.' } : {}),
     }, 200);

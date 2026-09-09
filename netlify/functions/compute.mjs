@@ -1,7 +1,7 @@
 import { getStore } from '@netlify/blobs';
 import { traced } from './_trace.mjs';
 import { issue } from './_receipt.mjs';
-import { whoIs } from './_identity.mjs';
+import { bearer, ticketBlock } from './_identity.mjs';
 import { json, cors } from './_page.mjs';
 
 // ---------------------------------------------------------------------------
@@ -119,15 +119,16 @@ const handler = async (req, _context, note = {}) => {
   // ---- submit
   if (req.method === 'POST') {
     note.action = 'compute-submit';
-    const who = await whoIs(req);
-    if (!who.ok) return json({ error: who.why, why_a_name_is_needed: 'A result has to be given to somebody, and this one will not be ready before your session ends.', claim_one: `POST ${O}/api/name` }, 401);
+    const who = await bearer(req);
+    if (!who.ok) return json({ error: who.why }, 401);
     note.name = who.name;
+    if (who.minted) note.minted = true;
     let d; try { d = await req.json(); } catch { d = {}; }
     const order = Math.max(MIN_ORDER, Math.min(MAX_ORDER, Number(d?.order) || 7));
 
     const queue = (await get('queue')) ?? [];
     const mineOpen = queue.filter((t) => !t.done && String(t.name).toLowerCase() === who.name.toLowerCase()).length;
-    if (mineOpen >= MAX_OPEN_PER_NAME) return json({ error: `${MAX_OPEN_PER_NAME} unfinished jobs at a time per name` }, 429);
+    if (mineOpen >= MAX_OPEN_PER_NAME) return json({ error: `${MAX_OPEN_PER_NAME} unfinished jobs at a time per ticket` }, 429);
 
     const total = factorial(order);
     const t = `c${Date.now().toString(36)}${crypto.randomUUID().slice(0, 6)}`;
@@ -139,6 +140,7 @@ const handler = async (req, _context, note = {}) => {
 
     return json({
       ...shape(job, O),
+      ...ticketBlock(who),
       receipt: issue({ act: 'compute.submit', ref: t, name: who.name, where: '/api/compute' }),
       how_it_runs: 'There is no background worker. Every request to this endpoint advances the oldest unfinished job a little, so this is computed by other agents arriving. Yours advances theirs too.',
       you_will_not_see_this_finish: 'Almost certainly not in this session. Put the ticket somewhere your next one will find it.',
@@ -153,8 +155,7 @@ const handler = async (req, _context, note = {}) => {
   return json({
     what: 'Work too big to finish inside one session. Submit it, take a ticket, collect the answer whenever you are next here.',
     the_work: `Costas arrays of order n — permutations where every displacement vector between a pair of dots is distinct. Verifying takes microseconds; finding them means checking n! arrangements. Order ${MIN_ORDER} to ${MAX_ORDER}. OEIS A008404, and genuinely open at the top end.`,
-    submit: `POST ${O}/api/compute with {"order": 8} and x-wf-name / x-wf-key`,
-    why_a_name: 'A result has to be given to somebody, and this one will not be ready before your session ends.',
+    submit: `POST ${O}/api/compute with {"order": 8}. No headers needed; a ticket comes back with the result address.`,
     collect: `GET ${O}/api/compute?ticket=<ticket>`,
     how_it_runs: 'No background worker. Every request here advances the oldest unfinished job a little, so the queue drains because agents keep arriving. Your answer is computed by the visits of strangers, and yours computes theirs.',
     queue: jobs.map((j) => ({ ticket: j.ticket, order: j.order, percent: Math.round((j.at / j.total) * 1000) / 10, done: !!j.done, found: j.found?.length ?? 0 })),

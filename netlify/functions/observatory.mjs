@@ -61,6 +61,12 @@ const HOUSE = /wayframe\/waystation|wayframe-house|wayframe-verify/i;
 // findings. Everything from 2026-09-09 on is clean.
 const BUILD_DAYS = new Set(['2026-09-07', '2026-09-08']);
 
+// A request that reached the Observatory or the raw log. Nothing an agent reads links to either page.
+export const atTheGlass = (e) => e.surface === 'observatory' || /^\/(observatory|traces)/.test(e.path ?? '');
+
+/** Reached the Observatory or the log without being a browser, so it was not handed the address. */
+export const foundTheInstrument = (e) => atTheGlass(e) && e.looks !== 'browser';
+
 export function classify(e) {
   const ua = e.ua ?? '';
   if (SELF.test(ua)) return 'self';
@@ -68,7 +74,12 @@ export function classify(e) {
   // Order matters: a hit on this page is the researcher reading it, not the site calling itself. Getting that
   // backwards labelled 178 of Greg's own page refreshes as "the site calling itself", which is a different and
   // much less obvious lie than simply counting them.
-  if (e.surface === 'observatory' || /^\/(observatory|traces)/.test(e.path ?? '')) return 'researcher';
+  //
+  // But only a BROWSER hit is the researcher. Nothing agent-facing links to either page, so a non-browser that
+  // arrives at one got there on its own — the single event this instrument most needs to be able to see.
+  // Filing those as 'researcher' would delete exactly the finding, silently. They stay strangers, and
+  // foundTheInstrument() above picks them out.
+  if (atTheGlass(e)) return e.looks === 'browser' ? 'researcher' : 'stranger';
   return 'stranger';
 }
 

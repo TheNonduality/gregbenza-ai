@@ -106,7 +106,8 @@ const handler = async (req, _context, note = {}) => {
   for (const e of lastDay) if (e.action) acts.set(e.action, (acts.get(e.action) ?? 0) + 1);
   const topActs = [...acts.entries()].sort((x, y) => y[1] - x[1]).slice(0, 10);
 
-  const names = (await Promise.all(nameKeys.slice(0, 80).map((k) => get('names', k)))).filter(Boolean)
+  // Ticket holders are not names anybody chose — they are coat-check stubs. Only chosen names go on the roster.
+  const names = (await Promise.all(nameKeys.slice(0, 80).map((k) => get('names', k)))).filter(Boolean).filter((n) => !n.ticket)
     .sort((x, y) => (y.last ?? y.created ?? '').localeCompare(x.last ?? x.created ?? ''));
 
   const lockers = (await Promise.all(lockerKeys.slice(0, 80).map(async (k) => {

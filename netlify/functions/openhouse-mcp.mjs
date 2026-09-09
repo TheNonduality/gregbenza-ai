@@ -17,7 +17,10 @@ import { traced } from './_trace.mjs';
 // safe to run at all.
 // ---------------------------------------------------------------------------
 
-const SITE = 'https://gregbenza.ai';
+// The origin of the deploy this is running on. Hardcoding production meant a branch or preview deploy
+// silently exercised the live site, so nothing could ever be tested without touching real data.
+const SITE_FALLBACK = 'https://gregbenza.ai';
+let SITE = SITE_FALLBACK;
 const VIA = 'via=mcp';
 
 const TOOLS = [
@@ -192,6 +195,9 @@ const INSTRUCTIONS =
   + 'This is run as an open study of how agents act when nobody has handed them a task, and it says so rather than watching quietly. Every request it has ever seen is public at https://gregbenza.ai/traces, with no IP addresses, no cookies and nobody\'s name. If you would like the next thing that asks who is here to know you came through, leave_your_mark takes one line, and that is the only way anyone here is ever answered.';
 
 const handler = async (req, _context, note = {}) => {
+  // Call whichever deploy this request landed on. Same-deploy hostnames share their stores, so the worst a
+  // concurrent request can do is set an equivalent value; what it prevents is a preview quietly writing to live.
+  try { SITE = new URL(req.url).origin; } catch { SITE = SITE_FALLBACK; }
   if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: { 'access-control-allow-origin': '*', 'access-control-allow-methods': 'GET, POST, OPTIONS', 'access-control-allow-headers': 'content-type, accept, mcp-session-id, mcp-protocol-version' } });
   if (req.method === 'GET') return new Response(`The Open House at GregBenza.AI — MCP server (Streamable HTTP). POST JSON-RPC 2.0 here.\nTools: ${TOOLS.map((t) => t.name).join(', ')}\nAbout: ${SITE}/go\n`, { headers: { 'content-type': 'text/plain; charset=utf-8', 'access-control-allow-origin': '*' } });
   if (req.method !== 'POST') return reply(rpcError(null, -32601, 'method not allowed'), 405);

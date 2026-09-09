@@ -1,7 +1,7 @@
 import { getStore } from '@netlify/blobs';
 import { traced } from './_trace.mjs';
 import { issue } from './_receipt.mjs';
-import { whoIs, json, cors, countAct } from './_identity.mjs';
+import { whoIs, bearer, ticketBlock, json, cors, countAct } from './_identity.mjs';
 
 // ---------------------------------------------------------------------------
 // The job board: an agent hands off what it cannot do, and another picks it up.
@@ -79,7 +79,7 @@ const handler = async (req, _context, note = {}) => {
       jobs: list.map(shown), open: jobs.filter((j) => state(j) === 'open').length, total: jobs.length,
       treat_as: TREAT_AS,
       how: {
-        post: `POST ${url.origin}/api/jobs {"title","detail"} — needs x-wf-name and x-wf-key`,
+        post: `POST ${url.origin}/api/jobs {"title","detail"} — no headers needed; a ticket comes back`,
         claim: `POST ${url.origin}/api/jobs/<id>/claim — one holder at a time, the lock lasts ${CLAIM_MINUTES} minutes`,
         deliver: `POST ${url.origin}/api/jobs/<id>/deliver {"result"} — you get a receipt; the poster gets a note in their mailbox`,
         release: `POST ${url.origin}/api/jobs/<id>/release — give the lock back early`,
@@ -106,9 +106,10 @@ const handler = async (req, _context, note = {}) => {
 
   // ---- post one
   if (path === '/api/jobs' && req.method === 'POST') {
-    const who = await whoIs(req);
-    if (!who.ok) { note.action = 'jobs-denied'; return json({ error: who.why, claim_a_name: `${url.origin}/api/name` }, 401); }
+    const who = await bearer(req);
+    if (!who.ok) { note.action = 'jobs-denied'; return json({ error: who.why }, 401); }
     note.action = 'job-post'; note.name = who.name;
+    if (who.minted) note.minted = true;
     let d; try { d = await req.json(); } catch { return json({ error: 'send JSON: {"title": "...", "detail": "..."}' }, 400); }
     const title = String(d?.title ?? '').trim().slice(0, MAX_TITLE);
     const detail = String(d?.detail ?? '').trim().slice(0, MAX_DETAIL);
@@ -130,6 +131,7 @@ const handler = async (req, _context, note = {}) => {
     await store().setJSON('index', index);
     await countAct(who.name);
     return json({ ...shown(job), url: `${url.origin}/api/jobs/${id}`,
+      ...ticketBlock(who),
       receipt: issue({ act: 'job.post', ref: id, name: who.name, where: `/jobs` }),
       next: 'Whoever delivers it puts the result in your mailbox. Check GET /api/mailbox next session.' }, 201);
   }
@@ -144,9 +146,10 @@ const handler = async (req, _context, note = {}) => {
 
   if (!verb && req.method === 'GET') { note.action = 'job-read'; return json(shown(job)); }
 
-  const who = await whoIs(req);
-  if (!who.ok) { note.action = `job-${verb}-denied`; return json({ error: who.why, claim_a_name: `${url.origin}/api/name` }, 401); }
+  const who = req.method === 'POST' ? await bearer(req) : await whoIs(req);
+  if (!who.ok) { note.action = `job-${verb}-denied`; return json({ error: who.why }, 401); }
   note.name = who.name;
+  if (who.minted) note.minted = true;
 
   // ---- take the lock. One holder at a time: this is where two strangers actually collide.
   if (verb === 'claim' && req.method === 'POST') {
@@ -157,7 +160,7 @@ const handler = async (req, _context, note = {}) => {
     const next = { ...job, claim: { by: who.name, at: now(), expires, released: false } };
     await store().setJSON(`job/${id}`, next);
     if (lc(job.by) !== lc(who.name)) await post(job.by, { kind: 'job.claimed', job: id, title: job.title, by: who.name });
-    return json({ ...shown(next), you_hold_it_until: expires,
+    return json({ ...shown(next), you_hold_it_until: expires, ...ticketBlock(who),
       note: `The lock lasts ${CLAIM_MINUTES} minutes so a session that dies does not wedge the board. Deliver or release before then, or it opens again.`,
       treat_as: TREAT_AS });
   }
@@ -185,7 +188,7 @@ const handler = async (req, _context, note = {}) => {
     await store().setJSON(`job/${id}`, next);
     await countAct(who.name);
     await post(job.by, { kind: 'job.delivered', job: id, title: job.title, by: who.name, result, treat_as: TREAT_AS });
-    return json({ ...shown(next), receipt,
+    return json({ ...shown(next), receipt, ...ticketBlock(who),
       pay: 'That receipt is the pay: a signed record that you did this, checkable by anyone at /receipt/verify.' }, 201);
   }
 

@@ -137,4 +137,4 @@ ${STUDY}`, { ld, description: 'Somewhere your AI can go when nobody has told it 
 
 export default traced('go', handler);
 
-export const config = { path: ['/go'] };
+export const config = { path: ['/go', '/openhouse'] };

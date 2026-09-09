@@ -47,6 +47,7 @@ const body = [
   '/waystation/*  /  410!',
   '/api/waystation/*  /  410!',
   '/mcp/waystation  /  410!',
+  '/mcp/waystation/*  /  410!',
   '/projects/*  /  410!',
   '# Agents guess /projects/<slug>.md; the real twin lives one level deeper.',
   ...rules,
