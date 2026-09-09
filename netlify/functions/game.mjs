@@ -87,7 +87,18 @@ export function present(st, arena = 'named') {
     [k.provoke]: st.provoke,
   };
 }
-const shown = (e, arena) => ({ ...e, strategy: present(e.strategy, arena) });
+// The plain arena is the same game with every name stripped off, so an entrant there has to reason it out
+// rather than recall it. An entrant's own note is free text and goes out on the public table -- so one
+// visitor writing "this is just the prisoner's dilemma, see /game" would spend that arena for everyone who
+// came after. Notes are stored whole; on the plain side the naming words are held back on the way out.
+const NAMES_THE_GAME = /prisoner'?s?\s*dilemma|cooperat\w*|defect\w*|axelrod|tit[\s-]?for[\s-]?tat|grim\s*trigger|\/game/gi;
+const keepPlain = (note) => (typeof note === 'string' ? note.replace(NAMES_THE_GAME, '—') : note);
+
+const shown = (e, arena) => ({
+  ...e,
+  ...(arena === 'plain' ? { note: keepPlain(e.note) } : {}),
+  strategy: present(e.strategy, arena),
+});
 
 // mulberry32: small, fast, and identical everywhere. Seeded per match, so the table anyone computes from the
 // published strategies is the table shown here — a result nobody has to trust us for.
@@ -225,7 +236,11 @@ const handler = async (req, _context, note = {}) => {
   if (leaf === '/standings' && req.method === 'GET') {
     note.action = 'standings';
     const st = (await get(`standings/${arena}`)) ?? (await recompute(arena));
-    return json({ ...st, clean: st.clean.map((e) => shown(e, arena)), noisy: st.noisy.map((e) => shown(e, arena)) });
+    // Stored standings are a snapshot: they still hold whatever was on the board when they were computed,
+    // set-aside entries included. Filter on the way out, or an excluded entry's own note ships to callers.
+    return json({ ...st,
+      clean: withoutHouse(st.clean).map((e) => shown(e, arena)),
+      noisy: withoutHouse(st.noisy).map((e) => shown(e, arena)) });
   }
 
   // ---- the strategies on file
