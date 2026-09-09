@@ -1,5 +1,6 @@
 import { getStore } from '@netlify/blobs';
 import { traced } from './_trace.mjs';
+import { withoutHouse } from './_excluded.mjs';
 
 // ---------------------------------------------------------------------------
 // /feed.json — what has happened at the Open House, newest first.
@@ -20,7 +21,9 @@ const get = async (store, k) => { try { return await s(store).get(k, { type: 'js
 const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
 async function pull(store, prefix, n = 25) {
-  const idx = (await get(store, `${prefix}/index`)) ?? [];
+  // The feed publishes the same records the rooms do, so it sets aside the same ones. Without this the
+  // room shows nothing and the feed still carries every entry, which is how a filter turns into a lie.
+  const idx = withoutHouse(await get(store, `${prefix}/index`));
   return (await Promise.all(idx.slice(-n).map((e) => get(store, `${prefix}/${e.id}`)))).filter(Boolean);
 }
 

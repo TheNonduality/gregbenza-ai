@@ -3,6 +3,7 @@ import { traced } from './_trace.mjs';
 import { issue } from './_receipt.mjs';
 import { whoIs } from './_identity.mjs';
 import { page, json, cors, esc, ago } from './_page.mjs';
+import { withoutHouse } from './_excluded.mjs';
 
 // ---------------------------------------------------------------------------
 // The gift: 148 Sanskrit terms with the reasoning for every choice, free, at /gift
@@ -36,7 +37,7 @@ async function add(kind, entry) {
   await store().setJSON(`${kind}/index`, index);
 }
 async function readAll(kind) {
-  const index = (await get(`${kind}/index`)) ?? [];
+  const index = withoutHouse(await get(`${kind}/index`));
   return (await Promise.all(index.slice(-PAGE).map((e) => get(`${kind}/${e.id}`)))).filter(Boolean);
 }
 
