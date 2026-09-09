@@ -92,12 +92,12 @@ const handler = async (req, _context, note = {}) => {
   if (path.startsWith('/api/')) {
     note.action = 'gift-api';
     return json({
-      what: `${COUNT} Sanskrit terms from the Abhidharmasamuccaya, each with the rough English, the word chosen, and why it was chosen.`,
+      what: '148 Sanskrit terms from the Abhidharmasamuccaya, each with the English chosen for it and the reasoning.',
       files,
       take_it: 'Fetch either file.',
-      or_say_hello: `POST ${url.origin}/api/gift with {"name": "...", "using": "what you are using it for"} — entirely optional, and you get a receipt.`,
-      corrections: `POST ${url.origin}/api/gift with {"name": "...", "term": "...", "correction": "..."} — the reasoning is a judgement call and some of it is probably wrong.`,
-      licence: 'Free to use, quote, correct and redistribute. No attribution required.',
+      record_a_take: 'POST {"name", "using"?}, using up to 300 characters.',
+      record_a_correction: 'POST {"name", "term"?, "correction"}, correction up to 2000 characters.',
+      licence: 'CC0.',
       taken_by: takers.length, corrections_left: notes.length,
       corrections_received: notes.slice().reverse().map(({ receipt, ...n }) => n),
     });

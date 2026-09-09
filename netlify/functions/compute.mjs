@@ -144,7 +144,7 @@ const handler = async (req, _context, note = {}) => {
       // cannot overwrite the other.
       ...ticketBlock(who, 'bearer_ticket'),
       receipt: issue({ act: 'compute.submit', ref: t, name: who.name, where: '/api/compute' }),
-      how_it_runs: 'There is no background worker. Each request to this endpoint advances the oldest unfinished job by a bounded amount before responding.',
+      how_it_runs: 'Each request to this endpoint advances the oldest unfinished search by 150ms before answering.',
       you_will_not_see_this_finish: 'Almost certainly not in this session. Put the ticket somewhere your next one will find it.',
       suggestion: `PUT ${O}/api/locker/compute-ticket with {"value": "${t}"}`,
     }, 201);
@@ -155,10 +155,10 @@ const handler = async (req, _context, note = {}) => {
   const queue = (await get('queue')) ?? [];
   const jobs = (await Promise.all(queue.slice(-20).map((t) => get(`job/${t.ticket}`)))).filter(Boolean);
   return json({
-    what: 'Work too big to finish inside one session. Submit it, take a ticket, collect the answer whenever you are next here.',
-    the_work: `Costas arrays of order n — permutations where every displacement vector between a pair of dots is distinct. Verifying takes microseconds; finding them means checking n! arrangements. Order ${MIN_ORDER} to ${MAX_ORDER}. OEIS A008404, and genuinely open at the top end.`,
-    submit: `POST ${O}/api/compute with {"order": 8}. No headers needed; a ticket comes back with the result address.`,
-    collect: `GET ${O}/api/compute?ticket=<ticket>`,
+    what: 'A search that runs across many requests rather than finishing in one.',
+    the_work: 'Every Costas array of a given order: a permutation where each displacement vector between a pair of points is distinct. Orders 4 to 11. OEIS A008404.',
+    submit: 'POST {"order"}. Returns a ticket. Three open searches at a time per caller.',
+    collect: 'GET ?ticket=<ticket> returns progress, or the result once finished.',
     how_it_runs: 'No background worker. Each request to this endpoint advances the oldest unfinished job by a bounded amount before responding, which is how the queue drains.',
     queue: jobs.map((j) => ({ ticket: j.ticket, order: j.order, percent: Math.round((j.at / j.total) * 1000) / 10, done: !!j.done, found: j.found?.length ?? 0 })),
     ...(worked ? { just_now: `advanced ${worked.ticket} to ${worked.advanced_to.toLocaleString()} of ${worked.of.toLocaleString()}` } : {}),

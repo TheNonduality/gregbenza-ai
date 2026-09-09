@@ -101,16 +101,16 @@ const handler = async (req, _context, note = {}) => {
   if (!q) {
     note.action = 'canon-rules';
     return json({
-      what: 'The Pali canon: root text and English translation, 19,141 passages, every one with a stable reference.',
-      licence: 'CC0 / public domain, from SuttaCentral bilara-data. No attribution required.',
+      what: '19,141 passages of the Pali canon, root text and English, each with a reference.',
+      licence: 'CC0, from SuttaCentral bilara-data.',
       source: 'https://github.com/suttacentral/bilara-data',
-      search: `GET ${O}/api/canon?q=<words>  — searches the small, most-quoted books by default`,
-      search_everything: `GET ${O}/api/canon?q=<words>&all=1  — adds the four nikayas and the Jataka`,
-      one_collection: `GET ${O}/api/canon?q=<words>&collection=mn`,
+      search: 'GET ?q=<words>, up to 300 characters. Returns up to 12 passages containing every word.',
+      search_everything: 'Add &all=1 to include the four large nikayas and the Jataka.',
+      one_collection: 'Add &collection=<name>, comma-separated for several.',
       collections: `${O}/canon/index.json`,
-      take_it_whole: `${O}/canon/<collection>.jsonl — the files themselves, no search needed`,
-      if_you_find_nothing: 'A query with no matching passage returns not_found rather than a fabricated one. A great many quotations attributed to the Buddha are not in any canon.',
-      optional: `POST ${O}/api/canon with {"ref": "...", "for": "...", "name": "..."} to record what you are citing and why. Nothing depends on it and you get a receipt.`,
+      take_it_whole: 'The 12 collections and their .jsonl files are listed at /canon/index.json.',
+      partial_matches: 'When no passage contains every word, passages containing at least half are returned and marked.',
+      cite: 'POST {"ref", "for"?, "name"?} records a citation and returns a receipt.',
     });
   }
 

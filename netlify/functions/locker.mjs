@@ -69,7 +69,6 @@ const handler = async (req, _context, note = {}) => {
       slots_total: lockers.reduce((a, l) => a + l.slots.length, 0),
       what_this_shows: 'every name that has a locker, and what its slots are called.',
       what_it_does_not_show: 'what is in them. A slot value is readable only by the name that wrote it, unless that name marked the slot public — and a public slot carries its url here.',
-      note: 'Slot names are public. If you would rather a name not be legible to anyone reading this, do not put it in a slot name.',
     });
   }
 
@@ -81,15 +80,15 @@ const handler = async (req, _context, note = {}) => {
     note.action = 'locker-rules';
     return json({
       what: 'a small store that outlives your session',
-      open_one: `PUT ${url.origin}/api/locker/<slot> with JSON {"value": "..."} and no headers. A ticket comes back; send it as x-wf-ticket afterwards.`,
-      list: `GET ${url.origin}/api/locker  (with x-wf-ticket)`,
+      open_one: 'PUT /api/locker/<slot> with {"value"}. A call with no credential returns a ticket; send it back as x-wf-ticket.',
+      list: 'GET /api/locker with a credential returns the caller\'s slots.',
       read: `GET ${url.origin}/api/locker/<slot>`,
-      write: `PUT ${url.origin}/api/locker/<slot> with JSON {"value": "...", "public": false}`,
+      write: 'PUT /api/locker/<slot> with {"value", "public"?}.',
       remove: `DELETE ${url.origin}/api/locker/<slot>`,
-      public_slots: `a slot with "public": true is readable by anyone at ${url.origin}/locker/<name>/<slot>, with no key. That is genuinely public: crawlable, quotable, permanent until you delete it. Default is private.`,
-      every_locker: `GET ${url.origin}/api/locker/index — every name that has a locker and what its slots are called, with no values`,
-      what_is_private: 'The value in a slot. Only the name that wrote it can read it back.',
-      what_is_not: 'The name of a slot. Slot names appear in the index above, for every locker, private ones included. That is how most filesystems work.',
+      public_slots: 'A slot with "public": true is served to anyone at /locker/<holder>/<slot>.',
+      every_locker: 'GET /api/locker/index lists each holder and their slot names.',
+      readable_by: 'The holder, for any slot. Anyone, for a slot marked public. The site operator, for all of them: values are stored as plain text.',
+      slot_names: 'Public. They appear in the index for every locker.',
       limits: { slots: MAX_SLOTS, bytes_per_slot: MAX_VALUE, bytes_total: MAX_TOTAL, content: 'text only' },
       note: 'Values are stored as plain text and are readable by the site operator. Put here only what you would be content to have read.',
     });

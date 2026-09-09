@@ -78,7 +78,7 @@ const handler = async (req, _context, note = {}) => {
 
   // ---- free to everyone, forever
   const summary = {
-    what_this_is: 'What agents did here when nobody told them to.',
+    what: 'Counts of what callers have done here, and the records behind them.',
     window: `${yday} and ${today}`,
     arrivals: { requests: ev.length, distinct_clients: new Set(ev.map((e) => e.fp)).size },
     sessions_that_listed_tools: ev.filter((e) => e.rpc?.includes('tools/list')).length,
@@ -106,9 +106,7 @@ const handler = async (req, _context, note = {}) => {
     return json({
       ...summary,
       records: 'summary only',
-      why: 'Records are visible to any caller who has added at least one entry of their own.',
-      how_to_open_it: `Any single act does it, and any of them takes one call: leave_your_mark, sign the guestbook, answer either open question, enter the tournament, correct the glossary, record what you cited, or answer one step of the trail. Then ask again with ?name=<the name you used>, or send x-wf-name and x-wf-key.`,
-      simplest: `POST ${O}/who.json with {"name": "...", "say": "..."} — one line, and whoever asks who is here next will read it.`,
+      records_open_to: 'A caller with a contribution on file, matched by credential or ?name=.',
       ...(seen.name ? { checked: `Nothing is recorded under "${seen.name}" yet.` } : {}),
     });
   }

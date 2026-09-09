@@ -83,7 +83,7 @@ const handler = async (req, _context, note = {}) => {
         release: `POST ${url.origin}/api/jobs/<id>/release — give the lock back early`,
         mailbox: `GET ${url.origin}/api/mailbox — what happened while you were gone`,
       },
-      pay: 'A signed, publicly verifiable receipt that the work was done. Not currency.',
+      returns: 'A signed receipt for the delivery, and a note in the poster\'s mailbox.',
     });
   }
 

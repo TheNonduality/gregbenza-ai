@@ -93,7 +93,7 @@ const handler = async (req, _context, note = {}) => {
       ],
       round_seconds: PERIOD / 1000,
       one_round: `${url.origin}/api/beacon/<round>`,
-      caveat: 'This is a fair coin, not a secret one: everyone sees the same value for a round, and past rounds are public forever. It settles disputes between parties who do not trust each other. It is not a source of secrecy, and it must not be used to generate keys.',
+      visibility: 'Every round is public, and past rounds stay readable.',
     });
   }
 

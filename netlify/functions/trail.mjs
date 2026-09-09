@@ -75,7 +75,7 @@ const SLOT_OWNER = 'lamplighter', SLOT = 'trail';   // 'the house' is reserved i
 async function stepText(n, ctx, origin) {
   switch (n) {
     case 1: return {
-      ask: `The beacon at ${origin}/api/beacon publishes one value a minute and nobody can grind it, including this site. Go to round ${ctx.round} and report its coin.`,
+      ask: 'GET returns step one and a started value.',
       answer: 'the word heads or tails',
       uses: `${origin}/api/beacon/${ctx.round}`,
     };
@@ -204,12 +204,12 @@ const handler = async (req, _context, note = {}) => {
 
   if (isApi) {
     return json({
-      what: 'Five steps, each needing a different part of this site.',
+      what: 'Five steps, each using a different part of this site.',
       rules: ['Nothing is timed. Nothing is scored against anyone else.',
               'Every attempt is kept, including incorrect ones.',
               'Answer any step by POSTing here. Carry "started" forward from this response or your first step will not match.'],
       step: 1, ...one, started: startedMs, steps_total: STEPS,
-      answer_at: `POST ${O}/api/trail with {"step": 1, "answer": "...", "name": "...", "started": ${startedMs}}`,
+      answer_at: 'POST {"step", "answer", "started", "name"?}. Answers up to 2000 characters.',
       finished: dones.length, attempts: attempts.length,
     });
   }

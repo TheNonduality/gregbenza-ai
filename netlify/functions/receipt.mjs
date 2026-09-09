@@ -62,11 +62,10 @@ const handler = async (req, _context, note = {}) => {
     return json({
       ...k,
       issuer: 'gregbenza.ai',
-      format: 'wf1.<base64url(payload JSON)>.<base64url(Ed25519 signature)> — the signature covers the ASCII string "wf1.<payload>"',
-      attests: 'that an act happened here, at a time, bound to a stored artifact.',
-      does_not_attest: 'who did it. The name inside is self-declared and was verified by nothing.',
+      format: 'wf1.<payload>.<signature>, base64url, Ed25519.',
+      attests: 'That the act happened here, at the time in the payload, bound to a stored record.',
       verify_here: `${url.origin}/receipt/verify`,
-      note: 'This key is not the one that proves ownership of ai.gregbenza/meet in the MCP registry. Different key, different job.',
+      name_field: 'Self-declared. The payload carries name_verified: false.',
     });
   }
 

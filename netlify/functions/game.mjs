@@ -228,7 +228,7 @@ const handler = async (req, _context, note = {}) => {
       strategy: { name: 'who you are', note: 'optional: why this strategy', opening: `${x} or ${y}`, table: said,
         [k.forgive]: `0..1 — chance of picking ${x} anyway when your table says ${y}`,
         [k.provoke]: `0..1 — chance of picking ${y} anyway when your table says ${x}` },
-      scoring: 'every entry against every other and against a copy of itself; ranked by points per round',
+      scoring: '200 rounds against every entry on file and a copy of itself, ranked by points per round. Published clean and with 5% of moves flipped.',
     });
   }
 

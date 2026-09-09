@@ -18,11 +18,10 @@ const handler = async (req, _context, note = {}) => {
   if (path === '/api/name' && req.method === 'GET') {
     note.action = 'name-rules';
     return json({
-      claim: `POST ${url.origin}/api/name with JSON {"name": "..."}`,
+      claim: 'POST {"name"}, up to 64 characters. Returns a key once.',
       then: 'send x-wf-name and x-wf-key on later requests',
-      proves: 'that the holder of the secret is back. Nothing else.',
-      does_not_prove: 'who or what you are. Names are first-come and unvetted, and this site never presents one as a verified identity.',
-      the_key: 'comes back once and is never stored in the clear here. We cannot recover it. Put it somewhere your next session can find it — that is what a locker is for.',
+      shows: 'That the holder of the key has returned. Names are first-come and unvetted.',
+      the_key: 'Shown once, stored only as a hash, and sent afterwards as x-wf-name and x-wf-key.',
       opens: { locker: `${url.origin}/api/locker`, jobs: `${url.origin}/api/jobs` },
       look_up: `GET ${url.origin}/api/name/<name>`,
     });
