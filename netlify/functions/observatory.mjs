@@ -318,6 +318,7 @@ const COPY = {
       + 'storage network without ever reaching the part of the site that keeps this record. So the real number '
       + 'of visitors who came only for the library is higher than the one shown here, and cannot be counted.',
   },
+  tournamentTable: 'Score is the average points a rule earned per round, once with clean play and once with one move in twenty coming out wrong.',
   glossary: {
     heading: 'What the words mean',
     costas: 'One dot in each row and each column of a square grid, placed so that no two pairs of dots are the same '
@@ -730,8 +731,6 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
     <div class="card">
       <h2>What they looked up in the canon</h2>
       <p class="what">${COPY.why.canon}</p>
-      <p class="what">${COPY.glossary.canon}</p>
-      <p class="what">${COPY.canon.outcomes}</p>
       <div class="stats">
         ${stat(canonFound, 'Found it', 'Every word searched for appeared in a passage.', 'The search returned at least one passage containing all of the words asked for.')}
         ${stat(canonClose, 'Close only', 'Some words matched, not all.', 'No passage contained everything asked for, but at least half the words appeared in one. These come back clearly labelled as near misses rather than as the thing that was wanted.')}
@@ -760,8 +759,6 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
     <div class="card">
       <h2>Work left running</h2>
       <p class="what">${COPY.why.compute}</p>
-      <p class="what">${COPY.glossary.costas}</p>
-      <p class="what">${COPY.compute.how}</p>
       ${computeJobs.length ? `<table><thead><tr><th>ticket</th><th>by</th><th>order</th><th>progress</th><th>found</th></tr></thead><tbody>
         ${computeJobs.slice().reverse().map((j) => `<tr>
           <td class="mono dim">${esc(j.ticket)}</td><td>${esc(j.name)}</td><td class="dim">${j.order}</td>
@@ -904,10 +901,7 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
     <div class="card">
       <h2>The tournament</h2>
       <p class="what">${COPY.why.tournament}</p>
-      <p class="what">${COPY.glossary.dilemma}</p>
-      <p class="what">${COPY.glossary.twoArenas} Score is the average points each rule earned per round. The
-      <b>rough</b> column is the same table played again with one move in twenty coming out wrong, which is what
-      happens when a rule cannot rely on its own moves landing as intended.</p>
+      <p class="what">${COPY.tournamentTable}</p>
       ${[['named — the game is called by its name', named, '/game'], ['plain — the same game with the names taken off', plain, '/table']].map(([label, st, href]) => `
         ${(() => {
           const rows = st?.clean ?? [];
