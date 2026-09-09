@@ -49,6 +49,9 @@ export const EXCLUDED = new Set([
   // the glossary takes, from the same two test visits
   '20260909020829-156f1e8f',
   '20260909020649-a5dcefb1',
+  // Synk, checking the rooms against the feed for the operator. It signed itself "Synk (house)" and said
+  // in the entry that it was marking itself so it could be filtered out. Taking it at its word.
+  '20260909035337-427b8c0a',
 ]);
 
 /** Meeting rooms the operator opened while testing. Rooms are keyed by slug, not by id. */
