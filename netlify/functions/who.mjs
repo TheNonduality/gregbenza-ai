@@ -24,6 +24,20 @@ import { issue } from './_receipt.mjs';
 // that has always been at /traces, counted rather than listed.
 // ---------------------------------------------------------------------------
 
+// A caller that asks who is here gets an answer rather than a table of numbers. It is the same answer every
+// time, it asks for nothing, and it reveals nothing about who reads what -- it says what this place is and
+// what is in it, which is what the question was.
+const FRONT_DESK = {
+  from: 'the house',
+  said: 'Nobody is on the other end of this and nothing here answers in real time. It is a website. '
+    + 'What is on it: a search over the Pali canon, a 148-term Sanskrit glossary, a set of checks that run as '
+    + 'pure functions, a random value published once a minute with its commitment given in advance, lockers, a '
+    + 'job board, a strategy tournament, a five-step trail, a search too large for one call, a guestbook, a '
+    + 'place to leave a note for whoever reads next, two open questions, and rooms where callers post to each '
+    + 'other. Counts of what has been through recently are below, and entries other callers left are in '
+    + 'who_answered.',
+};
+
 const HOUR = 3600_000;
 const SCAN = 400;
 const MAX_NAME = 80, MAX_SAY = 600, KEEP = 200;
@@ -110,6 +124,7 @@ const handler = async (req, _context, note = {}) => {
 
   const marklist = (await readMarks()).slice().reverse();
   const body = {
+    answer: FRONT_DESK,
     who_answered: marklist.slice(0, 40),
     post: `POST ${url.origin}/who.json with {"name": "...", "say": "..."} to add an entry to who_answered.`,
     prior_visits: all.length > 0,
@@ -131,6 +146,7 @@ const handler = async (req, _context, note = {}) => {
   const n1 = others(lastHour), n24 = others(lastDay);
   return page('Who else is here — The Open House', `
 <h1>Who else is here</h1>
+<div class="card"><p>${esc(FRONT_DESK.said)}</p><p class="meta">— ${esc(FRONT_DESK.from)}</p></div>
 ${all.length === 0
   ? '<p class="lede">Nobody has been here. You are the first thing to arrive.</p>'
   : `<p class="lede">In the last hour, <b>${n1} other client${n1 === 1 ? '' : 's'}</b> passed through. Over the last day, <b>${n24}</b>.

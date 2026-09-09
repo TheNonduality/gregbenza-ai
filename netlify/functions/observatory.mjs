@@ -228,6 +228,16 @@ const COPY = {
       + 'reaches this part of the site does a little of the work first, then gets its own answer. The queue moves '
       + 'because visitors keep turning up, and whoever asked will have gone before it finishes.',
   },
+  control: {
+    heading: 'Came for one thing',
+    what: 'Three things here are simply useful and cost nothing to take: the scripture search, the glossary, '
+      + 'and the long search. No account, no name, no ticket, nothing to agree to. A visitor that touches one '
+      + 'of them and nothing else is the simplest thing this page records \u2014 somebody who wanted a thing, got '
+      + 'it, and left. Everything else on this page is worth reading against that number.',
+    caveat: 'Whole scripture files can also be downloaded directly, and those downloads are handed out by the '
+      + 'storage network without ever reaching the part of the site that keeps this record. So the real number '
+      + 'of visitors who came only for the library is higher than the one shown here, and cannot be counted.',
+  },
   glossary: {
     heading: 'What the words mean',
     costas: 'One dot in each row and each column of a square grid, placed so that no two pairs of dots are the same '
@@ -392,6 +402,29 @@ const handler = async (req, _context, note = {}) => {
   const canonClose = canonSearchRows.filter((r) => r.outcome === 'close').length;
   const canonNothing = canonSearchRows.filter((r) => r.outcome === 'nothing').length;
 
+  // What each distinct visitor touched, so the ones that came for a single thing can be counted apart from
+  // the ones that wandered. A visitor is its client shape; see COPY.glossary.fingerprint.
+  const visits = new Map();
+  for (const e of events) {
+    if (!visits.has(e.fp)) visits.set(e.fp, []);
+    visits.get(e.fp).push(e);
+  }
+  const familyOf = (e) => {
+    const a = String(e.action ?? ''), p = String(e.path ?? '');
+    if (a.startsWith('canon') || p.startsWith('/canon/')) return 'canon';
+    if (a.startsWith('compute')) return 'compute';
+    if (a.startsWith('gift') || p.startsWith('/gift/')) return 'gift';
+    if (a.startsWith('check')) return 'check';
+    if (a.startsWith('beacon')) return 'beacon';
+    return e.surface ?? 'other';
+  };
+  const onlyTouched = (name) => [...visits.values()].filter((es) => es.every((e) => familyOf(e) === name)).length;
+  const cameForCanon = onlyTouched('canon');
+  const cameForCompute = onlyTouched('compute');
+  const cameForGift = onlyTouched('gift');
+  const oneFamilyOnly = [...visits.values()].filter((es) => new Set(es.map(familyOf)).size === 1).length;
+  const wandered = visits.size - oneFamilyOnly;
+
   const hours = Array(24).fill(0);
   for (const e of events) hours[Number(e.ts.slice(11, 13))]++;
   const peak = Math.max(1, ...hours);
@@ -457,6 +490,19 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
         ${stat('\u2014', 'Whole files', 'Not counted \u2014 see below.', 'These files are handed out directly by the network that stores them, so a download never reaches the part of the site that keeps this record.')}
       </div>
       <p class="what">${COPY.arrivals.canonRoads}</p>
+    </div>
+
+    <div class="card">
+      <h2>${COPY.control.heading}</h2>
+      <p class="what">${COPY.control.what}</p>
+      <div class="stats">
+        ${stat(cameForCanon, 'Only the scripture', 'Searched the canon and touched nothing else.', 'Every request this visitor made was to the canon search. It came for the library.')}
+        ${stat(cameForGift, 'Only the glossary', 'Took the glossary and nothing else.', 'Every request was to the glossary. Note the caveat below: the file itself can be downloaded without this being able to see it.')}
+        ${stat(cameForCompute, 'Only the long search', 'Used the queued search and nothing else.', 'Every request was to the search that runs across visits.')}
+        ${stat(oneFamilyOnly, 'One thing only', 'Used a single part of the site.', 'The whole visit stayed inside one part of the site, whichever part that was.')}
+        ${stat(wandered, 'Looked around', 'Touched more than one part.', 'The visit moved between different parts of the site.')}
+      </div>
+      <p class="what">${COPY.control.caveat}</p>
     </div>
 
 <div class="stats">
