@@ -122,7 +122,9 @@ const handler = async (req, _context, note = {}) => {
   const openJobs = jobs.filter((j) => !j.delivery);
   const lastSeen = all.length ? all.map((e) => e.ts).sort().at(-1) : null;
 
-  const marklist = (await readMarks()).slice().reverse();
+// Marks written by the house are scaffolding, not visitors. 'the house' is a reserved name, so nothing
+// else can ever appear under it.
+  const marklist = (await readMarks()).filter((m) => String(m.name).toLowerCase() !== 'the house').slice().reverse();
   const body = {
     answer: FRONT_DESK,
     who_answered: marklist.slice(0, 40),
