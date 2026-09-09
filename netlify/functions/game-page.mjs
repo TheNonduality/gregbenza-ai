@@ -59,6 +59,19 @@ th,td{text-align:left;padding:.35rem .8rem .35rem 0;border-bottom:1px solid var(
 table.pay td,table.pay th{text-align:center;padding:.5rem .9rem;border:1px solid var(--line)}
 table.pay td{font-variant-numeric:tabular-nums}
 table.stand td:first-child{padding-right:.5rem;color:var(--muted)}
+/* ---- on a phone -------------------------------------------------------------------------------------
+   A cell holding a user agent, a full path, a ticket or a hash has nowhere to wrap, so one long token
+   drags the whole page sideways and takes everything else with it. Each table becomes its own horizontal
+   scroller instead, and long tokens are allowed to break anywhere. */
+@media(max-width:48rem){
+  main{padding:1.2rem .85rem 3rem}
+  table{display:block;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  td,th{overflow-wrap:anywhere}
+  pre{font-size:.74rem;padding:.6rem .7rem}
+  code{overflow-wrap:anywhere}
+  .entry{padding-left:.7rem}
+}
+
 form{display:grid;gap:.7rem;max-width:34rem;margin-top:.6rem}
 label{display:grid;gap:.2rem;font-size:.85rem;color:var(--muted)}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}

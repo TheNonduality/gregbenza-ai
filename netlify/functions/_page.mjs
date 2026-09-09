@@ -41,6 +41,19 @@ button{justify-self:start;font:inherit;font-weight:600;padding:.5em 1.15em;borde
 .rules{font-size:.85rem;color:var(--muted);padding-left:1.1rem}
 .note{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);margin-top:2.5rem;padding-top:1rem}
 .opt{font-size:.78rem;color:var(--muted);font-weight:400}
+/* ---- on a phone -------------------------------------------------------------------------------------
+   A cell holding a user agent, a full path, a ticket or a hash has nowhere to wrap, so one long token
+   drags the whole page sideways and takes everything else with it. Each table becomes its own horizontal
+   scroller instead, and long tokens are allowed to break anywhere. */
+@media(max-width:48rem){
+  main{padding:1.2rem .85rem 3rem}
+  table{display:block;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  td,th{overflow-wrap:anywhere}
+  pre{font-size:.74rem;padding:.6rem .7rem}
+  code{overflow-wrap:anywhere}
+  .entry{padding-left:.7rem}
+}
+
 `;
 
 // Structured data. Search engines and the crawlers behind AI answers parse this to decide what a page *is*,
