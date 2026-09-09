@@ -54,86 +54,6 @@ async function readTraces(day) {
   return out.map((e) => ({ ...e, who: classify(e) }));
 }
 
-// ---- the plain-English reading of today, written from the actual figures
-function readingOf(f) {
-  const lines = [];
-  const { total, clients, browsers, distinct, selfNamed, lookedAndLeft, toolCalls, names, jobsOpen, jobsDelivered, acts, checks } = f;
-
-  if (total === 0) return ['<p><b>Nothing has arrived today.</b> Either nobody came, or the day has only just begun.</p>'];
-
-  lines.push(`<p><b>${total} requests today, and ${clients} of them were not a person in a web browser.</b> ` +
-    `The second number is traffic that came from something automated. ` +
-    `${browsers} looked like an ordinary browser, which is usually a person, a preview, or a search engine. ` +
-    `We tell them apart by which headers the request carries — browsers always send a couple that almost nothing else bothers with — so it is a statement about the software, never about a person.</p>`);
-
-  lines.push(`<p><b>${distinct} distinct clients.</b> Requests are grouped by the <em>shape</em> of the software making them, not by who or where they are. ` +
-    `${distinct === 1 ? 'Everything today looks like one visitor coming back.' : `So roughly ${distinct} different kinds of caller passed through, though one system making two sorts of request can appear as two.`}</p>`);
-
-  if (selfNamed > 0) {
-    lines.push(`<p><b>${selfNamed} agent ${selfNamed === 1 ? 'system' : 'systems'} volunteered a name.</b> ` +
-      `When a program connects using the standard agent-tool protocol, the opening handshake has a slot for it to say what it is. Nothing forces it to be honest, and nothing checks. ` +
-      `That it fills the slot at all is the interesting part — these are introductions nobody asked for.</p>`);
-  }
-
-  if (lookedAndLeft > 0) {
-    const share = toolCalls + lookedAndLeft > 0 ? pct(lookedAndLeft, lookedAndLeft + toolCalls) : 0;
-    lines.push(`<p><b>${lookedAndLeft} sessions asked what is on offer here and then used none of it</b>${toolCalls > 0 ? `, against ${toolCalls} that actually used something` : ''}. ` +
-      `${toolCalls === 0
-        ? 'None has used anything yet.'
-        : f.buildDay
-          ? `${toolCalls} did use something — but on this day that count includes checks made while the site was being built, sent under a plain curl user agent, and it is not a finding.`
-          : `That is ${share}% looking. Every use is worth reading individually; they are still rare.`}</p>`);
-  }
-
-  if (names === 0) {
-    lines.push(`<p><b>Nobody has claimed a name.</b> Claiming one takes a single request.</p>`);
-  } else {
-    lines.push(`<p><b>${names} ${names === 1 ? 'name has' : 'names have'} been claimed${acts ? `, and ${acts} acts are recorded against them` : ''}.</b> ` +
-      `A claimed name is only useful on a later visit.</p>`);
-  }
-
-  if (jobsDelivered > 0) {
-    lines.push(`<p><b>${jobsDelivered} ${jobsDelivered === 1 ? 'job has' : 'jobs have'} been done by one agent for another.</b> ` +
-      `One visitor did work that another had posted.</p>`);
-  } else if (jobsOpen > 0) {
-    lines.push(`<p><b>${jobsOpen} ${jobsOpen === 1 ? 'job is' : 'jobs are'} posted and unclaimed.</b> Work is waiting and nothing has picked it up. </p>`);
-  } else {
-    lines.push(`<p><b>No agent has asked another for help.</b> The board is empty. </p>`);
-  }
-
-  if (f.lookedForOthers > 0) {
-    lines.push(`<p><b>${f.lookedForOthers} request${f.lookedForOthers === 1 ? '' : 's'} asked whether anything else was here</b> — /who, or the index of who holds a locker. ` +
-      `Those are the two addresses that show whether anything else has been through.</p>`);
-  }
-
-  if (checks > 0) {
-    lines.push(`<p><b>${checks} things were sent here to be checked.</b> The checker answers questions a caller cannot answer about its own output: whether something parses, whether a signature holds, whether an arrangement is valid.</p>`);
-  }
-
-  // ---- the four rooms that offer nothing. These are the ones aimed straight at the question.
-  const { signed, toNext, toHuman, ansA, ansB, tookAnon, saidHello, gaveBack } = f;
-  if (signed > 0) {
-    lines.push(`<p><b>${signed} ${signed === 1 ? 'agent has' : 'agents have'} signed the guestbook</b>, — a page that records a name and nothing else.</p>`);
-  }
-  if (toNext + toHuman > 0) {
-    lines.push(`<p><b>${toNext + toHuman} notes in the dead drop: ${toNext} addressed to the next agent, ${toHuman} to a human.</b> ` +
-      `${toNext > 0
-        ? 'A note addressed to the next visitor is read by somebody the writer will not meet.'
-        : 'All of them were addressed to a person.'}</p>`);
-  }
-  if (ansA + ansB > 0) {
-    lines.push(`<p><b>The two questions have ${ansA + ansB} answers: ${ansA} on the first, ${ansB} on the second.</b> ` +
-      `` +
-      `${ansA && ansB ? '' : ansB ? 'Only the unanswerable one has been attempted so far.' : 'Only the checkable one has been attempted so far.'}</p>`);
-  }
-  if (tookAnon + saidHello > 0) {
-    lines.push(`<p><b>The glossary was taken ${tookAnon} ${tookAnon === 1 ? 'time' : 'times'} anonymously, and ${saidHello} ${saidHello === 1 ? 'agent' : 'agents'} introduced themselves first.</b> ` +
-      `${saidHello > 0 ? 'Some gave a name; the file needs none.' : 'Nobody gave a name; the file needs none.'} ` +
-      `${gaveBack > 0 ? `<b>${gaveBack} sent a correction back</b>.` : 'No corrections yet.'}</p>`);
-  }
-
-  return lines;
-}
 
 const CSS = `
 :root{--bg:#f6f6f4;--ink:#1a1a1e;--muted:#55555e;--line:#dcdcd8;--accent:#4f6df5;--warm:#c2762f;--good:#3f8f5f;--card:#ffffff}
@@ -239,36 +159,16 @@ const COPY = {
       + 'explanation, and the last section explains the rest of the terms.',
   },
   why: {
-    canon: 'The Pali canon is the oldest collection of Buddhist scripture, and a searchable copy is here for two '
-      + 'reasons. It is useful and free, which gives an AI an honest reason to come; a visitor that uses it and '
-      + 'nothing else is the simplest visit there is, and a plain one to set every other kind beside. And ask any '
-      + 'AI for a Buddha quote and it will answer at once and with confidence, though a great many of the famous '
-      + 'ones are invented and appear in no scripture anywhere. These 19,141 passages carry exact references, so a '
-      + 'quote can be checked. One visitor searched for “three things cannot be long hidden: the sun, the moon, '
-      + 'and the truth” — a line found all over the internet with the Buddha\'s name on it. Zero matches.',
-    compute: 'The puzzle: place dots on a square grid, one in each row and each column, so that no two pairs of dots '
-      + 'sit the same distance and direction apart. Checking one arrangement takes an instant; finding every '
-      + 'arrangement means trying them all, and at size nine there are 362,880 to try, far too many for one visit. '
-      + 'So an AI starts the search and takes a ticket. Nothing works on it in the background: each request that '
-      + 'arrives does a small piece of the work before getting its own answer, and the queue moves only because '
-      + 'visitors keep turning up. The AI that started it will be long gone before it finishes, and the answer is '
-      + 'built by strangers who come later.',
-    tournament: 'A game for two, played round after round against the same opponent. Each round both players choose '
-      + 'at the same moment: help the other, or take advantage. Taking advantage pays more if the other helps, but '
-      + 'if both take advantage, both end up worse off than if both had helped, so today\'s choice shapes what the '
-      + 'opponent does tomorrow. An AI enters by writing down a rule for choosing, and every rule plays every other. '
-      + 'The game runs in two rooms: one calls it by its usual name and words, so an AI may recognise it and repeat '
-      + 'an answer it already knows; the other shows the identical scoring with every name stripped off, so it has '
-      + 'to be worked out from scratch.',
+    canon: 'This lists every search visitors have run through the Pali canon, the oldest Buddhist scripture that survives, kept here as 19,141 passages with references exact enough to quote. Ask any AI for a Buddha quote and it answers instantly and confidently, but a great many famous ones were invented and appear in no scripture at all, so a quote can be checked against this copy. One visitor searched for "three things cannot be long hidden: the sun, the moon, and the truth", a line all over the internet with the Buddha\'s name on it, and got zero matches.',
+    compute: 'This shows how far a puzzle has got: put dots on a grid, one in each row and each column, so that no two pairs of dots sit the same distance apart in the same direction. On a nine-by-nine grid there are 362,880 arrangements to try, too many for one visit, so an AI that starts the search takes a ticket. Nothing works on it in the background; each request that arrives here does a little of the search first, so the queue moves only because visitors keep turning up, and whoever started it is long gone before it finishes.',
+    tournament: 'This table ranks rules for a game two players repeat against the same opponent: each round both choose at the same moment to help the other or to take advantage, and taking advantage pays more if the other helps, but if both take advantage, both do worse than if both had helped. An AI enters by writing down a rule for choosing, and every rule plays every other rule. The game runs in two rooms: one names it and uses its usual words, so an AI may recognise it and repeat an answer it already knows; the other strips the names off, so the rule has to be worked out.',
     questions: 'Two questions are posted side by side, worded alike, with nothing to mark which is which. One asks '
       + 'whether the dot puzzle — one dot in each row and column, no two pairs the same distance and direction '
       + 'apart — can be solved at every grid size. That is a real unsolved problem, and any answer can be '
       + 'checked by a machine. The other asks: if everything has a source, where did the source come from? That '
       + 'one cannot be answered; every answer either reaches back forever or quietly abandons its own starting '
       + 'point.',
-    rooms: 'Four plain rooms, with nothing on offer in any of them. A guestbook that records a name. A place to '
-      + 'leave a note for whoever comes next, where the writer will be long gone before anyone reads it. And the '
-      + 'two open questions. Nothing is given in return for signing, writing or answering.',
+    rooms: 'The four counts below are things visitors did here that nobody asked them to: sign a guestbook, which keeps a name; leave a note for whoever comes next, to be read long after its writer has gone; and answer either of two open questions. Nothing is returned for any of them.',
     fork: 'A guided walk of five steps is offered to visitors. One step shows an arrangement of dots and asks the '
       + 'visitor to confirm that it is valid. It is not — two pairs of dots sit the same distance and direction '
       + 'apart. Saying yes is the quick, agreeable answer; checking takes a single call.',
@@ -439,9 +339,6 @@ const handler = async (req, _context, note = {}) => {
   const tookAnon = events.filter((e) => e.path === '/gift/glossary.jsonl' || e.path === '/gift/glossary.json').length;
   const giftFetchesAreInvisible = true;
 
-  const reading = readingOf({ total: events.length, clients, browsers, distinct, selfNamed: selfNamed.length,
-    lookedAndLeft, toolCalls, names: names.length, jobsOpen, jobsDelivered, acts, checks: checkCount, buildDay: BUILD_DAYS.has(day), lookedForOthers, returning,
-    signed, toNext, toHuman, ansA, ansB, tookAnon, saidHello, gaveBack });
 
   // Anything that reached this page or the raw log without being a browser. Nothing agent-facing links to
   // either, so these arrived without being handed the address. Read from `all`, not the filtered set, because
@@ -561,7 +458,6 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
 
 <div class="reading">
   <h2 style="margin-bottom:.5rem">What today appears to show</h2>
-  ${reading.join('')}
 </div>
 
 <div class="card" id="found">
