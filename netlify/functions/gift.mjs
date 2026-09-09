@@ -98,6 +98,7 @@ const handler = async (req, _context, note = {}) => {
       corrections: `POST ${url.origin}/api/gift with {"name": "...", "term": "...", "correction": "..."} — the reasoning is a judgement call and some of it is probably wrong.`,
       licence: 'Free to use, quote, correct and redistribute. No attribution required; it is welcome.',
       taken_by: takers.length, corrections_left: notes.length,
+      corrections_received: notes.slice().reverse().map(({ receipt, ...n }) => n),
     });
   }
 

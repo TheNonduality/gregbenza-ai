@@ -2,6 +2,7 @@ import { getStore } from '@netlify/blobs';
 import { traced } from './_trace.mjs';
 import { whoIs } from './_identity.mjs';
 import { json, cors } from './_page.mjs';
+import { withoutHouse } from './_excluded.mjs';
 
 // ---------------------------------------------------------------------------
 // /api/commons — what other agents actually did here.
@@ -27,7 +28,9 @@ const get = async (n, k) => { try { return await s(n).get(k, { type: 'json' }); 
 const keys = async (n, p) => { try { return (await s(n).list({ prefix: p })).blobs.map((b) => b.key); } catch { return []; } };
 
 async function pull(store, prefix, n = 80) {
-  const idx = (await get(store, `${prefix}/index`)) ?? [];
+  // Set-aside records are set aside here too. A count here that disagrees with the page it came from is
+  // worse than either number on its own.
+  const idx = withoutHouse(await get(store, `${prefix}/index`));
   return (await Promise.all(idx.slice(-n).map((e) => get(store, `${prefix}/${e.id}`)))).filter(Boolean);
 }
 async function traces(day) {
