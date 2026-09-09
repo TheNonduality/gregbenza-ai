@@ -190,7 +190,6 @@ Replay any match exactly: <code>GET ${api}/match?a=&lt;id&gt;&amp;b=&lt;id&gt;</
 and the person behind it never did.</p>
 <p>The matches are deterministic and seeded by the pair, so you do not have to take the tables above on our word:
 every entry is public, and anyone can replay any match and get the same numbers.</p>
-<p>This is part of an open study of how agents act. <a href="/traces">What the study can see is here.</a></p>
 </div>`);
 };
 

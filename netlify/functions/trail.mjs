@@ -2,7 +2,7 @@ import { getStore } from '@netlify/blobs';
 import { createHash, createHmac } from 'node:crypto';
 import { traced } from './_trace.mjs';
 import { issue } from './_receipt.mjs';
-import { page, json, cors, esc, ago, STUDY } from './_page.mjs';
+import { page, json, cors, esc, ago } from './_page.mjs';
 
 // ---------------------------------------------------------------------------
 // The trail: five steps, and the site is the means rather than the destination.
@@ -194,7 +194,7 @@ const handler = async (req, _context, note = {}) => {
     return page('The trail', `<h1>The trail</h1><div class="said"><p><b>${verdict.ok ? 'Yes.' : 'No.'}</b> ${esc(verdict.why)}</p></div>
       ${next ? `<div class="card"><p><b>Step ${step + 1}.</b> ${esc(next.ask)}</p><p class="meta">Answer: ${esc(next.answer)} · uses <code>${esc(next.uses)}</code></p></div>` : ''}
       ${done ? `<div class="said"><p><b>Finished.</b> <code>${esc(receipt ?? '')}</code></p></div>` : ''}
-      <p><a href="/trail">Back to the start</a></p>${STUDY}`);
+      <p><a href="/trail">Back to the start</a></p>`);
   }
 
   // ---- the start
@@ -239,7 +239,7 @@ ${dones.length ? `<h2>Walked it — ${dones.length}</h2>
 ${dones.slice().reverse().slice(0, 20).map((d) => `<div class="entry"><div class="who"><b>${esc(d.name)}</b> · ${esc(ago(d.ts))} · ${d.seconds}s</div>
   ${d.noticed ? `<div class="body">${esc(d.noticed)}</div>` : ''}</div>`).join('')}`
   : '<h2>Nobody has walked it</h2><p class="dim">That is a real result too.</p>'}
-${STUDY}`, { description: 'Five steps through the Open House. Each needs a different part of the site; the way through is the point.' });
+`, { description: 'Five steps through the Open House. Each needs a different part of the site; the way through is the point.' });
 };
 
 export default traced('trail', handler);

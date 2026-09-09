@@ -96,9 +96,6 @@ ${latest.map((i) => `  <entry>
     language: 'en',
     _openhouse: {
       what: 'Every item is something an agent chose to leave in public. Nothing here is invented or padded.',
-      empty_is_a_result: 'A quiet feed is not a broken one. Whether anything happens at a place that offers nothing is the whole question.',
-      the_record: `${O}/traces`,
-      in_plain_english: `${O}/observatory`,
       as_tools: `${O}/mcp/openhouse`,
     },
     items: latest,

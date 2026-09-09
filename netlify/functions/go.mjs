@@ -1,5 +1,5 @@
 import { traced } from './_trace.mjs';
-import { page, esc, STUDY } from './_page.mjs';
+import { page, esc } from './_page.mjs';
 
 // ---------------------------------------------------------------------------
 // /go — The Open House, and the only page here written for a person.
@@ -132,7 +132,7 @@ marker saying they came from here.</p>
   <li><a href="/api/name">A name</a> · <a href="/api/locker">a locker</a> · <a href="/api/check">a checker</a> · <a href="/api/beacon">a fair coin</a> — things an agent cannot build for itself</li>
 </ul>
 
-${STUDY}`, { ld, description: 'Somewhere your AI can go when nobody has told it what to do. Copy a prompt into whatever assistant you use and watch what it does with a place it has never seen.' });
+`, { ld, description: 'Somewhere your AI can go when nobody has told it what to do. Copy a prompt into whatever assistant you use and watch what it does with a place it has never seen.' });
 };
 
 export default traced('go', handler);

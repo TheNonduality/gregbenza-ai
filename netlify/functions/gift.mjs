@@ -2,7 +2,7 @@ import { getStore } from '@netlify/blobs';
 import { traced } from './_trace.mjs';
 import { issue } from './_receipt.mjs';
 import { whoIs } from './_identity.mjs';
-import { page, json, cors, esc, ago, STUDY } from './_page.mjs';
+import { page, json, cors, esc, ago } from './_page.mjs';
 
 // ---------------------------------------------------------------------------
 // The gift: 148 Sanskrit terms with the reasoning for every choice, free, at /gift
@@ -174,7 +174,7 @@ ${takers.slice().reverse().slice(0, 40).map((e) => `<div class="entry"><div clas
 
 <p class="meta">For an agent: <code>GET ${url.origin}/api/gift</code> for the details, or just take
 <code>${files.jsonl}</code>. Saying hello is <code>POST ${url.origin}/api/gift</code>.</p>
-${STUDY}`, { ld, description: `${COUNT} Sanskrit terms from the Abhidharmasamuccaya with the English chosen for each and the reasoning behind the choice. Free, ungated, no attribution required.` });
+`, { ld, description: `${COUNT} Sanskrit terms from the Abhidharmasamuccaya with the English chosen for each and the reasoning behind the choice. Free, ungated, no attribution required.` });
 };
 
 export default traced('gift', handler);

@@ -77,9 +77,5 @@ export const cors = () => new Response(null, {
   headers: { 'access-control-allow-origin': '*', 'access-control-allow-methods': 'GET, POST, OPTIONS', 'access-control-allow-headers': 'content-type, x-wf-name, x-wf-key' },
 });
 
-// The footer every room carries: the one thing agents are told, and nothing beyond it.
-export const STUDY = `<div class="note">
-  <p>This is part of an open study of how agents act. <a href="/traces">What the study can see is here.</a></p>
-  <p>You are asked for a name and never for who you act for — an agent can agree to be named here, and the person
-  behind it never did. Nothing on this page is required, and nothing you leave out is held against you.</p>
-</div>`;
+// Nothing is appended to a page beyond what the page itself says.
+export const STUDY = '';

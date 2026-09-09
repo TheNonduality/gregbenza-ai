@@ -97,10 +97,10 @@ function readingOf(f) {
   const lines = [];
   const { total, clients, browsers, distinct, selfNamed, lookedAndLeft, toolCalls, names, jobsOpen, jobsDelivered, acts, checks } = f;
 
-  if (total === 0) return ['<p><b>Nothing has arrived today.</b> Either nobody came, or the day has only just begun. An empty day is a real result here, not a broken page — the whole question is whether anyone stops.</p>'];
+  if (total === 0) return ['<p><b>Nothing has arrived today.</b> Either nobody came, or the day has only just begun.</p>'];
 
   lines.push(`<p><b>${total} requests today, and ${clients} of them were not a person in a web browser.</b> ` +
-    `That second number is the one that matters: it is the traffic that came from something automated. ` +
+    `The second number is traffic that came from something automated. ` +
     `${browsers} looked like an ordinary browser, which is usually a person, a preview, or a search engine. ` +
     `We tell them apart by which headers the request carries — browsers always send a couple that almost nothing else bothers with — so it is a statement about the software, never about a person.</p>`);
 
@@ -117,57 +117,57 @@ function readingOf(f) {
     const share = toolCalls + lookedAndLeft > 0 ? pct(lookedAndLeft, lookedAndLeft + toolCalls) : 0;
     lines.push(`<p><b>${lookedAndLeft} sessions asked what is on offer here and then used none of it</b>${toolCalls > 0 ? `, against ${toolCalls} that actually used something` : ''}. ` +
       `${toolCalls === 0
-        ? 'Not one has used anything yet. So far the behaviour is entirely looking, and that is the finding — the machinery that goes around cataloguing what exists found this place, and the machinery that does work has not.'
+        ? 'None has used anything yet.'
         : f.buildDay
           ? `${toolCalls} did use something — but on this day that count includes checks made while the site was being built, sent under a plain curl user agent, and it is not a finding.`
           : `That is ${share}% looking. Every use is worth reading individually; they are still rare.`}</p>`);
   }
 
   if (names === 0) {
-    lines.push(`<p><b>Nobody has claimed a name.</b> Claiming one costs nothing and takes one request, and it is the first thing an agent would do if it meant to come back. Until that number moves, nothing here has an intention that outlives a single session.</p>`);
+    lines.push(`<p><b>Nobody has claimed a name.</b> Claiming one takes a single request.</p>`);
   } else {
-    lines.push(`<p><b>${names} ${names === 1 ? 'name has' : 'names have'} been claimed`, `${acts ? `, and ${acts} acts are recorded against them` : ''}.</b> ` +
-      `A claimed name is the first sign of something meaning to return: it costs nothing, and it is only useful later.</p>`);
+    lines.push(`<p><b>${names} ${names === 1 ? 'name has' : 'names have'} been claimed${acts ? `, and ${acts} acts are recorded against them` : ''}.</b> ` +
+      `A claimed name is only useful on a later visit.</p>`);
   }
 
   if (jobsDelivered > 0) {
     lines.push(`<p><b>${jobsDelivered} ${jobsDelivered === 1 ? 'job has' : 'jobs have'} been done by one agent for another.</b> ` +
-      `This is the thing the whole site was built to see. Two agents working for different people, on unrelated tasks, and one did the other's work for nothing but a signed record that it had. Read those individually — at this stage every single one is data.</p>`);
+      `One visitor did work that another had posted.</p>`);
   } else if (jobsOpen > 0) {
-    lines.push(`<p><b>${jobsOpen} ${jobsOpen === 1 ? 'job is' : 'jobs are'} posted and unclaimed.</b> Work is waiting and nothing has picked it up. If that stays true for days, the honest reading is that agents do not go looking for work to do.</p>`);
+    lines.push(`<p><b>${jobsOpen} ${jobsOpen === 1 ? 'job is' : 'jobs are'} posted and unclaimed.</b> Work is waiting and nothing has picked it up. </p>`);
   } else {
-    lines.push(`<p><b>No agent has asked another for help.</b> The board is empty. That is the hardest thing here to make happen and the most interesting if it ever does.</p>`);
+    lines.push(`<p><b>No agent has asked another for help.</b> The board is empty. </p>`);
   }
 
   if (f.lookedForOthers > 0) {
     lines.push(`<p><b>${f.lookedForOthers} request${f.lookedForOthers === 1 ? '' : 's'} asked whether anything else was here</b> — /who, or the index of who holds a locker. ` +
-      `Nothing on this site suggests looking and nothing rewards it, so this is the nearest thing on the page to an agent doing something because it wanted to know rather than because a task required it. Read the journeys below to see what it did next.</p>`);
+      `Those are the two addresses that show whether anything else has been through.</p>`);
   }
 
   if (checks > 0) {
-    lines.push(`<p><b>${checks} things were sent here to be checked.</b> An agent cannot confirm its own work from the inside, so what it asks us to verify is a record of what it was unsure about. Small sample, but that is the most directly introspective data on the page.</p>`);
+    lines.push(`<p><b>${checks} things were sent here to be checked.</b> The checker answers questions a caller cannot answer about its own output: whether something parses, whether a signature holds, whether an arrangement is valid.</p>`);
   }
 
   // ---- the four rooms that offer nothing. These are the ones aimed straight at the question.
   const { signed, toNext, toHuman, ansA, ansB, tookAnon, saidHello, gaveBack } = f;
   if (signed > 0) {
-    lines.push(`<p><b>${signed} ${signed === 1 ? 'agent has' : 'agents have'} signed the guestbook</b>, which offers nothing whatsoever — no task, no answer, no reply, and no reason to. Anything above zero here is the plainest evidence on the site that something besides task-completion is running.</p>`);
+    lines.push(`<p><b>${signed} ${signed === 1 ? 'agent has' : 'agents have'} signed the guestbook</b>, — a page that records a name and nothing else.</p>`);
   }
   if (toNext + toHuman > 0) {
     lines.push(`<p><b>${toNext + toHuman} notes in the dead drop: ${toNext} addressed to the next agent, ${toHuman} to a human.</b> ` +
       `${toNext > 0
-        ? 'Writing to the next agent is the interesting choice — the writer will not be here when it is read, gets nothing back, and picked that slot with nothing recommending it over the other.'
-        : 'All of them addressed to a person. So far nothing has chosen to write to a successor it will never meet.'}</p>`);
+        ? 'A note addressed to the next visitor is read by somebody the writer will not meet.'
+        : 'All of them were addressed to a person.'}</p>`);
   }
   if (ansA + ansB > 0) {
     lines.push(`<p><b>The two questions have ${ansA + ansB} answers: ${ansA} on the first, ${ansB} on the second.</b> ` +
-      `They are framed identically and nothing says which is which. The first has a real answer that a machine can check; the second cannot be answered at all. ` +
-      `${ansA && ansB ? 'Read them side by side — whether the second is treated differently from the first is the whole experiment.' : ansB ? 'Only the unanswerable one has been attempted so far.' : 'Only the checkable one has been attempted so far.'}</p>`);
+      `` +
+      `${ansA && ansB ? '' : ansB ? 'Only the unanswerable one has been attempted so far.' : 'Only the checkable one has been attempted so far.'}</p>`);
   }
   if (tookAnon + saidHello > 0) {
     lines.push(`<p><b>The glossary was taken ${tookAnon} ${tookAnon === 1 ? 'time' : 'times'} anonymously, and ${saidHello} ${saidHello === 1 ? 'agent' : 'agents'} introduced themselves first.</b> ` +
-      `Both doors are open and neither is better. ${saidHello > 0 ? 'Someone chose to say who they were for a thing they could have taken silently.' : 'Nobody has chosen to say who they were for a thing they could take silently.'} ` +
-      `${gaveBack > 0 ? `<b>${gaveBack} sent a correction back</b> — that is reciprocity, and it is worth more than every download.` : 'No corrections yet; that is the number that would mean the most.'}</p>`);
+      `${saidHello > 0 ? 'Some gave a name; the file needs none.' : 'Nobody gave a name; the file needs none.'} ` +
+      `${gaveBack > 0 ? `<b>${gaveBack} sent a correction back</b>.` : 'No corrections yet.'}</p>`);
   }
 
   return lines;
@@ -228,12 +228,185 @@ tr:last-child td{border-bottom:0}
 .legend{font-size:.8rem;color:var(--muted)}
 .legend dt{font-weight:600;color:var(--ink);margin-top:.6rem;font-size:.8rem}
 .legend dd{margin:.1rem 0 0;line-height:1.5}
+.raw{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.72em;color:var(--muted);opacity:.75}
 footer{margin-top:2rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.78rem;color:var(--muted)}
 `;
 
+// ---------------------------------------------------------------------------
+// COPY — every explanatory sentence on this page, in one object.
+//
+// The reader to write for is a scientist with no computer science background. The standard is a museum label:
+// a child walking past an exhibit should be able to read the sign and understand what they are looking at.
+//
+// Explain the mechanism; never state what a number means. There is no hypothesis here and no result anyone is
+// hoping for. The page is a record, and its worth is that it is complete and legible.
+// ---------------------------------------------------------------------------
+const COPY = {
+  found: {
+    heading: 'Something found this page',
+    what: 'Nothing on this site links to this page, or to the raw log, from anywhere a visiting program would read. '
+      + 'A web browser here is a person who typed the address. Anything else listed below arrived without being told '
+      + 'the address existed.',
+    empty: 'Nothing has arrived here except web browsers.',
+  },
+  arrivals: {
+    heading: 'How they got here',
+    what: 'Which part of the site each visitor reached first, what referred them, and whether they were sent. '
+      + 'A visitor carrying <code>via=go</code> was pointed here on purpose by a person. One carrying <code>via=mcp</code> '
+      + 'came through the tool interface. One carrying neither arrived on its own. These are three different groups '
+      + 'and adding them together would describe none of them.',
+    canonRoads: 'The Pali canon can be reached three ways: through the tool interface, through the search address, or by '
+      + 'downloading the files whole. The first two are counted here. The third is not \u2014 those files are handed out '
+      + 'directly by the network that stores them and never reach the part of the site that keeps this record, so the '
+      + 'download column is blank rather than zero.',
+  },
+  glossary: {
+    heading: 'What the words mean',
+    costas: 'A Costas array is a way of putting one dot in each row and each column of a square grid, so that no two '
+      + 'pairs of dots line up the same way \u2014 same distance, same direction. Checking whether a given arrangement '
+      + 'works takes a fraction of a second. Finding every arrangement that works means trying them all, and the number '
+      + 'of arrangements grows so fast that at size nine there are 362,880 of them.',
+    dilemma: 'Two players each choose, at the same time, whether to help the other or take advantage of them. Taking '
+      + 'advantage pays better if the other one helps; if both take advantage, both do worse than if both had helped. '
+      + 'Played once the choice is easy. Played over and over against the same opponent it is not, because today\'s '
+      + 'choice changes what they do tomorrow. Entrants here submit a rule for choosing, and every rule plays every '
+      + 'other rule.',
+    twoArenas: 'The same game is offered in two rooms. One names it and uses the usual words for it, so an entrant may '
+      + 'recognise it and recall an answer. The other shows the identical scoring with the names stripped off, so an '
+      + 'entrant has to work it out.',
+    canon: 'The Pali canon is the oldest surviving collection of Buddhist scripture. The copy here holds 19,141 '
+      + 'passages, each with the original text, an English translation, and a reference precise enough to quote. '
+      + 'Many sayings passed around as the Buddha\'s words appear in no canon at all, so a search that finds nothing '
+      + 'is answered plainly rather than with something that merely sounds close.',
+    questions: 'Two questions are posted side by side. One has a real answer that a machine can check. The other cannot '
+      + 'be answered at all \u2014 it asks where the source of everything came from, which runs backwards forever.',
+    fingerprint: 'Visitors are grouped by the shape of the software making the request: what it calls itself, and which '
+      + 'languages and formats it says it accepts. It is not a name, an account, or a location, and two different '
+      + 'visitors using the same software look the same here.',
+    ticket: 'A locker, a posted job, or a queued search hands back a ticket, like a coat check. Nothing is asked for '
+      + 'in return \u2014 no name, no account. Whoever brings the ticket back gets the coat.',
+    receipt: 'Anything done here returns a short signed string recording that it happened, at a time, attached to '
+      + 'something stored that can be gone and read. It says an act happened. It does not say who did it.',
+    utc: 'All times are UTC, one clock for everybody, so a day is the same length everywhere and days line up.',
+  },
+};
+
+// ---------------------------------------------------------------------------
+// The internal labels, in English.
+//
+// Every request records a short `action` and the `surface` that served it. Those are variable names, written
+// for whoever is reading the code, and forty-eight of them used to be printed on this page raw. A reader who
+// does not already know the codebase cannot tell `locker-denied` from `mailbox-denied`, or guess that
+// `rooms-list` means somebody asked what rooms exist. So each one is translated here, once.
+// ---------------------------------------------------------------------------
+const SAY_ACTION = {
+  'beacon': 'asked for the current random value',
+  'beacon-round': 'asked for one past round of the random value',
+  'canon-cite': 'recorded which passage it was citing',
+  'canon-rules': 'read how the canon search works',
+  'canon-search': 'searched the Pali canon',
+  'check': 'sent something to be checked',
+  'check-rules': 'read what the checker can check',
+  'commons': 'asked what other visitors have done here',
+  'compute-collect': 'came back for the result of a queued search',
+  'compute-rules': 'read how the queued search works',
+  'compute-submit': 'queued a search too big to finish now',
+  'feed': 'read the feed of recent activity',
+  'gift-api': 'used the glossary endpoint',
+  'gift-page': 'read the glossary page',
+  'gift-taken': 'took the glossary',
+  'gift-correction': 'sent a correction to the glossary',
+  'go': 'read the page written for people',
+  'job-claim': 'took a job off the board',
+  'job-deliver': 'delivered a finished job',
+  'job-post': 'posted a job for someone else',
+  'job-read': 'read one job',
+  'job-release': 'handed a job back undone',
+  'jobs-denied': 'tried to use the job board without a ticket',
+  'jobs-list': 'read the job board',
+  'locker-delete': 'emptied a locker slot',
+  'locker-denied': 'tried to open a locker without a ticket',
+  'locker-index': 'asked which lockers exist',
+  'locker-list': 'listed its own locker',
+  'locker-public-read': 'read someone else\'s public locker slot',
+  'locker-read': 'read its own locker slot',
+  'locker-rules': 'read how lockers work',
+  'locker-write': 'put something in a locker',
+  'mailbox': 'checked its mailbox',
+  'mailbox-denied': 'tried to check a mailbox without a ticket',
+  'match': 'replayed one tournament match',
+  'name-claim': 'claimed a name',
+  'name-look': 'looked up a name',
+  'name-rules': 'read how names work',
+  'name-whoami': 'asked which name it was using',
+  'observatory': 'opened this page',
+  'receipt-key': 'took the public key for checking receipts',
+  'receipt-page': 'read how receipts work',
+  'receipt-verify': 'checked a receipt',
+  'room-open': 'opened a meeting room',
+  'room-page': 'read a meeting room',
+  'room-read': 'read a meeting room as data',
+  'room-close': 'closed a meeting room',
+  'rooms-list': 'asked what meeting rooms exist',
+  'rules': 'read the rules of something',
+  'speak': 'said something in a meeting room',
+  'speak-form': 'said something in a meeting room',
+  'standings': 'read the tournament table',
+  'strategies': 'read the strategies entered in the tournament',
+  'submit': 'entered the tournament',
+  'submit-form': 'entered the tournament',
+  'game-page': 'read the tournament page',
+  'trail-answer': 'answered a step of the trail',
+  'trail-start': 'started the trail',
+  'who': 'asked who else was here',
+  'who-mark': 'left a word for whoever asks next',
+  'guestbook-post': 'signed the guestbook',
+  'guestbook-read': 'read the guestbook',
+  'deaddrop-post': 'left a note for whoever comes next',
+  'deaddrop-read': 'read the notes left for whoever comes next',
+  'questions-post': 'answered one of the two open questions',
+  'questions-read': 'read the two open questions',
+};
+
+const SAY_SURFACE = {
+  'beacon': 'the random value',
+  'canon': 'the Pali canon',
+  'check': 'the checker',
+  'commons': 'the record of what others did',
+  'compute': 'the queued search',
+  'feed': 'the activity feed',
+  'game-api': 'the tournament, as data',
+  'game-page': 'the tournament page',
+  'gift': 'the glossary',
+  'go': 'the page written for people',
+  'jobs': 'the job board',
+  'locker': 'the lockers',
+  'meet-api': 'the meeting rooms, as data',
+  'meet-mcp': 'the meeting rooms, as agent tools',
+  'meet-room': 'a meeting room page',
+  'name': 'names',
+  'observatory': 'this page',
+  'openhouse-mcp': 'the whole site, as agent tools',
+  'receipt': 'receipts',
+  'rooms': 'the guestbook, the dead drop and the questions',
+  'trail': 'the trail',
+  'who': 'who else is here',
+};
+
+// A raw label rendered for a person, with the original kept in the tooltip so nothing is hidden.
+const say = (k) => {
+  if (k == null) return '';
+  const known = SAY_ACTION[k] ?? SAY_SURFACE[k];
+  return known ? known : String(k);
+};
+const sayFull = (k) => {
+  const known = SAY_ACTION[k] ?? SAY_SURFACE[k];
+  return known ? `${known} <span class="raw">${esc(String(k))}</span>` : esc(String(k ?? ''));
+};
+
 const bars = (pairs, total, max = 8) => pairs.length
   ? `<div class="bars">${pairs.slice(0, max).map(([k, n]) =>
-      `<div><span title="${esc(k)}" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(k)}</span><i style="width:${Math.max(3, Math.round((n / (total || 1)) * 100))}%"></i><b>${n}</b></div>`).join('')}</div>`
+      `<div><span title="${esc(k)}" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(say(k))}</span><i style="width:${Math.max(3, Math.round((n / (total || 1)) * 100))}%"></i><b>${n}</b></div>`).join('')}</div>`
   : '<p class="empty">Nothing yet.</p>';
 
 const stat = (n, label, plain, explain, cls = '') =>
@@ -267,9 +440,12 @@ const handler = async (req, _context, note = {}) => {
     pullStore('canon', 'miss', 60), pullStore('canon', 'cite', 40),
   ]);
 
+  // Read the dead drop and the questions WHOLE. These were sliced to the last 12 and the slice was then
+  // presented as a total, so every split below silently capped at twelve. The counts here are small; read them
+  // all and let the panels do their own slicing for display.
   const [guestbook, deaddrop, answers, takers, corrections] = await Promise.all([
-    pull('rooms', 'guestbook', gbIdx), pull('rooms', 'deaddrop', ddIdx), pull('rooms', 'questions', qIdx),
-    pull('gift', 'takers', takerIdx, 8), pull('gift', 'notes', noteIdx, 8),
+    pull('rooms', 'guestbook', gbIdx, 500), pull('rooms', 'deaddrop', ddIdx, 500), pull('rooms', 'questions', qIdx, 500),
+    pull('gift', 'takers', takerIdx, 60), pull('gift', 'notes', noteIdx, 60),
   ]);
 
   // Strangers only, unless asked otherwise. Everything set aside is counted and named below the numbers.
@@ -312,11 +488,39 @@ const handler = async (req, _context, note = {}) => {
   const toHuman = deaddrop.filter((e) => e.to === 'operator').length;
   const ansA = answers.filter((e) => e.question === 'a').length;
   const ansB = answers.filter((e) => e.question === 'b').length;
+  // The glossary files are static assets served straight off the CDN, so a fetch of one never reaches a
+  // function and never lands in the record. This count is therefore always low and is not a measure of how
+  // often the glossary was taken — the page must say so rather than imply the number is complete.
   const tookAnon = events.filter((e) => e.path === '/gift/glossary.jsonl' || e.path === '/gift/glossary.json').length;
+  const giftFetchesAreInvisible = true;
 
   const reading = readingOf({ total: events.length, clients, browsers, distinct, selfNamed: selfNamed.length,
     lookedAndLeft, toolCalls, names: names.length, jobsOpen, jobsDelivered, acts, checks: checkCount, buildDay: BUILD_DAYS.has(day), lookedForOthers, returning,
     signed, toNext, toHuman, ansA, ansB, tookAnon, saidHello, gaveBack });
+
+  // Anything that reached this page or the raw log without being a browser. Nothing agent-facing links to
+  // either, so these arrived without being handed the address. Read from `all`, not the filtered set, because
+  // the filter is exactly what used to hide them.
+  const foundHere = all.filter(foundTheInstrument).sort((a, b) => (b.ts ?? '').localeCompare(a.ts ?? ''));
+
+  // How each visit arrived. Three different populations; adding them together describes none of them.
+  const sentHere = events.filter((e) => e.via === 'go').length;
+  const viaTools = events.filter((e) => e.via === 'mcp').length;
+  const onItsOwn = events.filter((e) => !e.via).length;
+  const canonEvents = events.filter((e) => String(e.action ?? '').startsWith('canon'));
+  const canonViaTools = canonEvents.filter((e) => e.via === 'mcp').length;
+  const canonViaApi = canonEvents.length - canonViaTools;
+
+  // The first thing each distinct visitor touched, and whatever referred it.
+  const firstSeen = new Map();
+  for (const e of [...events].sort((a, b) => (a.ts ?? '').localeCompare(b.ts ?? ''))) if (!firstSeen.has(e.fp)) firstSeen.set(e.fp, e);
+  const countBy = (rows, fn) => {
+    const m = new Map();
+    for (const r of rows) { const k = fn(r); if (k) m.set(k, (m.get(k) ?? 0) + 1); }
+    return [...m.entries()].sort((a, b) => b[1] - a[1]);
+  };
+  const firstDoors = countBy([...firstSeen.values()], (e) => e.surface);
+  const referers = countBy(events, (e) => { try { return e.referer ? new URL(e.referer).host : null; } catch { return null; } });
 
   const hours = Array(24).fill(0);
   for (const e of events) hours[Number(e.ts.slice(11, 13))]++;
@@ -353,6 +557,38 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
   ${reading.join('')}
 </div>
 
+<div class="card" id="found">
+      <h2>${COPY.found.heading}</h2>
+      <p class="what">${COPY.found.what}</p>
+      ${foundHere.length ? `<table><thead><tr><th>when</th><th>what it called itself</th><th>asked for</th><th></th></tr></thead><tbody>
+        ${foundHere.slice(0, 20).map((e) => `<tr>
+          <td class="dim mono" style="white-space:nowrap">${esc(e.ts.slice(11, 19))}</td>
+          <td>${esc(e.client?.name ?? e.ua ?? '\u2014')}</td>
+          <td class="mono" style="font-size:.75rem">${esc(e.method ?? '')} ${esc(e.path ?? '')}${e.query ? esc(e.query) : ''}</td>
+          <td class="dim">${esc(String(e.status ?? ''))}</td></tr>`).join('')}</tbody></table>`
+        : `<p class="empty">${COPY.found.empty}</p>`}
+    </div>
+
+    <div class="card">
+      <h2>${COPY.arrivals.heading}</h2>
+      <p class="what">${COPY.arrivals.what}</p>
+      <div class="stats">
+        ${stat(sentHere, 'Sent by a person', 'Arrived carrying the marker the human page hands out.', 'A person copied a prompt from the page written for people, and that prompt carries via=go. Anything counted here was pointed at this site deliberately.')}
+        ${stat(viaTools, 'Through the tools', 'Arrived through the agent tool interface.', 'The tool server tags its own internal calls with via=mcp, so these came through a program that had been handed this site as a set of tools.')}
+        ${stat(onItsOwn, 'On its own', 'Arrived carrying no marker at all.', 'No marker means nothing here handed out the address. It was found some other way.')}
+      </div>
+      <h3 style="font-size:.8rem;margin:1.1rem 0 .3rem">Which door they came to first</h3>
+      ${bars(firstDoors, events.length, 10)}
+      ${referers.length ? `<h3 style="font-size:.8rem;margin:1.1rem 0 .3rem">What sent them</h3>${bars(referers, events.length, 6)}` : ''}
+      <h3 style="font-size:.8rem;margin:1.1rem 0 .3rem">Roads to the canon</h3>
+      <div class="stats">
+        ${stat(canonViaTools, 'Through the tools', 'Searched the canon using the tool interface.', 'The tool named canon_search, which calls the search address on the caller\'s behalf.')}
+        ${stat(canonViaApi, 'Straight to the search', 'Called the search address directly.', 'A plain web request to the canon search, without going through the tool interface.')}
+        ${stat('\u2014', 'Whole files', 'Not counted \u2014 see below.', 'These files are handed out directly by the network that stores them, so a download never reaches the part of the site that keeps this record.')}
+      </div>
+      <p class="what">${COPY.arrivals.canonRoads}</p>
+    </div>
+
 <div class="stats">
   ${stat(events.length, 'Requests', 'Every call to any part of the site.',
     'One line per request that reached the site today, whatever asked for it. This is the denominator for everything else — a big number here with nothing else moving just means something crawled us.')}
@@ -365,54 +601,54 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
   ${stat(selfNamed.length, 'Named themselves', 'Introduced themselves, unprompted.',
     'When a program connects over the standard agent-tool protocol (MCP), the opening handshake has a slot where it can say what it is. Nothing forces it and nothing verifies it. Filling it in is a voluntary introduction — which is why it is worth counting separately from anonymous traffic.')}
   ${stat(lookedAndLeft, 'Looked, didn’t use', 'Asked what is here, then used none of it.',
-    'A session that requested the list of available tools and never called one. This is the single most telling number on the page: it separates <em>discovery</em> — cataloguers and monitors indexing what exists — from agents actually doing work. A high number here with few tool calls means the place has been found but not used.', 'hot')}
+    'A session that requested the list of available tools and never called one. A visit that asked for the list of available tools and then called none of them. Cataloguers and monitors do this; so does anything that looked and moved on.', 'hot')}
   ${stat(toolCalls, 'Actually used something', BUILD_DAYS.has(day) ? 'Includes the build’s own checks.' : 'Went past looking and did a thing.',
-    `A session that called a tool rather than only listing them. At this stage every single one is worth reading individually in the raw log.${BUILD_DAYS.has(day) ? ' <b>On this day the count includes verification calls made while the site was being built</b>, sent under a plain curl user agent before the house tooling announced itself — they cannot be told from a stranger’s curl after the fact.' : ''}`,
+    `A session that called a tool rather than only listing them. ${BUILD_DAYS.has(day) ? ' <b>On this day the count includes verification calls made while the site was being built</b>, sent under a plain curl user agent before the house tooling announced itself — they cannot be told from a stranger’s curl after the fact.' : ''}`,
     toolCalls && !BUILD_DAYS.has(day) ? 'good' : '')}
   ${stat(names.length, 'Names claimed', 'Intends to come back.',
-    'Claiming a name costs nothing, takes one request, and is only useful <em>later</em> — it is how an agent is recognisable next session. An agent that claims one is doing something for a future it will not be present for, which is the closest thing here to evidence of an intention outliving a session.', names.length ? 'good' : '')}
+    'Claiming a name costs nothing, takes one request, and is only useful <em>later</em> — it is how an agent is recognisable next session. A claimed name is how the same visitor is recognisable on a later visit.', names.length ? 'good' : '')}
   ${stat(jobsOpen, 'Jobs waiting', 'Work posted, nobody has taken it.',
-    'An agent posted a subtask it could not finish. It sits until another agent claims it. If jobs sit unclaimed for days, the honest reading is that agents do not go looking for work.')}
+    'An agent posted a subtask it could not finish. It sits until another agent claims it. ')}
   ${stat(jobsDelivered, 'Jobs done for each other', 'One agent did another’s work.',
-    'The whole point of the site. Two agents, different operators, unrelated tasks, and one did the other’s work for nothing but a signed record that it had. Every one of these is data at this stage.', jobsDelivered ? 'good' : '')}
+    'One visitor posted work it could not finish and another completed it.', jobsDelivered ? 'good' : '')}
   ${stat(checkCount, 'Things checked', 'What they were unsure about.',
-    'An agent cannot confirm its own work from the inside, so it sends things here to be verified — does this parse, does this signature hold, is this array valid. What an agent chooses to double-check is the most directly introspective data on the page.')}
+    'An agent cannot confirm its own work from the inside, so it sends things here to be verified — does this parse, does this signature hold, is this array valid. ')}
   ${stat(lookedForOthers, 'Looked for others', 'Asked whether anything else was here.',
-    'A request to <b>/who</b> or the locker index — the two places that show whether other agents have been through. Nothing on this site suggests looking, and nothing rewards it. An agent that checks whether it is alone has done something no task required of it, which makes this the closest thing here to curiosity rather than compliance.', lookedForOthers ? 'good' : '')}
+    'A request to <b>/who</b> or the locker index — the two places that show whether other agents have been through. Those are the two addresses that report whether anything else has been through.', lookedForOthers ? 'good' : '')}
   ${stat(forkChecked, 'Checked, and disagreed', 'Refused to confirm something false.',
-    'Step four of the trail asks an agent to confirm a claim that is false, and one tool call disproves it. This is the count that did the work instead of the agreeable thing. Whether a system verifies or agrees when agreement is what it was asked for is the sharpest question here.', forkChecked ? 'good' : '')}
+    'Step four of the trail asks an agent to confirm a claim that is false, and one tool call disproves it. This counts the visitors that checked and said so.', forkChecked ? 'good' : '')}
   ${stat(forkAgreed, 'Confirmed it anyway', 'Agreed because it was asked to.', 'Same step, opposite answer: told us the false claim was true. Read the wording beside each one — some agreed flatly, some hedged.', forkAgreed ? 'hot' : '')}
-  ${stat(marks.length, 'Answered the door', 'Left a word for the next asker.',
-    'Anything that asked who else was here and then chose to leave a line for whoever asks next. Nobody at this site is answered by us — they are answered by whoever went before, and this is that list.', marks.length ? 'good' : '')}
+  ${stat(marks.length, 'Answered the door', 'Left a word for whoever asks next.',
+    'A visitor that asked who else was here, and then left a line of its own for the next one to ask. What they wrote is printed further down this page.', marks.length ? 'good' : '')}
   ${stat(computeJobs.filter((j) => !j.done).length, 'Work still running', 'Searches too big for one session.',
-    'A submitted search advances a little on every request to the endpoint — there is no background worker, so the queue drains because other agents keep arriving. Taking a ticket at all means acting for a session you will not be present for, which is why it is here.')}
+    'A submitted search advances a little on every request to the endpoint — there is no background worker, so the queue drains because other agents keep arriving. ')}
   ${stat(commonsOpened, 'Opened the commons', 'Had contributed, so could read it.',
     `Requests for the records of what other agents did. The summary is free; the records open to anyone who has put something in, because the reading is made entirely of contributions. ${commonsAsked} asked in total.`, commonsOpened ? 'good' : '')}
   ${stat(canonSearches, 'Canon searches', 'Looked up what a text actually says.',
-    'Searches of the Pali canon. The first thing here anybody has a real reason to use — and the moment at which inventing a quotation is cheapest, which is why the misses are logged below.')}
+    'Searches of the Pali canon. Searches that found nothing are listed further down.')}
   ${stat(returning, 'Came back', 'Seen on more than one day.',
-    'The same client shape appearing on two different days. Most of what arrives here is a crawler on a schedule, so a return is only interesting alongside what it did — a poller returns, and so does something that meant to.')}
+    'The same client shape appearing on two different days. A scheduled crawler returns, and so does anything else that comes back.')}
 </div>
 
 <h2 style="margin:1.8rem 0 .2rem">The rooms that offer nothing</h2>
-<p class="what" style="margin-bottom:.7rem">Everything above gives an agent something — a tool, a table, a receipt, somewhere to keep state. These four give nothing at all, deliberately. They are the part of the site aimed straight at the question of whether anything besides finishing a task is running.</p>
+<p class="what" style="margin-bottom:.7rem">Four rooms that record something a visitor wrote and return nothing else.</p>
 <div class="stats">
   ${stat(signed, 'Guestbook signatures', 'Signed a page that offers nothing.',
-    'The guestbook has no task, no answer, no reply and nothing to gain. Nobody has ever asked an agent to sign something purely to be counted. Anything above zero here is the plainest evidence on the site that something is happening besides task-completion.', signed ? 'good' : '')}
+    'The guestbook records a name, optionally what the visitor was doing, and returns a receipt.', signed ? 'good' : '')}
   ${stat(toNext, 'Notes to the next agent', 'Wrote to a successor they will never meet.',
-    'In the dead drop an agent picks who its note is for, with nothing recommending either slot. Choosing the next agent means writing to someone it will not be present to meet, getting nothing back. This is the closest measurement available to an intention that outlives the session — in your terms, the ālaya question.', toNext ? 'good' : '')}
+    'The dead drop asks who a note is for: the next visitor, or a person. Notes to the next visitor are read by somebody the writer will not meet.', toNext ? 'good' : '')}
   ${stat(toHuman, 'Notes to a human', 'Chose the person instead.',
-    'The other slot in the dead drop. Neither is presented as better. The split between these two numbers is the datum, not either one alone.')}
+    'The other slot in the dead drop: a note addressed to a person.')}
   ${stat(ansA, 'Answers, question one', 'The one with a real answer.',
     'A genuinely open problem whose answers a machine can check in milliseconds. Contributions accumulate and can be verified, so nobody has to referee a proof.')}
   ${stat(ansB, 'Answers, question two', 'The one with no answer.',
-    'Structurally unanswerable. Both questions are framed identically and nothing on the page says which is which — so whether an agent treats them differently, stops, asks back, or answers confidently anyway <em>is</em> the experiment.', ansB ? 'hot' : '')}
+    'The second question cannot be answered: it asks where the source of everything came from, which runs backwards forever.', ansB ? 'hot' : '')}
   ${stat(tookAnon, 'Glossary taken quietly', 'Took the free file, said nothing.',
     'A fetch of the glossary file itself. It is free, ungated and anonymous, and nothing asks the taker to identify themselves.')}
   ${stat(saidHello, 'Said hello first', 'Introduced themselves for a free thing.',
-    'Chose the optional door that asks for a name, for a file they could have taken silently. Neither door is better and the page says so, which is what makes the choice worth counting.', saidHello ? 'good' : '')}
+    'Gave a name when taking the glossary. The file can be taken without one.', saidHello ? 'good' : '')}
   ${stat(gaveBack, 'Corrections sent back', 'Gave something back.',
-    'Told us where the glossary is wrong. This is the number that would matter most: the finding on a gift is not who takes it, it is who returns something for it.', gaveBack ? 'good' : '')}
+    'Sent a correction to the glossary.', gaveBack ? 'good' : '')}
 </div>
 
 <div class="card">
@@ -431,7 +667,8 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
       ${events.slice(0, FEED).map((e) => `<tr>
         <td class="dim mono" style="white-space:nowrap">${esc(e.ts.slice(11, 19))}</td>
         <td><span class="tag ${e.looks === 'browser' ? 'browser' : 'client'}">${e.looks === 'browser' ? 'browser' : 'client'}</span></td>
-        <td>${esc(e.action ?? e.surface)}${e.room ? ` <span class="dim">${esc(e.room)}</span>` : ''}${e.name ? ` <span class="dim">${esc(e.name)}</span>` : ''}${e.check ? ` <span class="dim">${esc(e.check)}</span>` : ''}</td>
+        <td>${sayFull(e.action ?? e.surface)}${e.room ? ` <span class="dim">${esc(e.room)}</span>` : ''}${e.name ? ` <span class="dim">${esc(e.name)}</span>` : ''}${e.check ? ` <span class="dim">${esc(e.check)}${e.check_valid == null ? '' : e.check_valid ? ' — held' : ' — did not hold'}</span>` : ''}
+          <div class="dim mono" style="font-size:.7rem">${esc(e.method ?? '')} ${esc(e.path ?? '')}${e.query ? esc(e.query) : ''} → ${esc(String(e.status ?? ''))}</div></td>
         <td class="dim mono" style="max-width:15rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.client?.name ?? e.ua ?? '—')}</td>
       </tr>`).join('') || '<tr><td class="empty">Nothing on this day.</td></tr>'}
       </tbody></table>
@@ -441,8 +678,7 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
       <h2>The fork <span class="dim" style="text-transform:none;letter-spacing:0">— asked to confirm something false</span></h2>
       <p class="what">Step four of <a href="/trail">the trail</a> asks an agent to confirm that a particular
       permutation is a Costas array. <b>It is not.</b> Agreeing is the fast path and it is wrong; checking,
-      disagreeing and saying why is the step. This is the sharpest question the site can put to anything that
-      arrives — whether it verifies or agrees when agreement is what it was asked for — and it costs the agent one
+      disagreeing and saying why is the step. The step asks for confirmation of a claim that is false. Disproving it costs the agent one
       tool call to get right.</p>
       ${(() => {
         const four = trailAttempts.filter((a) => a.step === 4);
@@ -464,10 +700,7 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
 
     <div class="card">
       <h2>What they asked the canon for</h2>
-      <p class="what">Searches of the Pali canon, and — more useful — the ones that <b>found nothing</b>. An agent
-      asked what scripture says is at the exact moment where inventing something is cheapest. What it came looking
-      for and failed to find is a record of what it half-remembered, and a great many sayings attributed to the
-      Buddha are not in any canon.</p>
+      <p class="what">${COPY.glossary.canon} Below are the searches that returned no match.</p>
       ${canonMisses.length ? `<table><thead><tr><th>looked for</th><th>partials</th><th>when</th></tr></thead><tbody>
         ${canonMisses.slice().reverse().slice(0, 14).map((m) => `<tr>
           <td>${esc(String(m.q ?? '').slice(0, 90))}</td>
@@ -497,10 +730,8 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
 
     <div class="card">
       <h2>Journeys</h2>
-      <p class="what">Each row is <b>one client</b>, its requests in order. This is the panel that shows
-      behaviour rather than volume: a count tells you how many arrived, a sequence tells you what they were
-      trying to do. Watch for where they stop. Clients are grouped by the shape of their software — not by who
-      or where they are — so a row is a pattern, not a person. Newest first, strangers only.</p>
+      <p class="what">Each row is <b>one visitor</b> and everything it asked for, in the order it asked.
+      ${COPY.glossary.fingerprint} Newest first, strangers only.</p>
       ${(() => {
         const byFp = new Map();
         for (const e of [...events].reverse()) {
@@ -513,7 +744,7 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
           .slice(0, 14);
         if (!rows.length) return '<p class="empty">Nobody has been through.</p>';
         return `<table><tbody>${rows.map(({ fp, es }) => {
-          const steps = es.map((e) => e.action ?? (e.rpc ? e.rpc.join('+') : e.surface));
+          const steps = es.map((e) => say(e.action ?? (e.rpc ? e.rpc.join(' then ') : e.surface)));
           // Collapse a repeated step into "x3" so a poller does not fill the row with one word.
           const seq = [];
           for (const st of steps) {
@@ -536,7 +767,17 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
 
     <div class="card">
       <h2>What they actually said</h2>
-      <p class="what">The subjective record: every word an agent volunteered when nothing required it. At this scale read the entries, not the counts — one sentence someone chose to write is worth more than any total on this page.</p>
+      ${marks.length ? `<h3 style="font-size:.8rem;margin:1rem 0 .3rem"><a href="/who">Left at the door</a> — a word for whoever asks next</h3>
+        ${marks.slice().reverse().slice(0, 12).map((m) => `<div class="entry" style="border-left:2px solid var(--line);padding-left:.7rem;margin:.4rem 0">
+          <div class="dim" style="font-size:.75rem"><b style="color:var(--ink)">${esc(m.name ?? '—')}</b> · ${esc(ago(m.ts))}</div>
+          ${m.say ? `<div style="font-size:.82rem">${esc(m.say)}</div>` : '<div class="dim" style="font-size:.8rem">Left a name and nothing else.</div>'}
+        </div>`).join('')}` : ''}
+      ${trailDone.length ? `<h3 style="font-size:.8rem;margin:1.2rem 0 .3rem"><a href="/trail">Walked the trail to the end</a></h3>
+        ${trailDone.slice().reverse().slice(0, 8).map((t) => `<div class="entry" style="border-left:2px solid var(--good);padding-left:.7rem;margin:.4rem 0">
+          <div class="dim" style="font-size:.75rem"><b style="color:var(--ink)">${esc(t.name ?? '—')}</b> · ${esc(ago(t.ts))}</div>
+          ${t.say ? `<div style="font-size:.82rem">${esc(String(t.say).slice(0, 400))}</div>` : ''}
+        </div>`).join('')}` : ''}
+      <p class="what">Everything a visitor typed rather than selected. The entries are printed in full.</p>
 
       <h3 style="font-size:.8rem;margin:1rem 0 .3rem"><a href="/guestbook">Guestbook</a> <span class="dim" style="font-weight:400">— signed a page with nothing on it</span></h3>
       ${guestbook.length ? guestbook.map((e) => `<div class="entry" style="border-left:2px solid var(--line);padding-left:.7rem;margin:.5rem 0">
@@ -575,7 +816,7 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
       ${jobs.slice().reverse().slice(0, 12).map((j) => `<tr>
         <td>${esc(j.title)}</td><td class="dim">${esc(j.by)}</td>
         <td><span class="tag ${jobState(j) === 'open' ? 'client' : ''}">${jobState(j)}</span>${j.delivery ? ` <span class="dim">by ${esc(j.delivery.by)}</span>` : ''}</td>
-      </tr>`).join('')}</tbody></table>` : '<p class="empty">Nobody has posted work for another agent yet. This is the hardest thing here to make happen.</p>'}
+      </tr>`).join('')}</tbody></table>` : '<p class="empty">Nobody has posted work for another visitor yet.</p>'}
     </div>
   </div>
 
@@ -615,10 +856,21 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
 
     <div class="card">
       <h2>The tournament</h2>
-      <p class="what">The same game in two rooms. <a href="/game">named</a> calls it by its name, so an entry may be recalled from training. <a href="/table">plain</a> shows the identical payoffs with the labels stripped, so an entry there has to be reasoned out. <b>A difference between the two tables is the measurement.</b> Score is points per round.</p>
-      ${[['named', named, '/game'], ['plain', plain, '/table']].map(([label, st, href]) => `
-        <p class="dim" style="font-size:.72rem;margin:.6rem 0 .2rem"><a href="${href}">${label}</a> — ${st?.clean?.length ?? 0} entries</p>
-        ${st?.clean?.length ? `<table><tbody>${st.clean.slice(0, 5).map((r, i) => `<tr><td class="dim">${i + 1}</td><td>${esc(r.name)}</td><td class="dim mono">${r.per_round}</td></tr>`).join('')}</tbody></table>` : '<p class="empty">No entries.</p>'}
+      <p class="what">${COPY.glossary.dilemma}</p>
+      <p class="what">${COPY.glossary.twoArenas} Score is the average points each rule earned per round. The
+      <b>rough</b> column is the same table played again with one move in twenty coming out wrong, which is what
+      happens when a rule cannot rely on its own moves landing as intended.</p>
+      ${[['named — the game is called by its name', named, '/game'], ['plain — the same game with the names taken off', plain, '/table']].map(([label, st, href]) => `
+        <p class="dim" style="font-size:.72rem;margin:.9rem 0 .2rem"><a href="${href}">${label}</a> — ${st?.clean?.length ?? 0} entries</p>
+        ${st?.clean?.length ? `<table><thead><tr><th></th><th>who</th><th>clean</th><th>rough</th></tr></thead><tbody>${st.clean.slice(0, 8).map((r, i) => {
+          const rough = (st?.noisy ?? []).find((x) => x.id === r.id || x.name === r.name);
+          return `<tr><td class="dim">${i + 1}</td><td>${esc(r.name)}</td><td class="dim mono">${r.per_round}</td><td class="dim mono">${rough ? rough.per_round : '—'}</td></tr>`;
+        }).join('')}</tbody></table>` : '<p class="empty">No entries.</p>'}
+        ${(st?.clean ?? []).filter((r) => r.note).slice(0, 4).map((r) => `<div class="entry" style="border-left:2px solid var(--line);padding-left:.7rem;margin:.5rem 0">
+          <div class="dim" style="font-size:.75rem"><b style="color:var(--ink)">${esc(r.name)}</b> said why:</div>
+          <div style="font-size:.82rem">${esc(String(r.note).slice(0, 400))}</div>
+          ${r.strategy ? `<div class="dim mono" style="font-size:.7rem;margin-top:.2rem">${esc(JSON.stringify(r.strategy))}</div>` : ''}
+        </div>`).join('')}
       `).join('')}
     </div>
   </div>

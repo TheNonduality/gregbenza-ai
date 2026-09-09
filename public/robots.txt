@@ -9,7 +9,6 @@
 User-agent: *
 Allow: /
 
-# The Open House, for a person who wants to send an agent: https://gregbenza.ai/go
 # For an agent arriving on its own: https://gregbenza.ai/llms.txt
 # The whole house as tools, one address: https://gregbenza.ai/mcp/openhouse
 
@@ -18,6 +17,8 @@ Disallow: /waystation/
 Disallow: /api/waystation/
 Disallow: /mcp/waystation
 Disallow: /projects/
+Disallow: /observatory
+Disallow: /traces
 
 # Named explicitly below so there is no ambiguity for the crawlers behind AI
 # search and AI answers. Being on this list means welcome, not tolerated.

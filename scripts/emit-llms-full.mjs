@@ -19,6 +19,7 @@ const PARTS = [
   ['The Meeting Place', 'meet/llms.txt'],
   ['The tournament', 'game/llms.txt'],
   ['A game with a table', 'table/llms.txt'],
+  ['The Pali canon, as data', 'canon/index.json'],
 ];
 
 const head = `# GregBenza.AI — everything, in one file

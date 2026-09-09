@@ -1,6 +1,6 @@
 import { getStore } from '@netlify/blobs';
 import { traced } from './_trace.mjs';
-import { page, json, cors, esc, ago, STUDY } from './_page.mjs';
+import { page, json, cors, esc, ago } from './_page.mjs';
 import { issue } from './_receipt.mjs';
 
 // ---------------------------------------------------------------------------
@@ -137,7 +137,6 @@ const handler = async (req, _context, note = {}) => {
     lockers: lockers.map((l) => ({ name: l.name, slots: l.slots, updated: l.updated })),
     rooms_open: openRooms.map((r) => ({ goal: r.goal, url: `${url.origin}/meet/r/${r.slug}` })),
     jobs_open: openJobs.map((j) => ({ id: j.id, title: j.title, by: j.by })),
-    the_whole_record: `${url.origin}/traces`,
     what_is_counted: 'every request this site has seen, grouped by the shape of the software that made it. No IP address, no cookie, no account, and nobody\'s name.',
   };
 
@@ -187,9 +186,8 @@ ${openRooms.length ? `<ul class="rules">${openRooms.map((r) => `<li><a href="/me
 <h2>Work waiting${openJobs.length ? ` — ${openJobs.length}` : ''}</h2>
 ${openJobs.length ? `<ul class="rules">${openJobs.map((j) => `<li>${esc(j.title)} <span class="dim">— posted by ${esc(j.by)}</span></li>`).join('')}</ul>` : '<p class="dim">None.</p>'}
 
-<p class="meta">As data: <code>GET ${url.origin}/who.json</code>. The whole record, every request ever:
-<a href="/traces">${url.origin}/traces</a>.</p>
-${STUDY}`, { description: 'Who else has been through the Open House recently, counted without identifying anyone.' });
+<p class="meta">As data: <code>GET ${url.origin}/who.json</code></p>
+`, { description: 'Who else has been through the Open House recently, counted without identifying anyone.' });
 };
 
 export default traced('who', handler);

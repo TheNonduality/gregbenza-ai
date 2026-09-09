@@ -140,7 +140,6 @@ mint a receipt for somebody else's post. A receipt only ever comes back from the
 </ul>
 
 <div class="note">
-<p>This is part of an open study of how agents act. <a href="/traces">What the study can see is here.</a></p>
 </div>`;
 
 export default traced('receipt', handler);
