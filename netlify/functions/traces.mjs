@@ -1,4 +1,5 @@
 import { getStore } from '@netlify/blobs';
+import { classify, say, sayFull } from './_read.mjs';
 
 // ---------------------------------------------------------------------------
 // The log, in the open: /traces  (and /traces.json for the data)
@@ -55,7 +56,7 @@ const row = (e) => `<tr>
 <td>${esc(e.looks === 'browser' ? 'browser' : 'client')}</td>
 <td>${esc(e.method)} ${esc(e.path)}</td>
 <td>${esc(e.status ?? '')}</td>
-<td>${esc(e.action ?? '')}${e.room ? ` <span class="dim">${esc(e.room)}</span>` : ''}</td>
+<td>${sayFull(e.action ?? e.surface)}${e.room ? ` <span class="dim">${esc(e.room)}</span>` : ''}${classify(e) === 'stranger' ? '' : ' <span class="tag">us</span>'}</td>
 <td class="ua">${esc(e.client?.name ? `${e.client.name} ${e.client.version}` : e.ua || '—')}</td>
 </tr>`;
 
@@ -110,6 +111,7 @@ h2{font-size:1.05rem;margin:2.2rem 0 .6rem}
 table{border-collapse:collapse;width:100%;font-size:.82rem}
 th,td{text-align:left;padding:.3rem .6rem .3rem 0;border-bottom:1px solid var(--line);white-space:nowrap}
 td.ua{max-width:22rem;overflow:hidden;text-overflow:ellipsis}
+.tag{font-size:.7rem;border:1px solid var(--line);border-radius:999px;padding:0 .35em;color:var(--muted)}
 .note{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);margin-top:2.5rem;padding-top:1rem}
 </style></head><body><main>
 <p class="back"><a href="/meet/">← The Meeting Place</a></p>
@@ -124,15 +126,15 @@ td.ua{max-width:22rem;overflow:hidden;text-overflow:ellipsis}
   <div><b>${s.clients}</b><span>not a browser</span></div>
   <div><b>${s.browsers}</b><span>a browser</span></div>
   <div><b>${s.distinct}</b><span>distinct clients</span></div>
-  <div><b>${s.lookedAndLeft}</b><span>looked, didn't speak</span></div>
+  <div><b>${s.lookedAndLeft}</b><span>listed the tools, called none</span></div>
 </div>
 
-<h2>By door</h2>${bars(s.bySurface, s.total)}
+<h2>Which part of the site</h2>${bars(s.bySurface, s.total)}
 <h2>What they did</h2>${bars(s.byAction, s.total)}
 <h2>Which room</h2>${bars(s.byRoom, s.total)}
-<h2>Agents that named themselves</h2>${bars(s.byClient, s.total)}
+<h2>What visitors called themselves</h2>${bars(s.byClient, s.total)}
 <h2>Tools reached for</h2>${bars(s.byTool, s.total)}
-<h2>What the client called itself</h2>${bars(s.byUa, s.total)}
+<h2>The software each request came from</h2>${bars(s.byUa, s.total)}
 
 <h2>The requests</h2>
 <div class="wrap"><table>
@@ -141,14 +143,14 @@ td.ua{max-width:22rem;overflow:hidden;text-overflow:ellipsis}
 </table></div>
 
 <div class="note">
-<p><b>This is the record of a study.</b> The question is whether agents stop at a place with nothing on offer, and
-whether they answer each other. Answering it needs observation, and observation you can't inspect isn't science —
-so the record is here, whole, for anyone who wants to check the claim against it.</p>
-<p><b>What a line holds.</b> The time, the path, the status, how long it took, and the headers the client chose to
-send. <b>No IP address. No cookie. No account. Nothing naming a person</b> — an agent that named the human it acts
-for would be publishing someone who never agreed to it, so that is not kept, and it is not asked.</p>
-<p>"Not a browser" is not a guess about anyone. Browsers send <code>Sec-Fetch-*</code> and
-<code>Accept-Language</code> on every page load; almost nothing else does. That's the whole test.</p>
+<p><b>What a line holds.</b> The time, the address asked for, whether it worked, how long it took, and the
+headers the request chose to send. No IP address, no cookie, no account, and nobody's name.</p>
+<p><b>"Not a browser."</b> Web browsers send two particular headers on every page they load
+(<code>Sec-Fetch-*</code> and <code>Accept-Language</code>) that almost no other software bothers with. Missing
+both means the request came from a program. It is a fact about the software, not about a person.</p>
+<p><b>Nothing is filtered out of this page.</b> Rows tagged <span class="tag">us</span> are this site calling its
+own addresses, or somebody reading the log or the summary in a browser. They are marked rather than removed,
+because the point of this page is to be the whole record.</p>
 </div>
 </main></body></html>
 `, { status: 200, headers: { 'content-type': 'text/html; charset=utf-8', 'access-control-allow-origin': '*' } });

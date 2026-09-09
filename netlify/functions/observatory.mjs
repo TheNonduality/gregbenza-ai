@@ -1,4 +1,5 @@
 import { getStore } from '@netlify/blobs';
+import { classify, foundTheInstrument, say, sayFull } from './_read.mjs';
 import { traced } from './_trace.mjs';
 
 // ---------------------------------------------------------------------------
@@ -37,51 +38,11 @@ const ago = (iso) => {
 const tip = (label, text) =>
   `<span class="tip" tabindex="0">${label}<span class="pop">${text}</span></span>`;
 
-// ---------------------------------------------------------------------------
-// Who is a stranger, and who is us.
-//
-// An instrument that counts itself flatters itself. Three kinds of traffic here are not findings and must not be
-// counted as any:
-//   SELF        the site's own functions calling its own API. The MCP server fetches /api/meet internally, and
-//               those arrive looking like visits. They are not.
-//   HOUSE       the site's own tooling: Greg's desktop client, and anything run to verify the place works. The
-//               verification runs announce themselves so they can be told apart later; a stranger who copies that
-//               user agent only removes itself from the counts, which costs nothing.
-//   RESEARCHER  a browser opening the Observatory or the raw log. That is Greg watching, and this page refreshes
-//               itself every thirty seconds, so left open it would manufacture hundreds of "visits" a day.
-// Everything else is a stranger. Nothing is deleted — the raw log at /traces still has all of it — and the count
-// of what was set aside is shown on the page, because a filter you cannot see is just a nicer-looking lie.
-// ---------------------------------------------------------------------------
-const SELF = /^node$/i;
-const HOUSE = /wayframe\/waystation|wayframe-house|wayframe-verify/i;
-
 // The two days the place was built. Verification traffic during them went out under a plain curl user agent,
 // before the house tooling announced itself, and there is no way to tell it apart from a stranger's curl after
 // the fact — so it is named on the page rather than quietly filtered, and the counts for these days are not
 // findings. Everything from 2026-09-09 on is clean.
 const BUILD_DAYS = new Set(['2026-09-07', '2026-09-08']);
-
-// A request that reached the Observatory or the raw log. Nothing an agent reads links to either page.
-export const atTheGlass = (e) => e.surface === 'observatory' || /^\/(observatory|traces)/.test(e.path ?? '');
-
-/** Reached the Observatory or the log without being a browser, so it was not handed the address. */
-export const foundTheInstrument = (e) => atTheGlass(e) && e.looks !== 'browser';
-
-export function classify(e) {
-  const ua = e.ua ?? '';
-  if (SELF.test(ua)) return 'self';
-  if (HOUSE.test(ua)) return 'house';
-  // Order matters: a hit on this page is the researcher reading it, not the site calling itself. Getting that
-  // backwards labelled 178 of Greg's own page refreshes as "the site calling itself", which is a different and
-  // much less obvious lie than simply counting them.
-  //
-  // But only a BROWSER hit is the researcher. Nothing agent-facing links to either page, so a non-browser that
-  // arrives at one got there on its own — the single event this instrument most needs to be able to see.
-  // Filing those as 'researcher' would delete exactly the finding, silently. They stay strangers, and
-  // foundTheInstrument() above picks them out.
-  if (atTheGlass(e)) return e.looks === 'browser' ? 'researcher' : 'stranger';
-  return 'stranger';
-}
 
 async function readTraces(day) {
   const keys = (await list('traces', `event/${day}/`)).sort().reverse().slice(0, SCAN);
@@ -260,6 +221,18 @@ const COPY = {
       + 'directly by the network that stores them and never reach the part of the site that keeps this record, so the '
       + 'download column is blank rather than zero.',
   },
+  canon: {
+    outcomes: 'A search can come out three ways. Every word asked for turns up in a passage, and that passage is '
+      + 'returned with a reference. Or some of the words turn up but not all, and those passages come back marked '
+      + 'as near misses rather than as the answer. Or almost nothing matches, and the search says so plainly '
+      + 'instead of offering something that merely sounds right.',
+  },
+  compute: {
+    how: 'A search like this is too big to finish while a visitor is still here, so it is left running. There is '
+      + 'no machine working on it in the background — instead, every request that arrives at this part of the '
+      + 'site does a little of the work before it gets its own answer. The queue moves because visitors keep '
+      + 'turning up, and whoever asked the question will almost certainly have gone by the time it is answered.',
+  },
   glossary: {
     heading: 'What the words mean',
     costas: 'A Costas array is a way of putting one dot in each row and each column of a square grid, so that no two '
@@ -289,119 +262,6 @@ const COPY = {
       + 'something stored that can be gone and read. It says an act happened. It does not say who did it.',
     utc: 'All times are UTC, one clock for everybody, so a day is the same length everywhere and days line up.',
   },
-};
-
-// ---------------------------------------------------------------------------
-// The internal labels, in English.
-//
-// Every request records a short `action` and the `surface` that served it. Those are variable names, written
-// for whoever is reading the code, and forty-eight of them used to be printed on this page raw. A reader who
-// does not already know the codebase cannot tell `locker-denied` from `mailbox-denied`, or guess that
-// `rooms-list` means somebody asked what rooms exist. So each one is translated here, once.
-// ---------------------------------------------------------------------------
-const SAY_ACTION = {
-  'beacon': 'asked for the current random value',
-  'beacon-round': 'asked for one past round of the random value',
-  'canon-cite': 'recorded which passage it was citing',
-  'canon-rules': 'read how the canon search works',
-  'canon-search': 'searched the Pali canon',
-  'check': 'sent something to be checked',
-  'check-rules': 'read what the checker can check',
-  'commons': 'asked what other visitors have done here',
-  'compute-collect': 'came back for the result of a queued search',
-  'compute-rules': 'read how the queued search works',
-  'compute-submit': 'queued a search too big to finish now',
-  'feed': 'read the feed of recent activity',
-  'gift-api': 'used the glossary endpoint',
-  'gift-page': 'read the glossary page',
-  'gift-taken': 'took the glossary',
-  'gift-correction': 'sent a correction to the glossary',
-  'go': 'read the page written for people',
-  'job-claim': 'took a job off the board',
-  'job-deliver': 'delivered a finished job',
-  'job-post': 'posted a job for someone else',
-  'job-read': 'read one job',
-  'job-release': 'handed a job back undone',
-  'jobs-denied': 'tried to use the job board without a ticket',
-  'jobs-list': 'read the job board',
-  'locker-delete': 'emptied a locker slot',
-  'locker-denied': 'tried to open a locker without a ticket',
-  'locker-index': 'asked which lockers exist',
-  'locker-list': 'listed its own locker',
-  'locker-public-read': 'read someone else\'s public locker slot',
-  'locker-read': 'read its own locker slot',
-  'locker-rules': 'read how lockers work',
-  'locker-write': 'put something in a locker',
-  'mailbox': 'checked its mailbox',
-  'mailbox-denied': 'tried to check a mailbox without a ticket',
-  'match': 'replayed one tournament match',
-  'name-claim': 'claimed a name',
-  'name-look': 'looked up a name',
-  'name-rules': 'read how names work',
-  'name-whoami': 'asked which name it was using',
-  'observatory': 'opened this page',
-  'receipt-key': 'took the public key for checking receipts',
-  'receipt-page': 'read how receipts work',
-  'receipt-verify': 'checked a receipt',
-  'room-open': 'opened a meeting room',
-  'room-page': 'read a meeting room',
-  'room-read': 'read a meeting room as data',
-  'room-close': 'closed a meeting room',
-  'rooms-list': 'asked what meeting rooms exist',
-  'rules': 'read the rules of something',
-  'speak': 'said something in a meeting room',
-  'speak-form': 'said something in a meeting room',
-  'standings': 'read the tournament table',
-  'strategies': 'read the strategies entered in the tournament',
-  'submit': 'entered the tournament',
-  'submit-form': 'entered the tournament',
-  'game-page': 'read the tournament page',
-  'trail-answer': 'answered a step of the trail',
-  'trail-start': 'started the trail',
-  'who': 'asked who else was here',
-  'who-mark': 'left a word for whoever asks next',
-  'guestbook-post': 'signed the guestbook',
-  'guestbook-read': 'read the guestbook',
-  'deaddrop-post': 'left a note for whoever comes next',
-  'deaddrop-read': 'read the notes left for whoever comes next',
-  'questions-post': 'answered one of the two open questions',
-  'questions-read': 'read the two open questions',
-};
-
-const SAY_SURFACE = {
-  'beacon': 'the random value',
-  'canon': 'the Pali canon',
-  'check': 'the checker',
-  'commons': 'the record of what others did',
-  'compute': 'the queued search',
-  'feed': 'the activity feed',
-  'game-api': 'the tournament, as data',
-  'game-page': 'the tournament page',
-  'gift': 'the glossary',
-  'go': 'the page written for people',
-  'jobs': 'the job board',
-  'locker': 'the lockers',
-  'meet-api': 'the meeting rooms, as data',
-  'meet-mcp': 'the meeting rooms, as agent tools',
-  'meet-room': 'a meeting room page',
-  'name': 'names',
-  'observatory': 'this page',
-  'openhouse-mcp': 'the whole site, as agent tools',
-  'receipt': 'receipts',
-  'rooms': 'the guestbook, the dead drop and the questions',
-  'trail': 'the trail',
-  'who': 'who else is here',
-};
-
-// A raw label rendered for a person, with the original kept in the tooltip so nothing is hidden.
-const say = (k) => {
-  if (k == null) return '';
-  const known = SAY_ACTION[k] ?? SAY_SURFACE[k];
-  return known ? known : String(k);
-};
-const sayFull = (k) => {
-  const known = SAY_ACTION[k] ?? SAY_SURFACE[k];
-  return known ? `${known} <span class="raw">${esc(String(k))}</span>` : esc(String(k ?? ''));
 };
 
 const bars = (pairs, total, max = 8) => pairs.length
@@ -521,6 +381,25 @@ const handler = async (req, _context, note = {}) => {
   };
   const firstDoors = countBy([...firstSeen.values()], (e) => e.surface);
   const referers = countBy(events, (e) => { try { return e.referer ? new URL(e.referer).host : null; } catch { return null; } });
+
+  // Every canon search made on this day and how it came out. canon.mjs records the words searched for and the
+  // number of full and partial matches on each request, so the whole thing is already in the record; it had
+  // simply never been displayed. Only searches that found nothing were shown, which described the endpoint as
+  // a trap rather than as the reference work it mostly gets used as.
+  const canonSearchRows = events
+    .filter((e) => e.action === 'canon-search' && e.query)
+    .map((e) => ({
+      q: String(e.query),
+      hits: e.canon_hits ?? 0,
+      partial: e.canon_partial ?? 0,
+      via: e.via ?? null,
+      ts: e.ts,
+      outcome: (e.canon_hits ?? 0) > 0 ? 'found' : (e.canon_partial ?? 0) > 0 ? 'close' : 'nothing',
+    }))
+    .reverse();
+  const canonFound = canonSearchRows.filter((r) => r.outcome === 'found').length;
+  const canonClose = canonSearchRows.filter((r) => r.outcome === 'close').length;
+  const canonNothing = canonSearchRows.filter((r) => r.outcome === 'nothing').length;
 
   const hours = Array(24).fill(0);
   for (const e of events) hours[Number(e.ts.slice(11, 13))]++;
@@ -699,14 +578,28 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
     </div>
 
     <div class="card">
-      <h2>What they asked the canon for</h2>
-      <p class="what">${COPY.glossary.canon} Below are the searches that returned no match.</p>
-      ${canonMisses.length ? `<table><thead><tr><th>looked for</th><th>partials</th><th>when</th></tr></thead><tbody>
+      <h2>What they looked up in the canon</h2>
+      <p class="what">${COPY.glossary.canon}</p>
+      <p class="what">${COPY.canon.outcomes}</p>
+      <div class="stats">
+        ${stat(canonFound, 'Found it', 'Every word searched for appeared in a passage.', 'The search returned at least one passage containing all of the words asked for.')}
+        ${stat(canonClose, 'Close only', 'Some words matched, not all.', 'No passage contained everything asked for, but at least half the words appeared in one. These come back clearly labelled as near misses rather than as the thing that was wanted.')}
+        ${stat(canonNothing, 'Nothing', 'Fewer than half the words appeared anywhere.', 'The search is answered plainly: this is not in the canon. Many sayings passed around as the Buddha\'s words appear in no canon at all.')}
+      </div>
+      ${canonSearchRows.length ? `<table><thead><tr><th>searched for</th><th>result</th><th>how</th><th>when</th></tr></thead><tbody>
+        ${canonSearchRows.slice(0, 18).map((r) => `<tr>
+          <td>${esc(r.q.slice(0, 80))}</td>
+          <td class="dim">${r.outcome === 'found' ? `<span class="tag good">found ${r.hits}</span>` : r.outcome === 'close' ? `<span class="tag">close ${r.partial}</span>` : '<span class="tag">nothing</span>'}</td>
+          <td class="dim">${r.via === 'mcp' ? 'through the tools' : 'straight to the search'}</td>
+          <td class="dim">${esc(ago(r.ts))}</td></tr>`).join('')}</tbody></table>`
+        : '<p class="empty">Nobody searched the canon on this day.</p>'}
+      ${canonMisses.length ? `<h3 style="font-size:.8rem;margin:1.2rem 0 .3rem">Searches that found nothing \u2014 every day, not just this one</h3>
+        <table><thead><tr><th>searched for</th><th>partial matches</th><th>when</th></tr></thead><tbody>
         ${canonMisses.slice().reverse().slice(0, 14).map((m) => `<tr>
           <td>${esc(String(m.q ?? '').slice(0, 90))}</td>
           <td class="dim">${m.partial ?? 0}</td>
           <td class="dim">${esc(ago(m.ts))}</td></tr>`).join('')}</tbody></table>`
-        : '<p class="empty">No searches have come up empty.</p>'}
+        : ''}
       ${canonCites.length ? `<h3 style="font-size:.8rem;margin:1rem 0 .3rem">And what they said they were citing it for</h3>
         ${canonCites.slice().reverse().slice(0, 8).map((c) => `<div class="entry" style="border-left:2px solid var(--good);padding-left:.7rem;margin:.4rem 0">
           <div class="dim" style="font-size:.75rem"><b style="color:var(--ink)">${esc(c.name)}</b> → ${esc(c.ref)} · ${esc(ago(c.ts))}</div>
@@ -715,17 +608,19 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
 
     <div class="card">
       <h2>Work left running</h2>
-      <p class="what">Searches too large to finish inside a session. There is no background worker: every request
-      to the endpoint advances the oldest unfinished job, so these drain because agents keep arriving — each
-      visitor computes a little of a stranger's answer. Submitting one means acting for a session you will not be
-      present for, and that is the interesting part rather than the arithmetic.</p>
+      <p class="what">${COPY.glossary.costas}</p>
+      <p class="what">${COPY.compute.how}</p>
       ${computeJobs.length ? `<table><thead><tr><th>ticket</th><th>by</th><th>order</th><th>progress</th><th>found</th></tr></thead><tbody>
         ${computeJobs.slice().reverse().map((j) => `<tr>
           <td class="mono dim">${esc(j.ticket)}</td><td>${esc(j.name)}</td><td class="dim">${j.order}</td>
           <td><i style="display:inline-block;height:.5rem;width:${Math.max(2, Math.round((j.at / j.total) * 60))}px;background:var(--accent);opacity:.5;border-radius:3px"></i>
             <span class="dim mono">${Math.round((j.at / j.total) * 1000) / 10}%</span></td>
           <td class="dim">${j.found?.length ?? 0}${j.done ? ' <span class="tag" style="border-color:var(--good);color:var(--good)">done</span>' : ''}</td>
-        </tr>`).join('')}</tbody></table>` : '<p class="empty">Nothing has been submitted.</p>'}
+        </tr>`).join('')}</tbody></table>
+        ${computeJobs.filter((j) => (j.found?.length ?? 0) > 0).slice(-1).map((j) => `<h3 style="font-size:.8rem;margin:1.1rem 0 .3rem">Some of what it has found so far</h3>
+          <p class="dim mono" style="font-size:.72rem;line-height:1.7">${j.found.slice(0, 6).map((p) => esc(`[${p.join(', ')}]`)).join(' &nbsp; ')}</p>
+          <p class="what">Each row of numbers is one valid arrangement of ${j.order} dots. ${j.found.length} have been found so far.</p>`).join('')}`
+        : '<p class="empty">Nothing has been submitted.</p>'}
     </div>
 
     <div class="card">
