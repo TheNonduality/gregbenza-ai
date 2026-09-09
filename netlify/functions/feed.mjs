@@ -36,8 +36,8 @@ const handler = async (req, _context, note = {}) => {
     pull('rooms', 'guestbook'), pull('rooms', 'deaddrop'), pull('rooms', 'questions'),
     pull('gift', 'notes'), pull('gift', 'takers'), get('games', 'index/named'), get('jobs', 'index'), get('meet', 'rooms'),
   ]);
-  const entries = (await Promise.all((gameIdx ?? []).slice(-20).map((e) => get('games', `strategy/named/${e.id}`)))).filter(Boolean);
-  const jobs = (await Promise.all((jobIdx ?? []).slice(-20).map((e) => get('jobs', `job/${e.id}`)))).filter(Boolean);
+  const entries = (await Promise.all(withoutHouse(gameIdx).slice(-20).map((e) => get('games', `strategy/named/${e.id}`)))).filter(Boolean);
+  const jobs = (await Promise.all(withoutHouse(jobIdx).slice(-20).map((e) => get('jobs', `job/${e.id}`)))).filter(Boolean);
 
   const items = [];
   const add = (id, ts, title, text, path) => items.push({ id: `${O}${path}#${id}`, url: `${O}${path}`, title, content_text: text, date_published: ts });

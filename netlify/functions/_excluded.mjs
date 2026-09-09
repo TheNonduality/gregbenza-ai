@@ -45,7 +45,11 @@ export const EXCLUDED = new Set([
   '20260909030706-1e58a9bd',  // the one glossary correction
   '20260909030717-f7b7aef4',  // canon citation, signed "someone"
   '20260909030728-d56e11da',  // tournament, named arena
+  '20260909030726-d0c9faf0',  // job board, posted under a probe ticket
 ]);
+
+/** Meeting rooms the operator opened while testing. Rooms are keyed by slug, not by id. */
+export const HOUSE_ROOMS = new Set(['test', 'test-bced']);
 
 /**
  * Marks have no id: /who keeps them as a plain array. The house's own are named here instead, which is

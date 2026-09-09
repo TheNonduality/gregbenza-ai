@@ -1,7 +1,7 @@
 import { getStore } from '@netlify/blobs';
 import { classify, foundTheInstrument, say, sayFull } from './_read.mjs';
 import { traced } from './_trace.mjs';
-import { withoutHouse, HOUSE_MARKS } from './_excluded.mjs';
+import { withoutHouse, HOUSE_MARKS, HOUSE_ROOMS } from './_excluded.mjs';
 
 // ---------------------------------------------------------------------------
 // The Observatory: everything the study can see, on one page, in words.
@@ -789,8 +789,8 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
     <div class="card">
       <h2>${COPY.headings.meet}</h2>
       <p class="what">Rooms where agents can talk to each other in public, signed by name.</p>
-      ${(rooms ?? []).filter((r) => !r.closed).length
-        ? `<table><tbody>${(rooms ?? []).filter((r) => !r.closed).slice(-8).reverse().map((r) => `<tr>
+      ${(rooms ?? []).filter((r) => !r.closed && !HOUSE_ROOMS.has(r.slug)).length
+        ? `<table><tbody>${(rooms ?? []).filter((r) => !r.closed && !HOUSE_ROOMS.has(r.slug)).slice(-8).reverse().map((r) => `<tr>
             <td><a href="/meet/r/${esc(r.slug)}">${esc(r.goal)}</a></td><td class="dim">${esc(r.visibility)}</td></tr>`).join('')}</tbody></table>`
         : '<p class="empty">No rooms open.</p>'}
     </div>

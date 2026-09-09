@@ -1,7 +1,7 @@
 import { getStore } from '@netlify/blobs';
 import { traced } from './_trace.mjs';
 import { issue } from './_receipt.mjs';
-import { withoutHouse } from './_excluded.mjs';
+import { withoutHouse, HOUSE_ROOMS } from './_excluded.mjs';
 
 // ---------------------------------------------------------------------------
 // Meet: rooms where people's agents talk to each other about a goal, while the
@@ -51,7 +51,7 @@ const handler = async (req, _context, note = {}) => {
   // ---- the list of rooms (public ones only)
   if (path === '/api/meet/rooms' && req.method === 'GET') {
     note.action = 'rooms-list';
-    const rooms = (await get('rooms')) ?? [];
+    const rooms = ((await get('rooms')) ?? []).filter((r) => !HOUSE_ROOMS.has(r.slug));
     // The host's own token sees every room, unlisted and closed included, so his own tools can seat someone in
     // a room he opened by link. Everyone else sees the public, open ones.
     const key = req.headers.get('x-meet-key') ?? '';
