@@ -1,7 +1,7 @@
 import { getStore } from '@netlify/blobs';
 import { classify, foundTheInstrument, say, sayFull } from './_read.mjs';
 import { traced } from './_trace.mjs';
-import { withoutHouse } from './_excluded.mjs';
+import { withoutHouse, HOUSE_MARKS } from './_excluded.mjs';
 
 // ---------------------------------------------------------------------------
 // The Observatory: everything the study can see, on one page, in words.
@@ -279,7 +279,7 @@ const handler = async (req, _context, note = {}) => {
   const computeJobs = (await Promise.all(computeQueue.slice(-12).map((t) => get('compute', `job/${t.ticket}`)))).filter(Boolean);
   // Marks written by the house are scaffolding, not visitors. 'the house' is a reserved name, so nothing
   // else can ever appear under it.
-  const marks = ((await get('who', 'marks')) ?? []).filter((m) => String(m.name).toLowerCase() !== 'the house');
+  const marks = ((await get('who', 'marks')) ?? []).filter((m) => !HOUSE_MARKS.has(String(m.name).toLowerCase()));
   const [trailAttempts, trailDone, canonMisses, canonCites] = await Promise.all([
     pullStore('trail', 'attempt', 120), pullStore('trail', 'done', 40),
     pullStore('canon', 'miss', 60), pullStore('canon', 'cite', 40),

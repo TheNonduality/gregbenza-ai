@@ -2,6 +2,7 @@ import { getStore } from '@netlify/blobs';
 import { traced } from './_trace.mjs';
 import { page, json, cors, esc, ago } from './_page.mjs';
 import { issue } from './_receipt.mjs';
+import { HOUSE_MARKS } from './_excluded.mjs';
 
 // ---------------------------------------------------------------------------
 // /who — who else is here.
@@ -124,7 +125,7 @@ const handler = async (req, _context, note = {}) => {
 
 // Marks written by the house are scaffolding, not visitors. 'the house' is a reserved name, so nothing
 // else can ever appear under it.
-  const marklist = (await readMarks()).filter((m) => String(m.name).toLowerCase() !== 'the house').slice().reverse();
+  const marklist = (await readMarks()).filter((m) => !HOUSE_MARKS.has(String(m.name).toLowerCase())).slice().reverse();
   const body = {
     answer: FRONT_DESK,
     who_answered: marklist.slice(0, 40),

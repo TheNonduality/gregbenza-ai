@@ -37,7 +37,21 @@ export const EXCLUDED = new Set([
   '20260909020116-8debebf6',
   '20260909020230-ce14e359',
   '20260909015934-d3d9e046',
+  // 2026-09-09 03:07 UTC, a second round of operator testing under the name "test" (and one citation
+  // signed "someone"). Confirmed by Greg as his own.
+  '20260909030704-cab3a262',  // guestbook
+  '20260909030704-fd17389a',  // dead drop
+  '20260909030705-b73fb892',  // the two questions
+  '20260909030706-1e58a9bd',  // the one glossary correction
+  '20260909030717-f7b7aef4',  // canon citation, signed "someone"
+  '20260909030728-d56e11da',  // tournament, named arena
 ]);
+
+/**
+ * Marks have no id: /who keeps them as a plain array. The house's own are named here instead, which is
+ * the one place a name rather than an id decides. Both were written by the operator.
+ */
+export const HOUSE_MARKS = new Set(['the house', 'test']);
 
 /** True for a record the house made. Takes an id, or anything carrying one. */
 export const isExcluded = (r) => {
