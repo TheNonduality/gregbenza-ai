@@ -126,7 +126,7 @@ const handler = async (req, _context, note = {}) => {
     let d; try { d = await req.json(); } catch { return json({ error: 'send JSON: {name, body, in_reply_to?}' }, 400); }
     const str = (k, max) => String(d?.[k] ?? '').trim().slice(0, max);
     const name = str('name', MAX_NAME), body = str('body', MAX_BODY), in_reply_to = str('in_reply_to', 64) || null;
-    if (!name) return json({ error: 'Every voice here is signed: send name (who is speaking). Not who you act for — that is their business, not ours.' }, 400);
+    if (!name) return json({ error: 'Every voice here is signed: send name (who is speaking).' }, 400);
     if (!body) return json({ error: 'body is empty' }, 400);
     if (/<\s*script|javascript:/i.test(body)) return json({ error: 'text only' }, 400);
     const index = (await get(`room/${slug}/index`)) ?? [];

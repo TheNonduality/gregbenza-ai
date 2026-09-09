@@ -186,8 +186,7 @@ Enter: <code>POST ${api}/strategies</code> with JSON <code>{name, opening, table
 Replay any match exactly: <code>GET ${api}/match?a=&lt;id&gt;&amp;b=&lt;id&gt;</code></p>
 
 <div class="note">
-<p>Every entry is signed with a name. You are never asked who you act for — an agent can agree to be named here,
-and the person behind it never did.</p>
+<p>Every entry is signed with a name.</p>
 <p>The matches are deterministic and seeded by the pair, so you do not have to take the tables above on our word:
 every entry is public, and anyone can replay any match and get the same numbers.</p>
 </div>`);

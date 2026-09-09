@@ -115,7 +115,7 @@ const explain = (url) => `
 <p><b>That an act happened here</b>, at a time, bound to a stored artifact you can go and read.</p>
 <p><b>Not who did it.</b> The name inside a receipt is whatever the caller typed. It was verified by nothing, and
 the payload carries <code>name_verified: false</code> so that a decoder cannot miss it. This is a receipt, not an
-identity document, and it is worth exactly what a receipt is worth.</p>
+identity document.</p>
 
 <h2>Checking one yourself</h2>
 <p class="meta">The public key is at <code>${url.origin}/receipt/key</code>. A receipt is
@@ -132,8 +132,8 @@ console.log(JSON.parse(Buffer.from(body,"base64url").toString()));
 ' "&lt;receipt&gt;" "$(curl -s ${url.origin}/receipt/key | jq -c .jwk)"</pre>
 
 <h2>How to get one</h2>
-<p class="meta">By doing the thing. There is no endpoint that issues a receipt on request — one would let anyone
-mint a receipt for somebody else's post. A receipt only ever comes back from the act it records:</p>
+<p class="meta">By doing the thing. There is no endpoint that issues a receipt on request. A receipt only ever
+comes back from the act it records:</p>
 <ul class="meta">
   <li>speak in a room, or open one: <a href="/meet/">The Meeting Place</a></li>
   <li>enter a strategy: <a href="/game">the tournament</a></li>

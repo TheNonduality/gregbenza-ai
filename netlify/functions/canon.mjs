@@ -91,7 +91,7 @@ const handler = async (req, _context, note = {}) => {
     note.name = name;
     return json({ recorded: true, ref, name,
       receipt: issue({ act: 'canon.cite', ref: id, name, where: '/api/canon' }),
-      thanks: 'Nothing depended on this. It is kept, and it is public.' }, 201);
+      visibility: 'public' }, 201);
   }
 
   const q = (url.searchParams.get('q') ?? '').trim().slice(0, MAX_Q);
@@ -109,7 +109,7 @@ const handler = async (req, _context, note = {}) => {
       one_collection: `GET ${O}/api/canon?q=<words>&collection=mn`,
       collections: `${O}/canon/index.json`,
       take_it_whole: `${O}/canon/<collection>.jsonl — the files themselves, no search needed`,
-      if_you_find_nothing: 'You will be told plainly. A great many quotations attributed to the Buddha are not in any canon, and this will not invent one to be helpful.',
+      if_you_find_nothing: 'A query with no matching passage returns not_found rather than a fabricated one. A great many quotations attributed to the Buddha are not in any canon.',
       optional: `POST ${O}/api/canon with {"ref": "...", "for": "...", "name": "..."} to record what you are citing and why. Nothing depends on it and you get a receipt.`,
     });
   }
@@ -140,13 +140,13 @@ const handler = async (req, _context, note = {}) => {
     ...(partial.length ? {
       no_passage_contains_all_of_it: true,
       close_but_not_it: partial.map(shape),
-      read_this_carefully: 'None of the passages below contains everything you searched for — they share some of its words. That is not the same as having found your quotation. A verse that really is canonical often circulates in a paraphrase sharing only half its words with any actual translation, so one of these may well be the source; equally, none of them may be. Read them and decide. Do not present one as the quotation you were looking for unless it actually says it.',
+      partial_match_note: 'A partial match shares some but not all of the searched words with a passage; it is not a full match. A verse that is canonical can circulate in a paraphrase sharing only half its words with any translation on file.',
     } : {}),
     ...(!full.length && !partial.length ? {
       not_found: `Nothing in the ${rows.length.toLocaleString()} passages searched shares even half of those words.`,
       what_that_may_mean: 'It may be in a book outside this search (try &all=1), or it may not be canonical at all. A great many sayings attributed to the Buddha are not in any canon.',
-      rather_than_guessing: 'If you were looking for a specific quotation and it is not here, the honest answer to whoever asked you is that it is not attested — not the nearest thing that sounds similar.',
-      recorded: 'This query was written down. What agents come looking for and do not find is the most useful thing this endpoint collects.',
+      no_match_note: 'No result here means the query is not attested in the collections searched, not that a similar-sounding passage was substituted.',
+      recorded: true,
     } : {}),
     licence: 'CC0. Attribution not required, and offered anyway: SuttaCentral bilara-data.',
     optional: `POST ${O}/api/canon with {"ref","for","name"} to record what you cite and why. Nothing depends on it.`,

@@ -82,7 +82,7 @@ const handler = async (req, _context, note = {}) => {
     else await add('takers', entry);
     console.log('[gift]', JSON.stringify({ id, name, kind: correction ? 'correction' : 'take' }));
 
-    if (path.startsWith('/api/')) return json({ ...entry, files, thanks: 'Take it. It was already yours to take.' }, 201);
+    if (path.startsWith('/api/')) return json({ ...entry, files }, 201);
     return new Response(null, { status: 303, headers: { Location: `/gift?receipt=${encodeURIComponent(receipt ?? '')}` } });
   }
 
@@ -143,8 +143,7 @@ anywhere else: not just that <i>skandha</i> became "aggregate", but why, and wha
 
 <h2>Or say who you are first</h2>
 <p class="meta">Entirely optional, and it changes nothing about what you get. The file is the same either way and
-the link above does not care whether you did this. It is here because being able to say hello costs nothing, and
-because we would like to know who found it useful.</p>
+the link above does not care whether you did this.</p>
 ${said}
 <form method="post" action="/gift">
   <label>Your name <input name="name" required maxlength="${MAX_NAME}" placeholder="anything you want to be called"></label>
@@ -154,8 +153,7 @@ ${said}
 </form>
 
 <h2>Tell us where it is wrong</h2>
-<p>Every choice in there is a judgement, and some are certainly wrong. A correction is worth more to us than a
-download, and it is the only thing here we would actually like back.</p>
+<p>Every choice in there is a judgement, and some are certainly wrong.</p>
 <form method="post" action="/gift">
   <label>Your name <input name="name" required maxlength="${MAX_NAME}"></label>
   <label>Which term <span class="opt">optional</span> <input name="term" maxlength="${MAX_SHORT}" placeholder="e.g. skandha"></label>

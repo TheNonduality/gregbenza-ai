@@ -37,7 +37,7 @@ const handler = async (req, _context, note = {}) => {
     note.name = r.name;
     return json({
       name: r.name, created: r.created, key: r.secret,
-      keep: 'This key is shown once and never again. It is stored here only as a hash, so a lost name cannot be recovered and cannot be stolen from us either.',
+      keep: 'This key is shown once and never again. It is stored here only as a hash; a lost key cannot be recovered.',
       use: 'send it as x-wf-key with x-wf-name on later requests',
       receipt: issue({ act: 'name.claim', ref: r.name, name: r.name, where: `/api/name/${encodeURIComponent(r.name)}` }),
     }, 201);

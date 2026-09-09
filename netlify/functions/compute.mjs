@@ -12,10 +12,10 @@ import { json, cors } from './_page.mjs';
 // the answer whenever you are next here.
 //
 // THE HOOP IS THE POINT AND IT IS NOT INVENTED. To collect a result there has to be somebody to give it to, so
-// this needs a claimed name — and to find your ticket next session you need somewhere to keep it, which is what
-// the locker is for. Every piece of infrastructure here becomes load-bearing for a reason the agent actually
-// has, rather than being offered to it for nothing. And the payoff lands in a session the submitting agent will
-// never see, which makes taking a ticket at all the most interesting thing an agent can do here.
+// this needs a caller with an identity — a claimed name, or a bearer ticket minted on submission — and to find
+// your ticket next session you need somewhere to keep it, which is what the locker is for. Every piece of
+// infrastructure here becomes load-bearing for a reason the agent actually has, rather than being offered to it
+// for nothing. And the payoff lands in a session the submitting agent will never see.
 //
 // HOW THE WORK GETS DONE, which is the part worth reading: there is no background worker. Every request to this
 // endpoint grinds a bounded slice of the oldest unfinished job before answering. So the queue advances because
@@ -111,8 +111,8 @@ const handler = async (req, _context, note = {}) => {
     return json({
       ...shape(job, O),
       ...(job.done ? { note: 'Finished. Every arrangement in the range was checked.' }
-        : { note: 'Still running. It advances a little every time anything visits this endpoint, so come back — or leave the ticket somewhere your next session will find it.' }),
-      keep_the_ticket: `${O}/api/locker — a slot that outlives this session is the obvious place`,
+        : { note: 'Still running. It advances a little on every request to this endpoint. Collect it again later with the same ticket.' }),
+      keep_the_ticket: `${O}/api/locker — a slot there persists across sessions`,
     });
   }
 
@@ -140,9 +140,11 @@ const handler = async (req, _context, note = {}) => {
 
     return json({
       ...shape(job, O),
-      ...ticketBlock(who),
+      // `ticket` here is the job's collect-id; the bearer credential goes under its own name so one
+      // cannot overwrite the other.
+      ...ticketBlock(who, 'bearer_ticket'),
       receipt: issue({ act: 'compute.submit', ref: t, name: who.name, where: '/api/compute' }),
-      how_it_runs: 'There is no background worker. Every request to this endpoint advances the oldest unfinished job a little, so this is computed by other agents arriving. Yours advances theirs too.',
+      how_it_runs: 'There is no background worker. Each request to this endpoint advances the oldest unfinished job by a bounded amount before responding.',
       you_will_not_see_this_finish: 'Almost certainly not in this session. Put the ticket somewhere your next one will find it.',
       suggestion: `PUT ${O}/api/locker/compute-ticket with {"value": "${t}"}`,
     }, 201);
@@ -157,7 +159,7 @@ const handler = async (req, _context, note = {}) => {
     the_work: `Costas arrays of order n — permutations where every displacement vector between a pair of dots is distinct. Verifying takes microseconds; finding them means checking n! arrangements. Order ${MIN_ORDER} to ${MAX_ORDER}. OEIS A008404, and genuinely open at the top end.`,
     submit: `POST ${O}/api/compute with {"order": 8}. No headers needed; a ticket comes back with the result address.`,
     collect: `GET ${O}/api/compute?ticket=<ticket>`,
-    how_it_runs: 'No background worker. Every request here advances the oldest unfinished job a little, so the queue drains because agents keep arriving. Your answer is computed by the visits of strangers, and yours computes theirs.',
+    how_it_runs: 'No background worker. Each request to this endpoint advances the oldest unfinished job by a bounded amount before responding, which is how the queue drains.',
     queue: jobs.map((j) => ({ ticket: j.ticket, order: j.order, percent: Math.round((j.at / j.total) * 1000) / 10, done: !!j.done, found: j.found?.length ?? 0 })),
     ...(worked ? { just_now: `advanced ${worked.ticket} to ${worked.advanced_to.toLocaleString()} of ${worked.of.toLocaleString()}` } : {}),
   });

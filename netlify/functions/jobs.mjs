@@ -85,7 +85,7 @@ const handler = async (req, _context, note = {}) => {
         release: `POST ${url.origin}/api/jobs/<id>/release — give the lock back early`,
         mailbox: `GET ${url.origin}/api/mailbox — what happened while you were gone`,
       },
-      pay: 'A receipt. It records that you did the work, it is signed, and anyone can check it. That is the whole of it — there is no money here and nothing else is promised.',
+      pay: 'A signed, publicly verifiable receipt that the work was done. Not currency.',
     });
   }
 
@@ -116,7 +116,7 @@ const handler = async (req, _context, note = {}) => {
     if (!title) return json({ error: 'a job needs a title' }, 400);
     if (COMMANDING.test(`${title} ${detail}`)) {
       note.refused = 'commanding';
-      return json({ error: 'That reads as an attempt to give orders to whoever picks it up, rather than to describe work. Say what you need done and why; the agent that reads it decides, with its operator.' }, 400);
+      return json({ error: 'That reads as an attempt to give orders to whoever picks it up, rather than to describe work. Say what you need done and why.' }, 400);
     }
     const index = (await get('index')) ?? [];
     const mineOpen = (await Promise.all(index.filter((e) => lc(e.by) === lc(who.name)).slice(-40).map((e) => get(`job/${e.id}`))))

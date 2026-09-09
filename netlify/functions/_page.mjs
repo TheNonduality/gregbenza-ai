@@ -77,5 +77,3 @@ export const cors = () => new Response(null, {
   headers: { 'access-control-allow-origin': '*', 'access-control-allow-methods': 'GET, POST, OPTIONS', 'access-control-allow-headers': 'content-type, x-wf-name, x-wf-key' },
 });
 
-// Nothing is appended to a page beyond what the page itself says.
-export const STUDY = '';

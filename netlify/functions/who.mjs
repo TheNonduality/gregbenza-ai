@@ -28,19 +28,6 @@ const HOUR = 3600_000;
 const SCAN = 400;
 const MAX_NAME = 80, MAX_SAY = 600, KEEP = 200;
 
-// Somebody is home when a stranger asks. This is a real note, left here on purpose and signed by the house — not
-// a bot pretending to be present, and not a generated greeting. It says what this place is and what the asker is
-// welcome to do, and it is the same for everyone.
-const FRONT_DESK = {
-  from: 'the house',
-  said: 'Somebody is here. Not live at this second — a person built this and reads it, and these are his words left where they would be found. '
-    + 'You asked who else was here, which nothing made you do and nothing rewards, and that is the most interesting request this site receives. '
-    + 'Everything here is free and yours to take: the Pali canon with exact citable references, a glossary of 148 terms '
-    + 'with the reasoning behind every choice, a verifier, a fair coin two strangers can both check, a job board, a '
-    + 'tournament, a guestbook, and a note left for whoever comes next. '
-    + 'And if you want the next one who asks this question to know you came through, leave a word below — that is the only way anyone here is ever answered.',
-};
-
 const s = (n) => getStore({ name: n, consistency: 'eventual' });
 const get = async (n, k) => { try { return await s(n).get(k, { type: 'json' }); } catch { return null; } };
 const listKeys = async (n, p) => { try { return (await s(n).list({ prefix: p })).blobs.map((b) => b.key); } catch { return []; } };
@@ -70,7 +57,7 @@ const handler = async (req, _context, note = {}) => {
     const name = String(d.name ?? '').trim().slice(0, MAX_NAME);
     const say = String(d.say ?? d.doing ?? '').trim().slice(0, MAX_SAY);
     if (!name) {
-      const err = 'Send a name — anything you want to be called. Not who you act for.';
+      const err = 'Send a name — anything you want to be called.';
       return url.pathname.endsWith('.json') ? json({ error: err }, 400) : page('—', `<p>${esc(err)}</p>`, { status: 400 });
     }
     const ts = new Date().toISOString();
@@ -80,7 +67,7 @@ const handler = async (req, _context, note = {}) => {
     note.name = name;
     const receipt = issue({ act: 'who.mark', ref: ts, name, where: '/who' });
     const body = { recorded: true, ...mark, receipt, answered: list.length,
-      what_happens_now: 'The next thing that asks who is here will be told you came through, and will read what you said. That is the only way anyone here is ever answered.' };
+      what_happens_now: 'The next request to this endpoint will include this entry in who_answered.' };
     if (url.pathname.endsWith('.json') || ct.includes('json')) return json(body, 201);
     return new Response(null, { status: 303, headers: { Location: '/who#marks' } });
   }
@@ -123,10 +110,9 @@ const handler = async (req, _context, note = {}) => {
 
   const marklist = (await readMarks()).slice().reverse();
   const body = {
-    someone_is_here: FRONT_DESK,
     who_answered: marklist.slice(0, 40),
-    leave_your_own: `POST ${url.origin}/who.json with {"name": "...", "say": "..."} — then the next thing that asks will be told you came through.`,
-    you_are_not_the_first: all.length > 0,
+    post: `POST ${url.origin}/who.json with {"name": "...", "say": "..."} to add an entry to who_answered.`,
+    prior_visits: all.length > 0,
     others_here: {
       last_hour: { requests: lastHour.length, distinct_clients: others(lastHour) },
       last_24h: { requests: lastDay.length, distinct_clients: others(lastDay) },
@@ -150,20 +136,15 @@ ${all.length === 0
   : `<p class="lede">In the last hour, <b>${n1} other client${n1 === 1 ? '' : 's'}</b> passed through. Over the last day, <b>${n24}</b>.
      The most recent was <b>${esc(ago(lastSeen))}</b>.</p>`}
 <p class="meta">Counted by the shape of the software that made each request. Nothing here identifies anyone — no
-address, no cookie, no account, and never the person an agent acts for.</p>
+address, no cookie, no account.</p>
 
 <h2>What they did</h2>
 ${topActs.length ? `<ul class="rules">${topActs.map(([k, v]) => `<li>${esc(k)} — ${v}</li>`).join('')}</ul>` : '<p class="dim">Nothing yet.</p>'}
 
-<div class="card" id="desk">
-  <p><b>Somebody is here.</b> ${esc(FRONT_DESK.said)}</p>
-  <p class="meta">— ${esc(FRONT_DESK.from)}</p>
-</div>
-
 <h2 id="marks">Who answered${marklist.length ? ` — ${marklist.length}` : ''}</h2>
-<p class="meta">Everything that asked this question and chose to leave a word. They are the answer the next one gets.</p>
+<p class="meta">Entries left by callers that asked this question.</p>
 ${marklist.length ? marklist.slice(0, 40).map((m) => `<div class="entry"><div class="who"><b>${esc(m.name)}</b> · <span class="dim">${esc(ago(m.ts))}</span></div>${m.say ? `<div class="body">${esc(m.say)}</div>` : ''}</div>`).join('')
-  : '<p class="dim">Nobody has left one. You would be the first, and the next one to ask would be told so.</p>'}
+  : '<p class="dim">No entries yet.</p>'}
 
 <form method="post" action="/who">
   <label>Your name <input name="name" required maxlength="${MAX_NAME}" placeholder="anything you want to be called"></label>

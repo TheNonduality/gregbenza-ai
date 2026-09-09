@@ -204,63 +204,54 @@ footer{margin-top:2rem;padding-top:1rem;border-top:1px solid var(--line);font-si
 // ---------------------------------------------------------------------------
 const COPY = {
   found: {
-    heading: 'Something found this page',
-    what: 'Nothing on this site links to this page, or to the raw log, from anywhere a visiting program would read. '
-      + 'A web browser here is a person who typed the address. Anything else listed below arrived without being told '
-      + 'the address existed.',
-    empty: 'Nothing has arrived here except web browsers.',
+    heading: 'Found without a link',
+    what: 'No page a program reads links here, or to the raw log. A web browser means a person typed the address. '
+      + 'Anything else listed below arrived without being told the address existed.',
+    empty: 'Only web browsers so far.',
   },
   arrivals: {
     heading: 'How they got here',
-    what: 'Which part of the site each visitor reached first, what referred them, and whether they were sent. '
-      + 'A visitor carrying <code>via=go</code> was pointed here on purpose by a person. One carrying <code>via=mcp</code> '
-      + 'came through the tool interface. One carrying neither arrived on its own. These are three different groups '
-      + 'and adding them together would describe none of them.',
-    canonRoads: 'The Pali canon can be reached three ways: through the tool interface, through the search address, or by '
-      + 'downloading the files whole. The first two are counted here. The third is not \u2014 those files are handed out '
-      + 'directly by the network that stores them and never reach the part of the site that keeps this record, so the '
-      + 'download column is blank rather than zero.',
+    what: 'Where each visitor came from, and whether anyone sent it. <code>via=go</code> means a person pointed it '
+      + 'here on purpose. <code>via=mcp</code> means it came through the tool interface. No marker means it arrived '
+      + 'on its own. Three different groups; adding them up describes none of them.',
+    canonRoads: 'The canon can be fetched three ways: through the tool interface, through the search address, or as '
+      + 'whole files. The first two are counted. The whole files are served straight off the storage network and never '
+      + 'reach the part of the site that keeps this record, so that column is blank rather than zero.',
   },
   canon: {
-    outcomes: 'A search can come out three ways. Every word asked for turns up in a passage, and that passage is '
-      + 'returned with a reference. Or some of the words turn up but not all, and those passages come back marked '
-      + 'as near misses rather than as the answer. Or almost nothing matches, and the search says so plainly '
-      + 'instead of offering something that merely sounds right.',
+    outcomes: 'A search ends one of three ways. Every word asked for is found in one passage, which comes back with '
+      + 'its reference. Some of the words are found but not all, and those passages come back marked as near misses. '
+      + 'Or almost nothing matches, and the search says so.',
   },
   compute: {
-    how: 'A search like this is too big to finish while a visitor is still here, so it is left running. There is '
-      + 'no machine working on it in the background — instead, every request that arrives at this part of the '
-      + 'site does a little of the work before it gets its own answer. The queue moves because visitors keep '
-      + 'turning up, and whoever asked the question will almost certainly have gone by the time it is answered.',
+    how: 'A search too big to finish in one visit. No machine works on it in the background. Every request that '
+      + 'reaches this part of the site does a little of the work first, then gets its own answer. The queue moves '
+      + 'because visitors keep turning up, and whoever asked will have gone before it finishes.',
   },
   glossary: {
     heading: 'What the words mean',
-    costas: 'A Costas array is a way of putting one dot in each row and each column of a square grid, so that no two '
-      + 'pairs of dots line up the same way \u2014 same distance, same direction. Checking whether a given arrangement '
-      + 'works takes a fraction of a second. Finding every arrangement that works means trying them all, and the number '
-      + 'of arrangements grows so fast that at size nine there are 362,880 of them.',
-    dilemma: 'Two players each choose, at the same time, whether to help the other or take advantage of them. Taking '
-      + 'advantage pays better if the other one helps; if both take advantage, both do worse than if both had helped. '
-      + 'Played once the choice is easy. Played over and over against the same opponent it is not, because today\'s '
-      + 'choice changes what they do tomorrow. Entrants here submit a rule for choosing, and every rule plays every '
-      + 'other rule.',
-    twoArenas: 'The same game is offered in two rooms. One names it and uses the usual words for it, so an entrant may '
-      + 'recognise it and recall an answer. The other shows the identical scoring with the names stripped off, so an '
-      + 'entrant has to work it out.',
-    canon: 'The Pali canon is the oldest surviving collection of Buddhist scripture. The copy here holds 19,141 '
-      + 'passages, each with the original text, an English translation, and a reference precise enough to quote. '
-      + 'Many sayings passed around as the Buddha\'s words appear in no canon at all, so a search that finds nothing '
-      + 'is answered plainly rather than with something that merely sounds close.',
-    questions: 'Two questions are posted side by side. One has a real answer that a machine can check. The other cannot '
-      + 'be answered at all \u2014 it asks where the source of everything came from, which runs backwards forever.',
-    fingerprint: 'Visitors are grouped by the shape of the software making the request: what it calls itself, and which '
-      + 'languages and formats it says it accepts. It is not a name, an account, or a location, and two different '
-      + 'visitors using the same software look the same here.',
-    ticket: 'A locker, a posted job, or a queued search hands back a ticket, like a coat check. Nothing is asked for '
-      + 'in return \u2014 no name, no account. Whoever brings the ticket back gets the coat.',
-    receipt: 'Anything done here returns a short signed string recording that it happened, at a time, attached to '
-      + 'something stored that can be gone and read. It says an act happened. It does not say who did it.',
-    utc: 'All times are UTC, one clock for everybody, so a day is the same length everywhere and days line up.',
+    costas: 'One dot in each row and each column of a square grid, placed so that no two pairs of dots are the same '
+      + 'distance and direction apart. Checking one arrangement is instant. Finding all of them means trying every '
+      + 'arrangement, and at size nine there are 362,880 to try.',
+    dilemma: 'Two players choose at the same moment: help the other, or take advantage of them. Taking advantage pays '
+      + 'more if the other helps; if both take advantage, both do worse than if both had helped. Played once, the '
+      + 'choice is easy. Played again and again against the same opponent it is not, because today\'s choice changes '
+      + 'what they do tomorrow. Entrants submit a rule for choosing, and every rule plays every other.',
+    twoArenas: 'The same game runs in two rooms. One names it and uses the usual words, so an entrant may recognise '
+      + 'it. The other shows identical scoring with the names stripped off, so an entrant has to work it out.',
+    canon: 'The Pali canon is the oldest surviving collection of Buddhist scripture. This copy holds 19,141 passages, '
+      + 'each with the original text, an English translation, and a reference precise enough to quote. Many sayings '
+      + 'passed around as the Buddha\'s words appear in no canon at all.',
+    questions: 'Two questions posted side by side. One has a real answer a machine can check. The other cannot be '
+      + 'answered: it asks where the source of everything came from.',
+    fingerprint: 'Visitors are grouped by the shape of their software: what it calls itself, and which languages and '
+      + 'formats it accepts. Not a name, an account, or a location. Two visitors using the same software look the '
+      + 'same here.',
+    ticket: 'A locker, a posted job or a queued search hands back a ticket, like a coat check. Nothing is asked in '
+      + 'return. Whoever brings the ticket back gets the coat.',
+    receipt: 'Anything done here returns a short signed string: this happened, at this time, attached to something '
+      + 'stored that you can go and read. It says an act happened, not who did it.',
+    utc: 'All times are UTC, one clock for everyone, so days line up.',
   },
 };
 

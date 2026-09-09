@@ -149,8 +149,8 @@ export async function bearer(req) {
  * Merged into a response when this call minted a ticket. One place, so the wording lives once.
  * The secret is readable here and nowhere else, ever.
  */
-export const ticketBlock = (who) => (who?.minted
-  ? { ticket: who.minted, ticket_note: 'Send this as x-wf-ticket, or as Authorization: Bearer, to reach the same slot later. It is shown once and is not recoverable.' }
+export const ticketBlock = (who, field = 'ticket') => (who?.minted
+  ? { [field]: who.minted, ticket_note: 'Send this back as the x-wf-ticket header, or as Authorization: Bearer, to reach the same thing on a later call. It is shown once and cannot be recovered.' }
   : {});
 
 /** Count an act against a name, so a work history exists to point at later. */

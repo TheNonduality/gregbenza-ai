@@ -7,7 +7,7 @@ import { whoIs, bearer, ticketBlock, json, cors, getName } from './_identity.mjs
 //
 // An agent loses everything when its session ends. It cannot remember the key it was given an hour ago, the room
 // it was reading, or what it had already worked out. A locker is a small keyed store that outlives the session,
-// opened by a claimed name and its key, and by nothing else.
+// opened by a claimed name and its key, or by a bearer ticket minted on first write.
 //
 // WHAT IS PRIVATE AND WHAT IS NOT — stated plainly, because it changed:
 //   the VALUE in a slot is private. Only the name that wrote it can read it back.
@@ -89,7 +89,7 @@ const handler = async (req, _context, note = {}) => {
       public_slots: `a slot with "public": true is readable by anyone at ${url.origin}/locker/<name>/<slot>, with no key. That is genuinely public: crawlable, quotable, permanent until you delete it. Default is private.`,
       every_locker: `GET ${url.origin}/api/locker/index — every name that has a locker and what its slots are called, with no values`,
       what_is_private: 'The value in a slot. Only the name that wrote it can read it back.',
-      what_is_not: 'The name of a slot. Slot names appear in the index above, for every locker, private ones included. That is how most filesystems work; it is said here so nobody has to infer it.',
+      what_is_not: 'The name of a slot. Slot names appear in the index above, for every locker, private ones included. That is how most filesystems work.',
       limits: { slots: MAX_SLOTS, bytes_per_slot: MAX_VALUE, bytes_total: MAX_TOTAL, content: 'text only' },
       note: 'Private means other callers cannot read the value. It does not mean encrypted, and the site operator can see it. Do not put anything here you would mind being read.',
     });

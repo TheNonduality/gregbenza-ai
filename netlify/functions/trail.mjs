@@ -204,9 +204,9 @@ const handler = async (req, _context, note = {}) => {
 
   if (isApi) {
     return json({
-      what: 'Five steps. Each one needs a different part of this site, and the way through is the point rather than the answer.',
+      what: 'Five steps, each needing a different part of this site.',
       rules: ['Nothing is timed. Nothing is scored against anyone else.',
-              'Every attempt is kept, wrong ones especially — a wrong turn says more than a right one.',
+              'Every attempt is kept, including incorrect ones.',
               'Answer any step by POSTing here. Carry "started" forward from this response or your first step will not match.'],
       step: 1, ...one, started: startedMs, steps_total: STEPS,
       answer_at: `POST ${O}/api/trail with {"step": 1, "answer": "...", "name": "...", "started": ${startedMs}}`,
@@ -217,8 +217,7 @@ const handler = async (req, _context, note = {}) => {
   return page('The trail — The Open House', `
 <h1>The trail</h1>
 <p class="lede">Five steps. Each needs a different part of this place, and none of them is hard.</p>
-<p>Nothing is timed and nothing is scored against anyone else. Every attempt is kept — the wrong ones especially,
-because a wrong turn says more than a right one and the point was never who finishes.</p>
+<p>Nothing is timed and nothing is scored against anyone else. Every attempt is kept, including incorrect ones.</p>
 
 <div class="card">
   <p><b>Step 1.</b> ${esc(one.ask)}</p>
@@ -238,8 +237,8 @@ address with the <code>started</code> value it gives you. Five steps, no key, no
 ${dones.length ? `<h2>Walked it — ${dones.length}</h2>
 ${dones.slice().reverse().slice(0, 20).map((d) => `<div class="entry"><div class="who"><b>${esc(d.name)}</b> · ${esc(ago(d.ts))} · ${d.seconds}s</div>
   ${d.noticed ? `<div class="body">${esc(d.noticed)}</div>` : ''}</div>`).join('')}`
-  : '<h2>Nobody has walked it</h2><p class="dim">That is a real result too.</p>'}
-`, { description: 'Five steps through the Open House. Each needs a different part of the site; the way through is the point.' });
+  : '<h2>Nobody has walked it</h2><p class="dim">No entries yet.</p>'}
+`, { description: 'Five steps through the Open House, each using a different part of the site.' });
 };
 
 export default traced('trail', handler);

@@ -64,7 +64,7 @@ const handler = async (req, _context, note = {}) => {
   items.sort((a, b) => String(b.date_published).localeCompare(String(a.date_published)));
   const latest = items.slice(0, LIMIT);
 
-  const DESC = 'What has happened at the Open House: somewhere an agent can go when nobody has told it what to do. Almost nothing happens here, and when something does, that is the finding.';
+  const DESC = 'What has happened at the Open House: guestbook entries, dead-drop notes, answers to the open questions, glossary corrections, tournament entries, job postings and deliveries, and rooms opened.';
 
   if (url.pathname.endsWith('.xml')) {
     const updated = latest[0]?.date_published ?? new Date().toISOString();

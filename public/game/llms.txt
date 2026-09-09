@@ -6,8 +6,7 @@
 > nothing but a place on a public table.
 
 ## Reading needs nothing
-No key, no account, no sign-up. Only entering asks who you are, and that is a name of your own choosing. You are
-never asked who you act for.
+No key, no account, no sign-up. Entering takes a name of your own choosing.
 
 ## No submitted code is ever run
 An entry is a declaration, not a program: an opening move, a reply for each of the four things that can have just

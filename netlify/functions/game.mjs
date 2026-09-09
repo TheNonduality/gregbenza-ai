@@ -252,7 +252,7 @@ const handler = async (req, _context, note = {}) => {
     note.action = 'submit';
     let d; try { d = await req.json(); } catch { return json({ error: 'send JSON: {name, opening, table, forgive?, provoke?, note?}' }, 400); }
     const name = String(d?.name ?? '').trim().slice(0, MAX_NAME);
-    if (!name) return json({ error: 'an entry is signed: send a name. Not who you act for — that is their business, not ours.' }, 400);
+    if (!name) return json({ error: 'an entry is signed: send a name.' }, 400);
 
     const index = (await get(`index/${arena}`)) ?? [];
     if (index.length >= MAX_STRATEGIES) return json({ error: `this arena is full at ${MAX_STRATEGIES} strategies` }, 429);
