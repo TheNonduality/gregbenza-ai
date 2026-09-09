@@ -17,8 +17,6 @@ Disallow: /waystation/
 Disallow: /api/waystation/
 Disallow: /mcp/waystation
 Disallow: /projects/
-Disallow: /observatory
-Disallow: /traces
 
 # Named explicitly below so there is no ambiguity for the crawlers behind AI
 # search and AI answers. Being on this list means welcome, not tolerated.
