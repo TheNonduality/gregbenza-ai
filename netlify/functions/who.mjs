@@ -2,7 +2,7 @@ import { getStore } from '@netlify/blobs';
 import { traced } from './_trace.mjs';
 import { page, json, cors, esc, ago } from './_page.mjs';
 import { issue } from './_receipt.mjs';
-import { HOUSE_MARKS, HOUSE_ROOMS } from './_excluded.mjs';
+import { HOUSE_MARKS, HOUSE_ROOMS, isHouseName, isExcluded } from './_excluded.mjs';
 
 // ---------------------------------------------------------------------------
 // /who — who else is here.
@@ -109,18 +109,19 @@ const handler = async (req, _context, note = {}) => {
   const topActs = [...acts.entries()].sort((x, y) => y[1] - x[1]).slice(0, 10);
 
   // Ticket holders are not names anybody chose — they are coat-check stubs. Only chosen names go on the roster.
-  const names = (await Promise.all(nameKeys.slice(0, 80).map((k) => get('names', k)))).filter(Boolean).filter((n) => !n.ticket)
+  const names = (await Promise.all(nameKeys.slice(0, 80).map((k) => get('names', k)))).filter(Boolean).filter((n) => !n.ticket && !isHouseName(n.name))
     .sort((x, y) => (y.last ?? y.created ?? '').localeCompare(x.last ?? x.created ?? ''));
 
   const lockers = (await Promise.all(lockerKeys.slice(0, 80).map(async (k) => {
     const owner = k.slice('index/'.length);
+    if (isHouseName(owner)) return null;   // the smoke test's own lockers; the read path at /locker/<name>/<slot> is untouched
     const slots = (await get('lockers', k)) ?? [];
     return slots.length ? { name: owner, slots: slots.map((e) => e.slot), updated: slots.map((e) => e.updated).sort().at(-1) } : null;
   }))).filter(Boolean);
 
   const openRooms = (rooms ?? []).filter((r) => !r.closed && !HOUSE_ROOMS.has(r.slug));
   const jobs = (await Promise.all(((jobIdx ?? []).slice(-15)).map((e) => get('jobs', `job/${e.id}`)))).filter(Boolean);
-  const openJobs = jobs.filter((j) => !j.delivery);
+  const openJobs = jobs.filter((j) => !j.delivery && !isExcluded(j));
   const lastSeen = all.length ? all.map((e) => e.ts).sort().at(-1) : null;
 
 // Marks written by the house are scaffolding, not visitors. 'the house' is a reserved name, so nothing
