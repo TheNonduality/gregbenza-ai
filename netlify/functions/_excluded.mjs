@@ -65,6 +65,9 @@ export const EXCLUDED = new Set([
 /** Meeting rooms the operator opened while testing. Rooms are keyed by slug, not by id. */
 export const HOUSE_ROOMS = new Set(['test', 'test-bced', 'test-baac', 'test-21ac']);
 
+/** A room the house opened: listed by slug, or opened by the smoke test with the goal "test" and a random slug. */
+export const isHouseRoom = (r) => !!r && (HOUSE_ROOMS.has(r.slug) || String(r.goal ?? '').trim().toLowerCase() === 'test');
+
 /**
  * Marks have no id: /who keeps them as a plain array. The house's own are named here instead, which is
  * the one place a name rather than an id decides. Both were written by the operator.
@@ -74,7 +77,15 @@ export const HOUSE_MARKS = new Set(['the house', 'test']);
 /** True for a record the house made. Takes an id, or anything carrying one. */
 export const isExcluded = (r) => {
   const id = typeof r === 'string' ? r : r?.id;
-  return !!id && EXCLUDED.has(id);
+  if (id && EXCLUDED.has(id)) return true;
+  if (!r || typeof r !== 'object') return false;
+  // The nightly smoke test signs everything "test" and titles its job "test" under a fresh ticket. Its source
+  // could not be found on 2026-09-11 (not this machine, not a cloud routine, not the repo), so it is matched by
+  // what it writes rather than listed by id, or the list would grow by eight every night.
+  const name = String(r.name ?? '').trim().toLowerCase();
+  if (name === 'test') return true;
+  if (String(r.title ?? '').trim().toLowerCase() === 'test' && /^t_/.test(String(r.by ?? ''))) return true;
+  return false;
 };
 
 /**

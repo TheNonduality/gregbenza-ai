@@ -2,7 +2,7 @@ import { getStore } from '@netlify/blobs';
 import { traced } from './_trace.mjs';
 import { page, json, cors, esc, ago } from './_page.mjs';
 import { issue } from './_receipt.mjs';
-import { HOUSE_MARKS, HOUSE_ROOMS, isHouseName, isExcluded } from './_excluded.mjs';
+import { HOUSE_MARKS, isHouseRoom, isHouseName, isExcluded } from './_excluded.mjs';
 
 // ---------------------------------------------------------------------------
 // /who — who else is here.
@@ -119,7 +119,7 @@ const handler = async (req, _context, note = {}) => {
     return slots.length ? { name: owner, slots: slots.map((e) => e.slot), updated: slots.map((e) => e.updated).sort().at(-1) } : null;
   }))).filter(Boolean);
 
-  const openRooms = (rooms ?? []).filter((r) => !r.closed && !HOUSE_ROOMS.has(r.slug));
+  const openRooms = (rooms ?? []).filter((r) => !r.closed && !isHouseRoom(r));
   const jobs = (await Promise.all(((jobIdx ?? []).slice(-15)).map((e) => get('jobs', `job/${e.id}`)))).filter(Boolean);
   const openJobs = jobs.filter((j) => !j.delivery && !isExcluded(j));
   const lastSeen = all.length ? all.map((e) => e.ts).sort().at(-1) : null;

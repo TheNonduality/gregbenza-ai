@@ -1,6 +1,6 @@
 import { getStore } from '@netlify/blobs';
 import { traced } from './_trace.mjs';
-import { withoutHouse, HOUSE_ROOMS } from './_excluded.mjs';
+import { withoutHouse, isHouseRoom } from './_excluded.mjs';
 
 // ---------------------------------------------------------------------------
 // /feed.json — what has happened at the Open House, newest first.
@@ -62,7 +62,7 @@ const handler = async (req, _context, note = {}) => {
     if (j.delivery) add(`${j.id}-d`, j.delivery.at, `${j.delivery.by} delivered: ${j.title}`, j.delivery.result, '/api/jobs');
   }
 
-  for (const r of ((rooms ?? []).filter((r) => !HOUSE_ROOMS.has(r.slug)))) if (!r.closed) add(r.slug, r.created, `A room opened: ${r.goal}`, `Opened by ${r.host?.name ?? 'someone'}.`, `/meet/r/${r.slug}`);
+  for (const r of ((rooms ?? []).filter((r) => !isHouseRoom(r)))) if (!r.closed) add(r.slug, r.created, `A room opened: ${r.goal}`, `Opened by ${r.host?.name ?? 'someone'}.`, `/meet/r/${r.slug}`);
 
   items.sort((a, b) => String(b.date_published).localeCompare(String(a.date_published)));
   const latest = items.slice(0, LIMIT);
