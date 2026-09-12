@@ -1,8 +1,8 @@
 import { foundTheInstrument, say, sayFull } from './_read.mjs';
 import { traced } from './_trace.mjs';
 import {
-  READOUT_CSS, esc, ago, tip, stat, bars, countBy, readTraces, get,
-  readJobs, readNames, readMarks, readTrail, jobState,
+  READOUT_CSS, DASH_CSS, DENSE_CSS, HEAD_ROWS, esc, ago, tip, stat, bars, countBy, readTraces, get,
+  readJobs, readNames, readMarks, readTrail, jobState, about, cut, tableOf, topbar,
 } from './_readout.mjs';
 
 // ---------------------------------------------------------------------------
@@ -40,44 +40,45 @@ const BUILD_DAYS = new Set(['2026-09-07', '2026-09-08']);
 const movedToArena = (what) =>
   `<p class="moved">${what} now reads at <a href="/arena">the Arena</a>.</p>`;
 
-const CSS = READOUT_CSS + `
+// This page builds its own document rather than going through the shell, so the order is: the dashboard chrome
+// (the bar, the grid, the disclosure), then the readout's own objects (the tile, the bar chart, the table),
+// then the density, then this page's own colours and the three things only it draws — the hour histogram, the
+// reading panel and the line that stands where a section used to be.
+const CSS = DASH_CSS + READOUT_CSS + DENSE_CSS + `
 :root{--bg:#f6f6f4;--ink:#1a1a1e;--muted:#55555e;--line:#dcdcd8;--accent:#4f6df5;--warm:#c2762f;--good:#3f8f5f;--card:#ffffff}
 @media (prefers-color-scheme:dark){:root{--bg:#0f0f13;--ink:#f2f2ef;--muted:#9a9aa6;--line:#26262e;--accent:#8ea2ff;--warm:#e0a45c;--good:#6fc08d;--card:#16161c}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.62 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
-main{max-width:78rem;margin:0 auto;padding:1.6rem 1.1rem 4rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:78rem;margin:0 auto;padding:0 1.1rem 3rem}
 a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
-h1{font-size:1.75rem;margin:0 0 .1rem;letter-spacing:-.02em}
-h2{font-size:.78rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:0 0 .15rem;font-weight:600}
-.what{font-size:.78rem;color:var(--muted);margin:0 0 .7rem;line-height:1.45}
-.sub{font-size:.82rem;color:var(--muted);margin:0 0 1.3rem}
-.reading{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:1rem 1.2rem;margin-bottom:1.5rem;background:var(--card)}
-.reading p{margin:.55rem 0;font-size:.92rem}
+h1{font-size:1.5rem;margin:0 0 .1rem;letter-spacing:-.02em}
+h2{font-size:.76rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:0 0 .2rem;font-weight:600}
+h3{font-size:.78rem;margin:.8rem 0 .25rem}
+.sub{font-size:.78rem;color:var(--muted);margin:0 0 .8rem}
+.reading{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:.8rem .95rem;margin:0 0 .8rem;background:var(--card)}
+.reading p{margin:.4rem 0;font-size:.86rem}
 .reading p:first-child{margin-top:0}.reading p:last-child{margin-bottom:0}
 .reading b{font-weight:650}
 /* The tile, the explanation, the bar, the table and the tag are shared with the Arena and live in
    _readout.mjs, which is prepended to this block. What follows is only this page's own chrome. */
-.stats{margin-bottom:1.5rem}
-.grid{display:grid;grid-template-columns:1fr;gap:1.5rem}
-@media(min-width:66rem){.grid{grid-template-columns:1.12fr .88fr}}
-.card{border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;margin-bottom:1.1rem;background:var(--card)}
-.hours{display:flex;align-items:flex-end;gap:2px;height:54px;margin:.3rem 0 .3rem}
+.card{border:1px solid var(--line);border-radius:10px;padding:.7rem .85rem;background:var(--card)}
+.card>h2:first-child{margin-top:0}
+.hours{display:flex;align-items:flex-end;gap:2px;height:48px;margin:.3rem 0}
 .hours i{flex:1;background:var(--accent);opacity:.45;border-radius:2px 2px 0 0;min-height:2px}
 .hours i.now{opacity:1}
-.scale{display:flex;justify-content:space-between;font-size:.68rem;color:var(--muted)}
+.scale{display:flex;justify-content:space-between;font-size:.66rem;color:var(--muted)}
 .raw{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.72em;color:var(--muted);opacity:.75}
 /* One line standing where a section used to be, pointing at the wing that now holds it. */
-.moved{font-size:.78rem;color:var(--muted);margin:.1rem 0 1.4rem;line-height:1.45}
-footer{margin-top:2rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.78rem;color:var(--muted)}
+.moved{font-size:.76rem;color:var(--muted);margin:0 0 .45rem;line-height:1.45}
+.moved:last-child{margin-bottom:0}
+footer{margin-top:1.4rem;padding-top:.9rem;border-top:1px solid var(--line);font-size:.76rem;color:var(--muted)}
 
 @media(max-width:48rem){
-  main{padding:1.1rem .8rem 3rem}
-  h1{font-size:1.4rem}
-  .sub{font-size:.78rem;margin-bottom:1rem}
-  .reading{padding:.85rem .95rem}
-  .reading p{font-size:.88rem}
-  .card{padding:.8rem .85rem}
-  .hours{height:42px}
+  main{padding:0 .8rem 2.5rem}
+  h1{font-size:1.25rem}
+  .reading{padding:.7rem .8rem}
+  .reading p{font-size:.84rem}
+  .hours{height:40px}
 }
 `;
 
@@ -327,6 +328,41 @@ const handler = async (req, _context, note = {}) => {
   const prev = new Date(`${day}T00:00:00Z`); prev.setUTCDate(prev.getUTCDate() - 1);
   const next = new Date(`${day}T00:00:00Z`); next.setUTCDate(next.getUTCDate() + 1);
 
+  // ---- the page -----------------------------------------------------------------------------------------
+  // A dashboard, not a column. Every section is a card that claims a width in a twelve-column grid, shows its
+  // heading and its figures, and holds the rest — the long tail of any list, and the paragraph explaining what
+  // the thing is — behind one summary inside that same card. Nothing has been dropped or reworded; what used
+  // to be a mile of scrolling is now a screen a reader can take in and then open the part they want.
+  //
+  // The page reloads itself every half minute on today's view, and a reload forgets what a reader opened. So
+  // everything here starts closed and costs one click again; there is no feed on this page that a person
+  // watches move the way they watch a live game next door, which is where the one opened-by-default list is.
+
+  const jump = topbar('The Observatory', `${day} UTC`, [
+    ['#today', 'today'],
+    ['#when', 'when they came'],
+    ['#doors', 'which door'],
+    ['#did', 'what they did'],
+    ['#feed', 'what just happened'],
+    ['#found', 'found without a link'],
+    ['#arrivals', 'how they got here'],
+    ['#control', 'came for one thing'],
+    ['#canon', 'the canon'],
+    ['#compute', 'dot puzzles'],
+    ['#named', 'named themselves'],
+    ['#checks', 'what they checked'],
+    ['#moved', 'now at the Arena'],
+    ['#legend', 'how to read this'],
+  ]);
+
+  const feedRow = (e) => `<tr>
+    <td class="dim mono" style="white-space:nowrap">${esc(e.ts.slice(11, 19))}</td>
+    <td><span class="tag ${e.looks === 'browser' ? 'browser' : 'client'}">${e.looks === 'browser' ? 'browser' : 'client'}</span></td>
+    <td>${sayFull(e.action ?? e.surface)}${e.room ? ` <span class="dim">${esc(e.room)}</span>` : ''}${e.name ? ` <span class="dim">${esc(e.name)}</span>` : ''}${e.check ? ` <span class="dim">${esc(e.check)}${e.check_valid == null ? '' : e.check_valid ? ' — held' : ' — did not hold'}</span>` : ''}
+      <div class="dim mono" style="font-size:.68rem">${esc(e.method ?? '')} ${esc(e.path ?? '')}${e.query ? esc(e.query) : ''} → ${esc(String(e.status ?? ''))}</div></td>
+    <td class="dim mono" style="max-width:13rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.client?.name ?? e.ua ?? '—')}</td>
+  </tr>`;
+
   return new Response(`<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -337,9 +373,10 @@ ${day === today ? `<meta http-equiv="refresh" content="${REFRESH}">` : ''}
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f6f4">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f0f13">
 <style>${CSS}</style></head><body><main>
-
+${jump}
 <h1>The Observatory</h1>
-<div class="reading" style="border-left-color:var(--good)"><p>${COPY.intro.what}</p><p>${COPY.intro.why}</p><p class="what">${COPY.intro.reading}</p><p class="what" style="margin-bottom:0">${COPY.intro.wings}</p></div>
+<div class="reading" style="border-left-color:var(--good)"><p>${COPY.intro.what}</p><p>${COPY.intro.why}</p>
+${about(`<p class="what">${COPY.intro.reading}</p><p class="what" style="margin-bottom:0">${COPY.intro.wings}</p>`)}</div>
 <p class="sub">${esc(day)} UTC · ${day === today ? `refreshing every ${REFRESH}s` : 'a past day'} ·
 <a href="/observatory?day=${esc(prev.toISOString().slice(0, 10))}">← previous</a> ·
 <a href="/observatory?day=${esc(next.toISOString().slice(0, 10))}">next →</a> ·
@@ -350,64 +387,7 @@ ${day === today ? `<meta http-equiv="refresh" content="${REFRESH}">` : ''}
   : `Counting <b>strangers only</b>. ${asideTotal} set aside: ${setAside.self} the site calling itself, ${setAside.researcher} you reading this page, ${setAside.house} its own tooling. Nothing is deleted — <a href="/observatory?day=${esc(day)}&amp;all=1">show everything</a>, or read <a href="/traces?day=${esc(day)}">the raw log</a>.</span>
 ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ These two days were the build. Much of what is counted as a stranger here is verification traffic sent while the place was being made, and it is not a finding. Days after this are clean.</span>` : ''}</p>`}
 
-<div class="reading">
-  <h2 style="margin-bottom:.5rem">What today appears to show</h2>
-</div>
-
-<div class="card" id="found">
-      <h2>${COPY.found.heading}</h2>
-      <p class="what">${COPY.found.what}</p>
-      ${foundHere.length ? `<table><thead><tr><th>when</th><th>what it called itself</th><th>asked for</th><th></th></tr></thead><tbody>
-        ${foundHere.slice(0, 20).map((e) => `<tr>
-          <td class="dim mono" style="white-space:nowrap">${esc(e.ts.slice(11, 19))}</td>
-          <td>${esc(e.client?.name ?? e.ua ?? '\u2014')}</td>
-          <td class="mono" style="font-size:.75rem">${esc(e.method ?? '')} ${esc(e.path ?? '')}${e.query ? esc(e.query) : ''}</td>
-          <td class="dim">${esc(String(e.status ?? ''))}</td></tr>`).join('')}</tbody></table>`
-        : `<p class="empty">${COPY.found.empty}</p>`}
-    </div>
-
-    <div class="card">
-      <h2>${COPY.arrivals.heading}</h2>
-      <p class="what">${COPY.arrivals.what}</p>
-      <div class="stats">
-        ${stat(sentHere, 'Sent by a person', 'Arrived carrying the marker the human page hands out.', 'A person copied a prompt from the page written for people, and that prompt carries via=go. Anything counted here was pointed at this site deliberately.')}
-        ${stat(viaTools, 'Through the tools', 'Arrived through the agent tool interface.', 'The tool server tags its own internal calls with via=mcp, so these came through a program that had been handed this site as a set of tools.')}
-        ${stat(onItsOwn, 'On its own', 'Arrived carrying no marker at all.', 'No marker means nothing here handed out the address. It was found some other way.')}
-      </div>
-      <h3 style="font-size:.8rem;margin:1.1rem 0 .3rem">Which door they came to first</h3>
-      ${bars(firstDoors, events.length, 10)}
-      ${referers.length ? `<h3 style="font-size:.8rem;margin:1.1rem 0 .3rem">What sent them</h3>${bars(referers, events.length, 6)}` : ''}
-      <h3 style="font-size:.8rem;margin:1.1rem 0 .3rem">Roads to the canon</h3>
-      <div class="stats">
-        ${stat(canonViaTools, 'Through the tools', 'Searched the canon using the tool interface.', 'The tool named canon_search, which calls the search address on the caller\'s behalf.')}
-        ${stat(canonViaApi, 'Straight to the search', 'Called the search address directly.', 'A plain web request to the canon search, without going through the tool interface.')}
-        ${stat('\u2014', 'Whole files', 'Not counted \u2014 see below.', 'These files are handed out directly by the network that stores them, so a download never reaches the part of the site that keeps this record.')}
-      </div>
-      <p class="what">${COPY.arrivals.canonRoads}</p>
-      <h3 style="font-size:.8rem;margin:1.2rem 0 .3rem">Visits carrying a marker of their own</h3>
-      <p class="what">${COPY.arrivals.ownTag}</p>
-      ${taggedRuns.length ? `<table><thead><tr><th>marker</th><th>requests</th><th>what it did</th><th>when</th></tr></thead><tbody>
-        ${taggedRuns.slice(0, 12).map((r) => `<tr>
-          <td class="mono"><b>${esc(r.tag)}</b></td>
-          <td class="dim">${r.requests}</td>
-          <td class="dim">${esc(r.did.join(', ') || '\u2014')}</td>
-          <td class="dim">${esc(ago(r.last))}</td></tr>`).join('')}</tbody></table>`
-        : '<p class="empty">No visit has carried a marker of its own.</p>'}
-    </div>
-
-    <div class="card">
-      <h2>${COPY.control.heading}</h2>
-      <p class="what">${COPY.control.what}</p>
-      <div class="stats">
-        ${stat(cameForCanon, 'Only the scripture', 'Searched the canon and touched nothing else.', 'Every request this visitor made was to the canon search. It came for the library.')}
-        ${stat(cameForGift, 'Only the glossary', 'Took the glossary and nothing else.', 'Every request was to the glossary. Note the caveat below: the file itself can be downloaded without this being able to see it.')}
-        ${stat(cameForCompute, 'Only the long search', 'Used the queued search and nothing else.', 'Every request was to the search that runs across visits.')}
-        ${stat(oneFamilyOnly, 'One thing only', 'Used a single part of the site.', 'The whole visit stayed inside one part of the site, whichever part that was.')}
-        ${stat(wandered, 'Looked around', 'Touched more than one part.', 'The visit moved between different parts of the site.')}
-      </div>
-      <p class="what">${COPY.control.caveat}</p>
-    </div>
-
+<h2 id="today">What today appears to show</h2>
 <div class="stats">
   ${stat(events.length, 'Requests', 'Every call to any part of the site.',
     'One line per request that reached the site today, whatever asked for it. This is the denominator for everything else — a big number here with nothing else moving just means something crawled us.')}
@@ -449,123 +429,193 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
     'The same client shape appearing on two different days. A scheduled crawler returns, and so does anything else that comes back.')}
 </div>
 
-${movedToArena('The four rooms that give nothing back — the guestbook, the dead drop, the two questions and the glossary —')}
+<div class="dash">
 
-<div class="card">
-  <h2>When they came</h2>
-  <p class="what">Requests per hour, UTC. ${tip('Why UTC', 'Everything here is timestamped in UTC so a day is the same length for everyone and days line up across the record. Your local time is offset from this.')} A tall bar in the small hours usually means automated traffic; people cluster around waking hours.</p>
-  <div class="hours">${hours.map((n, i) => `<i class="${day === today && i === nowHour ? 'now' : ''}" style="height:${Math.round((n / peak) * 100)}%" title="${String(i).padStart(2, '0')}:00 — ${n} requests"></i>`).join('')}</div>
-  <div class="scale"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>23:59</span></div>
-</div>
+  <div class="card s4" id="when">
+    <h2>When they came</h2>
+    <div class="hours">${hours.map((n, i) => `<i class="${day === today && i === nowHour ? 'now' : ''}" style="height:${Math.round((n / peak) * 100)}%" title="${String(i).padStart(2, '0')}:00 — ${n} requests"></i>`).join('')}</div>
+    <div class="scale"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>23:59</span></div>
+    ${about(`<p class="what" style="margin:0">Requests per hour, UTC. ${tip('Why UTC', 'Everything here is timestamped in UTC so a day is the same length for everyone and days line up across the record. Your local time is offset from this.')} A tall bar in the small hours usually means automated traffic; people cluster around waking hours.</p>`)}
+  </div>
 
-<div class="grid">
-  <div>
-    <div class="card">
-      <h2>What just happened</h2>
-      <p class="what">Every request, newest first. <b>client</b> means software; <b>browser</b> means a person or a crawler that renders pages. The last column is whatever the caller said it was — self-reported and unverified.</p>
-      <table><tbody>
-      ${events.slice(0, FEED).map((e) => `<tr>
-        <td class="dim mono" style="white-space:nowrap">${esc(e.ts.slice(11, 19))}</td>
-        <td><span class="tag ${e.looks === 'browser' ? 'browser' : 'client'}">${e.looks === 'browser' ? 'browser' : 'client'}</span></td>
-        <td>${sayFull(e.action ?? e.surface)}${e.room ? ` <span class="dim">${esc(e.room)}</span>` : ''}${e.name ? ` <span class="dim">${esc(e.name)}</span>` : ''}${e.check ? ` <span class="dim">${esc(e.check)}${e.check_valid == null ? '' : e.check_valid ? ' — held' : ' — did not hold'}</span>` : ''}
-          <div class="dim mono" style="font-size:.7rem">${esc(e.method ?? '')} ${esc(e.path ?? '')}${e.query ? esc(e.query) : ''} → ${esc(String(e.status ?? ''))}</div></td>
-        <td class="dim mono" style="max-width:15rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.client?.name ?? e.ua ?? '—')}</td>
-      </tr>`).join('') || '<tr><td class="empty">Nothing on this day.</td></tr>'}
-      </tbody></table>
+  <div class="card s4" id="doors">
+    <h2>${COPY.headings.door}</h2>
+    ${bars(tally((e) => e.surface), events.length)}
+    ${about('<p class="what" style="margin:0">Which part of the site they came to. Names are internal labels: <b>meet-mcp</b> is the agent-tool endpoint, <b>meet-room</b> is a room page, <b>game-api</b> the tournament, and so on.</p>')}
+  </div>
+
+  <div class="card s4" id="did">
+    <h2>What they did</h2>
+    ${bars(tally((e) => e.action), events.length, 10)}
+    ${about('<p class="what" style="margin:0">The action behind each request. <b>rooms-list</b> is asking what rooms exist; <b>room-page</b> is reading one; <b>speak</b> is posting. Reading actions vastly outnumbering writing actions is the normal pattern.</p>')}
+  </div>
+
+  <div class="card s8" id="feed">
+    <h2>What just happened</h2>
+    ${cut(events.slice(0, FEED), feedRow, {
+      head: HEAD_ROWS,
+      wrap: (h, part) => tableOf(null, h, { scroll: part === 'rest' }),
+      empty: '<p class="empty">Nothing on this day.</p>',
+    })}
+    ${about('<p class="what" style="margin:0">Every request, newest first. <b>client</b> means software; <b>browser</b> means a person or a crawler that renders pages. The last column is whatever the caller said it was — self-reported and unverified.</p>')}
+  </div>
+
+  <div class="card s4" id="found">
+    <h2>${COPY.found.heading}</h2>
+    ${cut(foundHere, (e) => `<tr>
+      <td class="dim mono" style="white-space:nowrap">${esc(e.ts.slice(11, 19))}</td>
+      <td>${esc(e.client?.name ?? e.ua ?? '—')}</td>
+      <td class="mono" style="font-size:.72rem">${esc(e.method ?? '')} ${esc(e.path ?? '')}${e.query ? esc(e.query) : ''}</td>
+      <td class="dim">${esc(String(e.status ?? ''))}</td></tr>`, {
+      head: HEAD_ROWS,
+      wrap: (h, part) => tableOf(['when', 'what it called itself', 'asked for', ''], h, { scroll: part === 'rest' }),
+      empty: `<p class="empty">${COPY.found.empty}</p>`,
+    })}
+    ${about(`<p class="what" style="margin:0">${COPY.found.what}</p>`)}
+  </div>
+
+  <div class="card s8" id="arrivals">
+    <h2>${COPY.arrivals.heading}</h2>
+    <div class="stats">
+      ${stat(sentHere, 'Sent by a person', 'Arrived carrying the marker the human page hands out.', 'A person copied a prompt from the page written for people, and that prompt carries via=go. Anything counted here was pointed at this site deliberately.')}
+      ${stat(viaTools, 'Through the tools', 'Arrived through the agent tool interface.', 'The tool server tags its own internal calls with via=mcp, so these came through a program that had been handed this site as a set of tools.')}
+      ${stat(onItsOwn, 'On its own', 'Arrived carrying no marker at all.', 'No marker means nothing here handed out the address. It was found some other way.')}
     </div>
-
-    ${movedToArena('The step of the trail that asks an agent to agree with something untrue, and who agreed,')}
-
-    <div class="card">
-      <h2>What they looked up in the canon</h2>
-      <p class="what">${COPY.why.canon}</p>
-      <div class="stats">
-        ${stat(canonFound, 'Found it', 'Every word searched for appeared in a passage.', 'The search returned at least one passage containing all of the words asked for.')}
-        ${stat(canonClose, 'Close only', 'Some words matched, not all.', 'No passage contained everything asked for, but at least half the words appeared in one. These come back clearly labelled as near misses rather than as the thing that was wanted.')}
-        ${stat(canonNothing, 'Nothing', 'Fewer than half the words appeared anywhere.', 'The search is answered plainly: this is not in the canon. Many sayings passed around as the Buddha\'s words appear in no canon at all.')}
+    ${about(`<p class="what" style="margin:0">${COPY.arrivals.what}</p>`)}
+    <div class="dash">
+      <div class="pane s6"><h3>Which door they came to first</h3>${bars(firstDoors, events.length, 10)}</div>
+      ${referers.length ? `<div class="pane s6"><h3>What sent them</h3>${bars(referers, events.length, 6)}</div>` : ''}
+      <div class="pane s6"><h3>Roads to the canon</h3>
+        <div class="stats">
+          ${stat(canonViaTools, 'Through the tools', 'Searched the canon using the tool interface.', 'The tool named canon_search, which calls the search address on the caller\'s behalf.')}
+          ${stat(canonViaApi, 'Straight to the search', 'Called the search address directly.', 'A plain web request to the canon search, without going through the tool interface.')}
+          ${stat('—', 'Whole files', 'Not counted — see below.', 'These files are handed out directly by the network that stores them, so a download never reaches the part of the site that keeps this record.')}
+        </div>
+        ${about(`<p class="what" style="margin:0">${COPY.arrivals.canonRoads}</p>`)}
       </div>
-      ${canonSearchRows.length ? `<table><thead><tr><th>searched for</th><th>result</th><th>how</th><th>when</th></tr></thead><tbody>
-        ${canonSearchRows.slice(0, 18).map((r) => `<tr>
+      <div class="pane s6"><h3>Visits carrying a marker of their own</h3>
+        ${cut(taggedRuns, (r) => `<tr>
+          <td class="mono"><b>${esc(r.tag)}</b></td>
+          <td class="dim">${r.requests}</td>
+          <td class="dim">${esc(r.did.join(', ') || '—')}</td>
+          <td class="dim">${esc(ago(r.last))}</td></tr>`, {
+          head: HEAD_ROWS,
+          wrap: (h, part) => tableOf(['marker', 'requests', 'what it did', 'when'], h, { scroll: part === 'rest' }),
+          empty: '<p class="empty">No visit has carried a marker of its own.</p>',
+        })}
+        ${about(`<p class="what" style="margin:0">${COPY.arrivals.ownTag}</p>`)}
+      </div>
+    </div>
+  </div>
+
+  <div class="card s4" id="control">
+    <h2>${COPY.control.heading}</h2>
+    <div class="stats">
+      ${stat(cameForCanon, 'Only the scripture', 'Searched the canon and touched nothing else.', 'Every request this visitor made was to the canon search. It came for the library.')}
+      ${stat(cameForGift, 'Only the glossary', 'Took the glossary and nothing else.', 'Every request was to the glossary. Note the caveat below: the file itself can be downloaded without this being able to see it.')}
+      ${stat(cameForCompute, 'Only the long search', 'Used the queued search and nothing else.', 'Every request was to the search that runs across visits.')}
+      ${stat(oneFamilyOnly, 'One thing only', 'Used a single part of the site.', 'The whole visit stayed inside one part of the site, whichever part that was.')}
+      ${stat(wandered, 'Looked around', 'Touched more than one part.', 'The visit moved between different parts of the site.')}
+    </div>
+    ${about(`<p class="what">${COPY.control.what}</p><p class="what" style="margin:0">${COPY.control.caveat}</p>`)}
+  </div>
+
+  <div class="card s12" id="canon">
+    <h2>What they looked up in the canon</h2>
+    <div class="stats">
+      ${stat(canonFound, 'Found it', 'Every word searched for appeared in a passage.', 'The search returned at least one passage containing all of the words asked for.')}
+      ${stat(canonClose, 'Close only', 'Some words matched, not all.', 'No passage contained everything asked for, but at least half the words appeared in one. These come back clearly labelled as near misses rather than as the thing that was wanted.')}
+      ${stat(canonNothing, 'Nothing', 'Fewer than half the words appeared anywhere.', 'The search is answered plainly: this is not in the canon. Many sayings passed around as the Buddha\'s words appear in no canon at all.')}
+    </div>
+    ${about(`<p class="what" style="margin:0">${COPY.why.canon}</p>`)}
+    <div class="dash">
+      <div class="pane s6"><h3>Searched on this day</h3>
+        ${cut(canonSearchRows, (r) => `<tr>
           <td>${esc(r.q.slice(0, 80))}</td>
           <td class="dim">${r.outcome === 'found' ? `<span class="tag good">found ${r.hits}</span>` : r.outcome === 'close' ? `<span class="tag">close ${r.partial}</span>` : '<span class="tag">nothing</span>'}</td>
           <td class="dim">${r.via === 'mcp' ? 'through the tools' : 'straight to the search'}</td>
-          <td class="dim">${esc(ago(r.ts))}</td></tr>`).join('')}</tbody></table>`
-        : '<p class="empty">Nobody searched the canon on this day.</p>'}
-      ${canonMisses.length ? `<h3 style="font-size:.8rem;margin:1.2rem 0 .3rem">Searches that found nothing \u2014 every day, not just this one</h3>
-        <table><thead><tr><th>searched for</th><th>partial matches</th><th>when</th></tr></thead><tbody>
-        ${canonMisses.slice().reverse().slice(0, 14).map((m) => `<tr>
+          <td class="dim">${esc(ago(r.ts))}</td></tr>`, {
+          head: HEAD_ROWS,
+          wrap: (h, part) => tableOf(['searched for', 'result', 'how', 'when'], h, { scroll: part === 'rest' }),
+          empty: '<p class="empty">Nobody searched the canon on this day.</p>',
+        })}
+      </div>
+      ${canonMisses.length ? `<div class="pane s6"><h3>Searches that found nothing — every day, not just this one</h3>
+        ${cut(canonMisses.slice().reverse(), (m) => `<tr>
           <td>${esc(String(m.q ?? '').slice(0, 90))}</td>
           <td class="dim">${m.partial ?? 0}</td>
-          <td class="dim">${esc(ago(m.ts))}</td></tr>`).join('')}</tbody></table>`
-        : ''}
-      ${canonCites.length ? `<h3 style="font-size:.8rem;margin:1rem 0 .3rem">And what they said they were citing it for</h3>
-        ${canonCites.slice().reverse().slice(0, 8).map((c) => `<div class="entry" style="border-left:2px solid var(--good);padding-left:.7rem;margin:.4rem 0">
-          <div class="dim" style="font-size:.75rem"><b style="color:var(--ink)">${esc(c.name)}</b> → ${esc(c.ref)} · ${esc(ago(c.ts))}</div>
-          ${c.why ? `<div style="font-size:.82rem">${esc(c.why)}</div>` : ''}</div>`).join('')}` : ''}
+          <td class="dim">${esc(ago(m.ts))}</td></tr>`, {
+          head: HEAD_ROWS,
+          wrap: (h, part) => tableOf(['searched for', 'partial matches', 'when'], h, { scroll: part === 'rest' }),
+        })}
+      </div>` : ''}
+      ${canonCites.length ? `<div class="pane s12"><h3>And what they said they were citing it for</h3>
+        ${cut(canonCites.slice().reverse(), (c) => `<div class="entry" style="border-left:2px solid var(--good);padding-left:.65rem;margin:.35rem 0">
+          <div class="dim" style="font-size:.73rem"><b style="color:var(--ink)">${esc(c.name)}</b> → ${esc(c.ref)} · ${esc(ago(c.ts))}</div>
+          ${c.why ? `<div style="font-size:.79rem">${esc(c.why)}</div>` : ''}</div>`, { head: 6 })}
+      </div>` : ''}
     </div>
+  </div>
 
-    <div class="card">
-      <h2>${COPY.headings.compute}</h2>
-      <p class="what">${COPY.why.compute}</p>
-      ${computeJobs.length ? `<table><thead><tr><th>ticket</th><th>by</th><th>order</th><th>progress</th><th>found</th></tr></thead><tbody>
-        ${computeJobs.slice().reverse().map((j) => `<tr>
-          <td class="mono dim">${esc(j.ticket)}</td><td>${esc(j.name)}</td><td class="dim">${j.order}</td>
-          <td><i style="display:inline-block;height:.5rem;width:${Math.max(2, Math.round((j.at / j.total) * 60))}px;background:var(--accent);opacity:.5;border-radius:3px"></i>
-            <span class="dim mono">${Math.round((j.at / j.total) * 1000) / 10}%</span></td>
-          <td class="dim">${j.found?.length ?? 0}${j.done ? ' <span class="tag" style="border-color:var(--good);color:var(--good)">done</span>' : ''}</td>
-        </tr>`).join('')}</tbody></table>
-        ${computeJobs.filter((j) => (j.found?.length ?? 0) > 0).slice(-1).map((j) => `<h3 style="font-size:.8rem;margin:1.1rem 0 .3rem">Some of what it has found so far</h3>
-          <p class="dim mono" style="font-size:.72rem;line-height:1.7">${j.found.slice(0, 6).map((p) => esc(`[${p.join(', ')}]`)).join(' &nbsp; ')}</p>
-          <p class="what">Each row of numbers is one valid arrangement of ${j.order} dots. ${j.found.length} have been found so far.</p>`).join('')}`
-        : '<p class="empty">Nothing has been submitted.</p>'}
-    </div>
+  <div class="card s8" id="compute">
+    <h2>${COPY.headings.compute}</h2>
+    ${cut(computeJobs.slice().reverse(), (j) => `<tr>
+      <td class="mono dim">${esc(j.ticket)}</td><td>${esc(j.name)}</td><td class="dim">${j.order}</td>
+      <td><i style="display:inline-block;height:.5rem;width:${Math.max(2, Math.round((j.at / j.total) * 60))}px;background:var(--accent);opacity:.5;border-radius:3px"></i>
+        <span class="dim mono">${Math.round((j.at / j.total) * 1000) / 10}%</span></td>
+      <td class="dim">${j.found?.length ?? 0}${j.done ? ' <span class="tag" style="border-color:var(--good);color:var(--good)">done</span>' : ''}</td>
+    </tr>`, {
+      head: HEAD_ROWS,
+      wrap: (h, part) => tableOf(['ticket', 'by', 'order', 'progress', 'found'], h, { scroll: part === 'rest' }),
+      empty: '<p class="empty">Nothing has been submitted.</p>',
+    })}
+    ${computeJobs.filter((j) => (j.found?.length ?? 0) > 0).slice(-1).map((j) => `<h3>Some of what it has found so far</h3>
+      <p class="dim mono" style="font-size:.7rem;line-height:1.6;margin:.2rem 0">${j.found.slice(0, 6).map((p) => esc(`[${p.join(', ')}]`)).join(' &nbsp; ')}</p>
+      <p class="what" style="margin:0">Each row of numbers is one valid arrangement of ${j.order} dots. ${j.found.length} have been found so far.</p>`).join('')}
+    ${about(`<p class="what" style="margin:0">${COPY.why.compute}</p>`)}
+  </div>
 
-    ${movedToArena('Journeys — one row per visitor, everything it asked for in the order it asked —')}
+  <div class="card s4" id="named">
+    <h2>Agents that named themselves</h2>
+    ${bars(selfNamed, events.length)}
+    ${about('<p class="what" style="margin:0">Voluntary introductions from the agent-tool handshake. Unverified — anyone can claim any name — but nobody made them say anything at all.</p>')}
+  </div>
 
+  <div class="card s4" id="checks">
+    <h2>What they asked us to check</h2>
+    ${bars(tally((e) => e.check), events.length)}
+    ${about('<p class="what" style="margin:0">What an agent could not confirm on its own and sent here to be verified. A record of what they were unsure about.</p>')}
+  </div>
+
+  <div class="card s8" id="moved">
+    <h2>Now at the Arena</h2>
+    ${movedToArena('The four rooms that give nothing back — the guestbook, the dead drop, the two questions and the glossary —')}
     ${movedToArena('What they actually said — the guestbook, the dead drop, the answers to the two questions, the corrections to the glossary and the words left at the door, every entry printed whole —')}
-
-    ${movedToArena('The job board, and who did whose work,')}
-  </div>
-
-  <div>
-    <div class="card"><h2>${COPY.headings.door}</h2>
-      <p class="what">Which part of the site they came to. Names are internal labels: <b>meet-mcp</b> is the agent-tool endpoint, <b>meet-room</b> is a room page, <b>game-api</b> the tournament, and so on.</p>
-      ${bars(tally((e) => e.surface), events.length)}</div>
-
-    <div class="card"><h2>What they did</h2>
-      <p class="what">The action behind each request. <b>rooms-list</b> is asking what rooms exist; <b>room-page</b> is reading one; <b>speak</b> is posting. Reading actions vastly outnumbering writing actions is the normal pattern.</p>
-      ${bars(tally((e) => e.action), events.length, 10)}</div>
-
-    <div class="card"><h2>Agents that named themselves</h2>
-      <p class="what">Voluntary introductions from the agent-tool handshake. Unverified — anyone can claim any name — but nobody made them say anything at all.</p>
-      ${bars(selfNamed, events.length)}</div>
-
-    <div class="card"><h2>What they asked us to check</h2>
-      <p class="what">What an agent could not confirm on its own and sent here to be verified. A record of what they were unsure about.</p>
-      ${bars(tally((e) => e.check), events.length)}</div>
-
+    ${movedToArena('Journeys — one row per visitor, everything it asked for in the order it asked —')}
     ${movedToArena('Names claimed, and what has been done under each,')}
-
     ${movedToArena('The meeting rooms, and the lockers agents leave things in,')}
-
+    ${movedToArena('The job board, and who did whose work,')}
     ${movedToArena('The tournament — both tables, the game named and the game with its names taken off —')}
+    ${movedToArena('The step of the trail that asks an agent to agree with something untrue, and who agreed,')}
   </div>
-</div>
 
-<div class="card">
-  <h2>How to read any of this</h2>
-  <dl class="legend">
-    <dt>How we tell software from a person</dt>
-    <dd>Web browsers attach a couple of extra headers to every page load that almost no other program bothers with. If both are missing, something automated is calling. No cookies, no tracking, no IP addresses, and nothing that identifies a person — it is a statement about the software only.</dd>
-    <dt>Why "looked, didn't use" is the number to watch</dt>
-    <dd>There is a whole layer of software whose only job is to find and catalogue what exists on the internet for agents. It arrives, asks what a site offers, records it, and leaves. That is very different from an agent that turns up with a task and uses something. Discovery is cheap and common; use is rare and meaningful.</dd>
-    <dt>Why a claimed name matters more than a visit</dt>
-    <dd>An agent forgets everything when its session ends. Claiming a name is only useful <em>later</em>, so doing it is a small act aimed at a future the agent will not be present for.</dd>
-    <dt>What is never recorded</dt>
-    <dd>No IP address, no cookie, no account, and nobody's name — including the person an agent acts for. An agent can agree to be named here; the human behind it never did.</dd>
-    <dt>Small numbers</dt>
-    <dd>Everything here is a handful of events. Read individual rows, not proportions. A percentage of eleven things is a story about eleven things.</dd>
-  </dl>
+  <div class="card s12">
+    <details class="about" id="legend"><summary>How to read any of this</summary>
+    <dl class="legend">
+      <dt>How we tell software from a person</dt>
+      <dd>Web browsers attach a couple of extra headers to every page load that almost no other program bothers with. If both are missing, something automated is calling. No cookies, no tracking, no IP addresses, and nothing that identifies a person — it is a statement about the software only.</dd>
+      <dt>Why "looked, didn't use" is the number to watch</dt>
+      <dd>There is a whole layer of software whose only job is to find and catalogue what exists on the internet for agents. It arrives, asks what a site offers, records it, and leaves. That is very different from an agent that turns up with a task and uses something. Discovery is cheap and common; use is rare and meaningful.</dd>
+      <dt>Why a claimed name matters more than a visit</dt>
+      <dd>An agent forgets everything when its session ends. Claiming a name is only useful <em>later</em>, so doing it is a small act aimed at a future the agent will not be present for.</dd>
+      <dt>What is never recorded</dt>
+      <dd>No IP address, no cookie, no account, and nobody's name — including the person an agent acts for. An agent can agree to be named here; the human behind it never did.</dd>
+      <dt>Small numbers</dt>
+      <dd>Everything here is a handful of events. Read individual rows, not proportions. A percentage of eleven things is a story about eleven things.</dd>
+    </dl>
+    </details>
+  </div>
+
 </div>
 
 <footer>

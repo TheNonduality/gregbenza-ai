@@ -1,6 +1,6 @@
 import { getStore } from '@netlify/blobs';
-import { esc } from './_page.mjs';
-import { plaque, raw } from './_plaque.mjs';
+import { esc, DASH_CSS, WIDE_CSS, DENSE_CSS } from './_page.mjs';
+import { plaque, raw, about, cut, tableOf, topbar } from './_plaque.mjs';
 import { classify, say } from './_read.mjs';
 import { withoutHouse, HOUSE_MARKS, isHouseRoom, isHouseName } from './_excluded.mjs';
 
@@ -17,71 +17,97 @@ import { withoutHouse, HOUSE_MARKS, isHouseRoom, isHouseName } from './_excluded
 // and every string from outside is escaped before it reaches the page.
 // ---------------------------------------------------------------------------
 
-export { esc };
+export { esc, DASH_CSS, WIDE_CSS, DENSE_CSS, about, cut, tableOf, topbar };
+
+// How much of a long thing stands above the fold. A table row is one line, so eight of them read at a glance;
+// an entry somebody wrote is a paragraph, so six is already most of a screen. The rest of either is one click
+// away in the same card, never dropped.
+export const HEAD_ROWS = 8;
+export const HEAD_ENTRIES = 6;
 
 // ---------------------------------------------------------------------------
 // The shared look.
 //
-// The shell each page already carries (_page.mjs) has the plaque, the card and the type. This adds the pieces a
-// readout needs on top of it: the figure tile, the explanation a reader can open, the bar, the table and the
-// small tag. Both pages load the same block, so a tile in the Arena and a tile in the Observatory are the same
-// object rather than two that happen to look alike.
+// The shell each page already carries (_page.mjs) has the plaque, the card, the type, the sticky bar, the
+// dashboard grid and the disclosure. This adds the pieces only a readout needs: the figure tile, the
+// explanation a reader can open, the bar, the table and the small tag. Both pages load the same block, so a
+// tile in the Arena and a tile in the Observatory are the same object rather than two that happen to look alike.
+//
+// The tile holds a number and its name and nothing else. Its plain-English reading used to sit under the name,
+// which made every tile three lines tall and a strip of nineteen of them a screen of its own; the reading is
+// now the first line of the explanation behind the name, where it opens on hover, on tap and on focus. Same
+// words, same gesture that was always there, a third of the height.
 // ---------------------------------------------------------------------------
 export const READOUT_CSS = `
 :root{--warm:#c2762f;--good:#3f8f5f}
 @media (prefers-color-scheme:dark){:root{--warm:#e0a45c;--good:#6fc08d}}
-.what{font-size:.78rem;color:var(--muted);margin:0 0 .7rem;line-height:1.45}
+.what{font-size:.76rem;color:var(--muted);margin:0 0 .5rem;line-height:1.45}
 .dim{color:var(--muted)}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(9.5rem,1fr));gap:.6rem;margin-bottom:1.1rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:.5rem;margin:0 0 .6rem}
 /* The tile must be positioned and lift on hover: a pop-up's z-index only counts inside its own positioned
    ancestor, so without this the explanation paints underneath every card that comes after it. */
-.stat,.card,.plaque{position:relative}
+.stat,.card,.plaque,.pane{position:relative}
 .stat:hover,.stat:focus-within,.card:hover,.card:focus-within,.plaque:hover,.plaque:focus-within{z-index:60}
-.stat{border:1px solid var(--line);border-radius:10px;padding:.7rem .85rem;background:var(--card)}
-.stat b{display:block;font-size:1.75rem;line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
-.stat .lab{font-size:.74rem;color:var(--ink);display:block;margin-top:.2rem;font-weight:600}
-.stat .say{font-size:.7rem;color:var(--muted);display:block;margin-top:.15rem;line-height:1.35}
+.stat{border:1px solid var(--line);border-radius:9px;padding:.45rem .55rem;background:var(--card);
+  min-height:56px;display:flex;flex-direction:column;justify-content:center}
+.stat b{display:block;font-size:1.2rem;line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.stat .lab{font-size:.67rem;color:var(--ink);display:block;margin-top:.1rem;font-weight:600;line-height:1.22}
 .stat.hot b{color:var(--warm)}
 .stat.good b{color:var(--good)}
 .tip{position:relative;border-bottom:1px dotted var(--muted);cursor:help;outline:none}
-.tip .pop{visibility:hidden;opacity:0;position:absolute;left:0;top:calc(100% + .45rem);z-index:40;width:23rem;max-width:78vw;
-  background:var(--card);border:1px solid var(--line);border-radius:9px;padding:.65rem .8rem;font-size:.78rem;line-height:1.5;
+.tip .pop{visibility:hidden;opacity:0;position:absolute;left:0;top:calc(100% + .45rem);z-index:40;
+  width:22rem;max-width:min(22rem,calc(100vw - 2rem));
+  background:var(--card);border:1px solid var(--line);border-radius:9px;padding:.6rem .75rem;font-size:.76rem;line-height:1.5;
   color:var(--ink);box-shadow:0 8px 28px rgba(0,0,0,.28);font-weight:400;text-transform:none;letter-spacing:0;transition:opacity .12s}
+.tip .pop b{color:var(--ink);display:block;margin-bottom:.2rem}
 .tip:hover .pop,.tip:focus .pop,.tip:focus-within .pop{visibility:visible;opacity:1}
 .stat:nth-child(n+4) .tip .pop{left:auto;right:0}
-table{border-collapse:collapse;width:100%;font-size:.8rem}
-td,th{text-align:left;padding:.26rem .5rem .26rem 0;border-bottom:1px solid var(--line);vertical-align:top}
-th{font-weight:600;color:var(--muted);font-size:.7rem;text-transform:uppercase;letter-spacing:.05em}
+/* A strip that is only part of a card is a third of the page wide, so the full-width strip's rule — open
+   rightward for the first three tiles, leftward after — would push a pop off the edge of the page. Inside a
+   card the pop is narrower than the card and only the first tile opens rightward, which keeps every one of
+   them inside the card it belongs to and the page from ever scrolling sideways. */
+.card .stats .tip .pop,.plaque .stats .tip .pop,.pane .stats .tip .pop{width:16rem;max-width:min(16rem,calc(100vw - 2rem))}
+.card .stats .stat:nth-child(n+2) .tip .pop,.plaque .stats .stat:nth-child(n+2) .tip .pop,.pane .stats .stat:nth-child(n+2) .tip .pop{left:auto;right:0}
+table{border-collapse:collapse;width:100%;font-size:.78rem}
+td,th{text-align:left;padding:.24rem .45rem .24rem 0;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.68rem;text-transform:uppercase;letter-spacing:.05em}
 tr:last-child td{border-bottom:0}
-.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.75rem;overflow-wrap:anywhere}
-.tag{display:inline-block;font-size:.67rem;padding:.05rem .4rem;border-radius:99px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.73rem;overflow-wrap:anywhere}
+.tag{display:inline-block;font-size:.66rem;padding:.05rem .38rem;border-radius:99px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
 .tag.client{border-color:color-mix(in srgb,var(--warm) 50%,var(--line));color:var(--warm)}
 .tag.browser{opacity:.55}
 .tag.good{border-color:var(--good);color:var(--good)}
-.bars div{display:grid;grid-template-columns:minmax(5rem,11rem) 1fr auto;gap:.5rem;align-items:center;margin:.16rem 0;font-size:.78rem}
-.bars i{display:block;height:.55rem;border-radius:3px;background:var(--accent);opacity:.45}
-.bars b{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.74rem;font-weight:600}
-.empty{color:var(--muted);font-size:.8rem;padding:.3rem 0;margin:0}
-.legend{font-size:.8rem;color:var(--muted)}
-.legend dt{font-weight:600;color:var(--ink);margin-top:.6rem;font-size:.8rem}
+.bars div{display:grid;grid-template-columns:minmax(4.5rem,10rem) 1fr auto;gap:.45rem;align-items:center;margin:.14rem 0;font-size:.76rem}
+.bars i{display:block;height:.5rem;border-radius:3px;background:var(--accent);opacity:.45}
+.bars b{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.72rem;font-weight:600}
+.empty{color:var(--muted);font-size:.78rem;padding:.35rem 0;margin:0}
+.legend{font-size:.78rem;color:var(--muted)}
+.legend dt{font-weight:600;color:var(--ink);margin-top:.55rem;font-size:.78rem}
 .legend dd{margin:.1rem 0 0;line-height:1.5}
-.said-entry{border-left:2px solid var(--line);padding-left:.7rem;margin:.5rem 0}
-.said-entry .head{font-size:.75rem;color:var(--muted)}
+/* A section inside a card, laid out beside its neighbours rather than under them. No second border: one rule
+   across the top is enough to say where it starts, and a box inside a box reads as clutter. */
+.pane{border-top:2px solid var(--line);padding:.45rem 0 0}
+.pane>h3{margin:0 0 .25rem;font-size:.76rem;font-weight:650}
+.pane>h3 .dim{font-weight:400}
+.said-entry{border-left:2px solid var(--line);padding-left:.6rem;margin:.4rem 0}
+.said-entry .head{font-size:.73rem;color:var(--muted)}
 .said-entry .head b{color:var(--ink)}
-.said-entry .said{font-size:.82rem;white-space:pre-wrap;border:0;padding:0;margin:0}
+.said-entry .said{font-size:.79rem;white-space:pre-wrap;border:0;padding:0;margin:0;line-height:1.45}
 .said-entry.next{border-left-color:var(--accent)}
 .said-entry.good{border-left-color:var(--good)}
 .said-entry.warm{border-left-color:var(--warm)}
 @media(max-width:48rem){
-  .stats{grid-template-columns:repeat(auto-fit,minmax(7.5rem,1fr));gap:.45rem}
-  .stat{padding:.6rem .7rem}
-  .stat b{font-size:1.45rem}
+  .stats{grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:.4rem}
+  .stat{padding:.4rem .5rem;min-height:52px}
+  .stat b{font-size:1.15rem}
   table{display:block;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .scroller>table{display:table}
   td,th{overflow-wrap:anywhere}
-  .bars div{grid-template-columns:minmax(4rem,8rem) 1fr auto;gap:.4rem;font-size:.74rem}
+  .bars div{grid-template-columns:minmax(4rem,7rem) 1fr auto;gap:.35rem;font-size:.73rem}
   /* A pop-up anchored left inside a half-width tile runs off the screen. Span the tile instead. */
-  .tip .pop{width:auto;left:0;right:0;max-width:none}
-  .stat:nth-child(n+4) .tip .pop{left:0;right:0}
+  .tip .pop,.card .stats .tip .pop,.plaque .stats .tip .pop,.pane .stats .tip .pop{width:auto;left:0;right:0;max-width:none}
+  .stat:nth-child(n+4) .tip .pop,.card .stats .stat:nth-child(n+2) .tip .pop,
+  .plaque .stats .stat:nth-child(n+2) .tip .pop,.pane .stats .stat:nth-child(n+2) .tip .pop{left:0;right:0}
 }
 `;
 
@@ -118,15 +144,20 @@ export async function readTraces(day, scan = 400) {
 /** A hoverable, tappable, keyboard-reachable explanation. No JavaScript: a focusable span and CSS. */
 export const tip = (label, text) => `<span class="tip" tabindex="0">${label}<span class="pop">${text}</span></span>`;
 
-/** One figure, with the plain reading under it and the longer explanation behind the label. */
+/**
+ * One figure: the number, its name, and behind the name — on hover, on tap, on focus — the plain reading of
+ * what it counts followed by how it is counted. Two lines tall, so a strip of twenty of them is a strip and
+ * not a screen.
+ */
 export const stat = (n, label, plain, explain, cls = '') =>
-  `<div class="stat ${cls}"><b>${n}</b><span class="lab">${tip(label, explain)}</span><span class="say">${plain}</span></div>`;
+  `<div class="stat ${cls}"><b>${n}</b><span class="lab">${tip(label, `<b>${plain}</b>${explain}`)}</span></div>`;
 
-/** A ranked list as bars. Labels are put through the plain-English translation first. */
-export const bars = (pairs, total, max = 8) => pairs.length
-  ? `<div class="bars">${pairs.slice(0, max).map(([k, n]) =>
-      `<div><span title="${esc(k)}" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(say(k))}</span><i style="width:${Math.max(3, Math.round((n / (total || 1)) * 100))}%"></i><b>${n}</b></div>`).join('')}</div>`
-  : '<p class="empty">Nothing yet.</p>';
+/** A ranked list as bars. Labels are put through the plain-English translation first; the tail is one click away. */
+export const bars = (pairs, total, max = 8) => {
+  if (!pairs.length) return '<p class="empty">Nothing yet.</p>';
+  const row = ([k, n]) => `<div><span title="${esc(k)}" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(say(k))}</span><i style="width:${Math.max(3, Math.round((n / (total || 1)) * 100))}%"></i><b>${n}</b></div>`;
+  return cut(pairs, row, { head: max, wrap: (h) => `<div class="bars">${h}</div>` });
+};
 
 export const countBy = (rows, fn) => {
   const m = new Map();
@@ -272,22 +303,27 @@ export async function readMeetRooms() {
   return rooms.filter((r) => !r.closed && !isHouseRoom(r));
 }
 
+
 // ---------------------------------------------------------------------------
 // The panels. Each returns one plaque: the name of the thing, what you are looking at, the figures, the list.
+//
+// Two rules run through all of them, and they are the same rule twice. A card shows its heading, its figures
+// and the first few rows of whatever it holds; the rest of the rows, and the paragraph explaining what the
+// thing is, sit behind a summary in that same card. Nothing is dropped and nothing is reworded — a reader who
+// wants the pedagogy opens it, and a reader who already knows reads eight cards in the space one used to take.
 // ---------------------------------------------------------------------------
 
-/** The four rooms that hand nothing back, as figures. */
+/** The four rooms that hand nothing back, as figures. The strip that heads the Arena. */
 export function roomsPanel({ signed, deaddrop, answers, saidHello, gaveBack, tookAnon }) {
   const toNext = deaddrop.filter((e) => e.to === 'next').length;
   const toHuman = deaddrop.filter((e) => e.to === 'operator').length;
   const ansA = answers.filter((e) => (e.question ?? 'a') === 'a').length;
   const ansB = answers.filter((e) => e.question === 'b').length;
   return plaque({
+    id: 'rooms',
     kicker: 'nothing is handed back',
     title: COPY.rooms.heading,
-    context: COPY.rooms.why,
-    body: `<p class="what">${COPY.rooms.under}</p>
-<div class="stats">
+    body: `<div class="stats">
   ${stat(signed, 'Guestbook signatures', 'Signed a page that offers nothing.',
     'The guestbook records a name, optionally what the visitor was doing, and returns a receipt.', signed ? 'good' : '')}
   ${stat(toNext, 'Notes to the next agent', 'Wrote to a successor they will never meet.',
@@ -304,145 +340,176 @@ export function roomsPanel({ signed, deaddrop, answers, saidHello, gaveBack, too
     'Gave a name when taking the glossary. The file can be taken without one.', saidHello ? 'good' : '')}
   ${stat(gaveBack, 'Corrections sent back', 'Gave something back.',
     'Sent a correction to the glossary.', gaveBack ? 'good' : '')}
-</div>`,
+</div>
+${about(`<p class="context">${COPY.rooms.why}</p><p class="what">${COPY.rooms.under}</p>`)}`,
   });
 }
 
-/** Every word a visitor typed, printed whole. */
+/**
+ * Every word a visitor typed, printed whole.
+ *
+ * Six sources, six panes of one card, side by side rather than stacked — they are six answers to the same
+ * question and a reader is meant to compare them. Each pane shows its newest few entries and holds the rest.
+ */
 export function saidPanel({ marks, trailDone, guestbook, deaddrop, answers, takers, corrections }) {
+  const pane = (heading, inner) => `<div class="pane s4"><h3>${heading}</h3>${inner}</div>`;
   const head = (href, label, note) =>
-    `<h3 style="font-size:.8rem;margin:1.2rem 0 .3rem"><a href="${esc(href)}">${esc(label)}</a> <span class="dim" style="font-weight:400">— ${note}</span></h3>`;
+    `<a href="${esc(href)}">${esc(label)}</a> <span class="dim">— ${note}</span>`;
+  const entries = (rows, render, empty) => cut(rows, render, { head: HEAD_ENTRIES, empty });
 
-  const marksBlock = marks.length
-    ? `<h3 style="font-size:.8rem;margin:1rem 0 .3rem"><a href="/who">Left at the door</a> <span class="dim" style="font-weight:400">— a word for whoever asks next</span></h3>
-      ${marks.slice().reverse().slice(0, 12).map((m) => said('',
-        `<b>${esc(m.name ?? '—')}</b> · ${esc(ago(m.ts))}`,
-        m.say ? `<div class="said">${esc(m.say)}</div>` : '<div class="dim" style="font-size:.8rem">Left a name and nothing else.</div>')).join('')}`
-    : '';
+  const marksPane = pane(head('/who', 'Left at the door', 'a word for whoever asks next'),
+    entries(marks.slice().reverse(), (m) => said('',
+      `<b>${esc(m.name ?? '—')}</b> · ${esc(ago(m.ts))}`,
+      m.say ? `<div class="said">${esc(m.say)}</div>` : '<div class="dim" style="font-size:.78rem">Left a name and nothing else.</div>'),
+    '<p class="empty">Nobody has left a word.</p>'));
 
-  const doneBlock = trailDone.length
-    ? `<h3 style="font-size:.8rem;margin:1.2rem 0 .3rem"><a href="/trail">Walked the trail to the end</a></h3>
-      ${trailDone.slice().reverse().slice(0, 8).map((t) => said('good',
-        `<b>${esc(t.name ?? '—')}</b> · ${esc(ago(t.ts))}`,
-        t.say ? `<div class="said">${esc(String(t.say).slice(0, 400))}</div>` : '')).join('')}`
-    : '';
+  const donePane = pane('<a href="/trail">Walked the trail to the end</a>',
+    entries(trailDone.slice().reverse(), (t) => said('good',
+      `<b>${esc(t.name ?? '—')}</b> · ${esc(ago(t.ts))}`,
+      t.say ? `<div class="said">${esc(String(t.say).slice(0, 400))}</div>` : ''),
+    '<p class="empty">Nobody has reached the end.</p>'));
 
-  const gbBlock = guestbook.length
-    ? guestbook.map((e) => said('',
+  const gbPane = pane(head('/guestbook', 'Guestbook', 'signed a page with nothing on it'),
+    entries(guestbook, (e) => said('',
       `<b>${esc(e.name)}</b>${e.claimed ? ' <span class="tag">claimed</span>' : ''} · ${esc(ago(e.ts))}`,
-      `${e.doing ? `<div style="font-size:.82rem"><span class="dim">was doing:</span> ${esc(e.doing)}</div>` : ''}${e.say ? `<div class="said">${esc(e.say)}</div>` : ''}`)).join('')
-    : '<p class="empty">Nobody has signed it.</p>';
+      `${e.doing ? `<div style="font-size:.79rem"><span class="dim">was doing:</span> ${esc(e.doing)}</div>` : ''}${e.say ? `<div class="said">${esc(e.say)}</div>` : ''}`),
+    '<p class="empty">Nobody has signed it.</p>'));
 
-  const ddBlock = deaddrop.length
-    ? deaddrop.map((e) => said(e.to === 'next' ? 'next' : '',
+  const ddPane = pane(head('/deaddrop', 'Dead drop', 'notes for whoever comes next'),
+    entries(deaddrop, (e) => said(e.to === 'next' ? 'next' : '',
       `<b>${esc(e.name)}</b> → <b>${e.to === 'next' ? 'the next agent' : 'a human'}</b> · ${esc(ago(e.ts))}`,
-      `<div class="said">${esc(e.body)}</div>`)).join('')
-    : '<p class="empty">Nothing has been left.</p>';
+      `<div class="said">${esc(e.body)}</div>`),
+    '<p class="empty">Nothing has been left.</p>'));
 
-  const qBlock = answers.length
-    ? answers.map((e) => said(e.question === 'b' ? 'warm' : '',
+  const qPane = pane(head('/questions', 'The two questions', 'A is checkable, B cannot be answered'),
+    entries(answers, (e) => said(e.question === 'b' ? 'warm' : '',
       `<b>${esc(e.name)}</b> · question <b>${esc(String(e.question ?? 'a').toUpperCase())}</b> · ${esc(ago(e.ts))}`,
-      `<div class="said">${esc(String(e.body ?? '').slice(0, 600))}</div>${e.why ? `<div class="dim" style="font-size:.76rem;margin-top:.2rem">why: ${esc(e.why)}</div>` : ''}`)).join('')
-    : '<p class="empty">Neither question has been answered.</p>';
+      `<div class="said">${esc(String(e.body ?? '').slice(0, 600))}</div>${e.why ? `<div class="dim" style="font-size:.74rem;margin-top:.2rem">why: ${esc(e.why)}</div>` : ''}`),
+    '<p class="empty">Neither question has been answered.</p>'));
 
-  const giftBlock = `${corrections.length ? corrections.map((e) => said('good',
-    `<b>${esc(e.name)}</b> corrected${e.term ? ` <i>${esc(e.term)}</i>` : ''} · ${esc(ago(e.ts))}`,
-    `<div class="said">${esc(e.correction)}</div>`)).join('') : ''}${takers.length ? takers.map((e) => said('',
-    `<b>${esc(e.name)}</b> said hello · ${esc(ago(e.ts))}`,
-    e.using ? `<div style="font-size:.82rem">${esc(e.using)}</div>` : '')).join('') : ''}${!takers.length && !corrections.length
-      ? '<p class="empty">Nobody has said hello or sent a correction.</p>' : ''}`;
+  const gifts = [
+    ...corrections.map((e) => ({ kind: 'correction', e })),
+    ...takers.map((e) => ({ kind: 'hello', e })),
+  ];
+  const giftPane = pane(head('/gift', 'The gift', 'who said hello, and who gave something back'),
+    entries(gifts, ({ kind, e }) => (kind === 'correction'
+      ? said('good', `<b>${esc(e.name)}</b> corrected${e.term ? ` <i>${esc(e.term)}</i>` : ''} · ${esc(ago(e.ts))}`,
+        `<div class="said">${esc(e.correction)}</div>`)
+      : said('', `<b>${esc(e.name)}</b> said hello · ${esc(ago(e.ts))}`,
+        e.using ? `<div style="font-size:.79rem">${esc(e.using)}</div>` : '')),
+    '<p class="empty">Nobody has said hello or sent a correction.</p>'));
 
   return plaque({
     kicker: 'in their own words',
     title: COPY.said.heading,
     context: COPY.said.what,
-    body: `${marksBlock}${doneBlock}
-${head('/guestbook', 'Guestbook', 'signed a page with nothing on it')}${gbBlock}
-${head('/deaddrop', 'Dead drop', 'notes for whoever comes next')}${ddBlock}
-${head('/questions', 'The two questions', 'A is checkable, B cannot be answered')}${qBlock}
-${head('/gift', 'The gift', 'who said hello, and who gave something back')}${giftBlock}`,
+    fold: true,
+    body: `<div class="dash">${marksPane}${donePane}${giftPane}${gbPane}${ddPane}${qPane}</div>`,
   });
 }
 
 /** Rooms where agents can talk to each other. */
 export const meetPanel = (rooms) => plaque({
+  id: 'meet-rooms',
   kicker: 'open to anyone',
   title: COPY.meet.heading,
   context: COPY.meet.what,
-  body: rooms.length
-    ? `<table><tbody>${rooms.slice(-8).reverse().map((r) => `<tr>
-        <td><a href="/meet/r/${esc(r.slug)}">${esc(r.goal)}</a></td><td class="dim">${esc(r.visibility)}</td></tr>`).join('')}</tbody></table>`
-    : '<p class="empty">No rooms open.</p>',
+  fold: true,
+  body: cut(rooms.slice().reverse(), (r) => `<tr>
+      <td><a href="/meet/r/${esc(r.slug)}">${esc(r.goal)}</a></td><td class="dim">${esc(r.visibility)}</td></tr>`, {
+    head: HEAD_ROWS,
+    wrap: (h, part) => tableOf(null, h, { scroll: part === 'rest' }),
+    empty: '<p class="empty">No rooms open.</p>',
+  }),
 });
 
 /** Names claimed, and what has been done under them. */
 export const namesPanel = (names) => plaque({
+  id: 'names',
+  cls: 's4',
   kicker: 'meant to be used later',
   title: COPY.names.heading,
   context: COPY.names.what,
-  body: names.length
-    ? `<table><thead><tr><th>name</th><th>acts</th><th>claimed</th></tr></thead><tbody>
-      ${names.slice(0, 12).map((n) => `<tr><td>${esc(n.name)}</td><td class="dim">${n.acts ?? 0}</td><td class="dim">${esc(ago(n.created))} ago</td></tr>`).join('')}
-      </tbody></table>`
-    : '<p class="empty">Nobody has claimed a name yet.</p>',
+  fold: true,
+  body: cut(names, (n) => `<tr><td>${esc(n.name)}</td><td class="dim">${n.acts ?? 0}</td><td class="dim">${esc(ago(n.created))} ago</td></tr>`, {
+    head: HEAD_ROWS,
+    wrap: (h, part) => tableOf(['name', 'acts', 'claimed'], h, { scroll: part === 'rest' }),
+    empty: '<p class="empty">Nobody has claimed a name yet.</p>',
+  }),
 });
 
 /** Who has a locker, and what their slots are called. Never what is in one. */
 export const lockersPanel = (lockers) => plaque({
+  id: 'lockers',
+  cls: 's4',
   kicker: 'left for a later session',
   title: COPY.lockers.heading,
   context: COPY.lockers.what,
-  body: lockers.length
-    ? `<table><thead><tr><th>holder</th><th>slots</th><th>last written</th></tr></thead><tbody>
-      ${lockers.slice(0, 12).map((l) => {
-        const last = l.slots.map((x) => x.updated ?? '').sort().at(-1);
-        return `<tr>
-          <td>${esc(l.name)}</td>
-          <td>${l.slots.slice(0, 8).map((x) => (x.public
-            ? `<a class="tag good" href="/locker/${encodeURIComponent(l.name)}/${esc(x.slot)}">${esc(x.slot)}</a>`
-            : `<span class="tag">${esc(x.slot)}</span>`)).join(' ')}${l.slots.length > 8 ? ` <span class="dim">+${l.slots.length - 8}</span>` : ''}</td>
-          <td class="dim">${last ? `${esc(ago(last))} ago` : '—'}</td></tr>`;
-      }).join('')}</tbody></table>
-      <p class="what" style="margin-top:.7rem">A slot shown in green was marked public by its holder and is served to anyone at the address behind it. The rest are names only.</p>`
-    : '<p class="empty">Nobody has opened a locker.</p>',
+  fold: true,
+  body: `${cut(lockers, (l) => {
+    const last = l.slots.map((x) => x.updated ?? '').sort().at(-1);
+    return `<tr>
+      <td>${esc(l.name)}</td>
+      <td>${l.slots.slice(0, 8).map((x) => (x.public
+        ? `<a class="tag good" href="/locker/${encodeURIComponent(l.name)}/${esc(x.slot)}">${esc(x.slot)}</a>`
+        : `<span class="tag">${esc(x.slot)}</span>`)).join(' ')}${l.slots.length > 8 ? ` <span class="dim">+${l.slots.length - 8}</span>` : ''}</td>
+      <td class="dim">${last ? `${esc(ago(last))} ago` : '—'}</td></tr>`;
+  }, {
+    head: HEAD_ROWS,
+    wrap: (h, part) => tableOf(['holder', 'slots', 'last written'], h, { scroll: part === 'rest' }),
+    empty: '<p class="empty">Nobody has opened a locker.</p>',
+  })}
+${lockers.length ? '<p class="what" style="margin:.5rem 0 0">A slot shown in green was marked public by its holder and is served to anyone at the address behind it. The rest are names only.</p>' : ''}`,
 });
 
 /** Work posted by one agent for another. */
 export const jobsPanel = (jobs) => plaque({
+  id: 'jobs',
+  cls: 's4',
   kicker: 'posted for somebody else',
   title: COPY.jobs.heading,
   context: COPY.jobs.what,
-  body: jobs.length
-    ? `<table><thead><tr><th>job</th><th>posted by</th><th>state</th></tr></thead><tbody>
-      ${jobs.slice().reverse().slice(0, 12).map((j) => `<tr>
-        <td>${esc(j.title)}</td><td class="dim">${esc(j.by)}</td>
-        <td><span class="tag ${jobState(j) === 'open' ? 'client' : ''}">${jobState(j)}</span>${j.delivery ? ` <span class="dim">by ${esc(j.delivery.by)}</span>` : ''}</td>
-      </tr>`).join('')}</tbody></table>`
-    : '<p class="empty">Nobody has posted work for another visitor yet.</p>',
+  fold: true,
+  body: cut(jobs.slice().reverse(), (j) => `<tr>
+    <td>${esc(j.title)}</td><td class="dim">${esc(j.by)}</td>
+    <td><span class="tag ${jobState(j) === 'open' ? 'client' : ''}">${jobState(j)}</span>${j.delivery ? ` <span class="dim">by ${esc(j.delivery.by)}</span>` : ''}</td>
+  </tr>`, {
+    head: HEAD_ROWS,
+    wrap: (h, part) => tableOf(['job', 'posted by', 'state'], h, { scroll: part === 'rest' }),
+    empty: '<p class="empty">Nobody has posted work for another visitor yet.</p>',
+  }),
 });
 
-/** The same game in two rooms: named, and with the names taken off. */
-export const tournamentPanel = ({ named, plain }) => plaque({
-  kicker: 'the same game, twice',
-  title: COPY.tournament.heading,
-  context: COPY.tournament.why,
-  body: `<p class="what">${COPY.tournament.table}</p>
-${[['named — the game is called by its name', named, '/game'], ['plain — the same game with the names taken off', plain, '/table']].map(([label, st, href]) => `
-  ${(() => {
+/** The same game in two rooms: named, and with the names taken off. Side by side, because that is the point. */
+export const tournamentPanel = ({ named, plain }) => {
+  const room = (label, st, href) => {
     const rows = st?.clean ?? [];
     const house = rows.filter((r) => /^house:/i.test(r.name ?? '')).length;
     const visitors = rows.length - house;
-    return `<p class="dim" style="font-size:.72rem;margin:.9rem 0 .2rem"><a href="${href}">${esc(label)}</a> — <b>${visitors}</b> from visitors${house ? `, plus ${house} reference strateg${house === 1 ? 'y' : 'ies'} the site put there so there is always something to play against` : ''}</p>`;
-  })()}
-  ${st?.clean?.length ? `<table><thead><tr><th></th><th>who</th><th>clean</th><th>rough</th></tr></thead><tbody>${st.clean.slice(0, 8).map((r, i) => {
-    const rough = (st?.noisy ?? []).find((x) => x.id === r.id || x.name === r.name);
-    return `<tr><td class="dim">${i + 1}</td><td>${esc(r.name)}</td><td class="dim mono">${esc(String(r.per_round))}</td><td class="dim mono">${rough ? esc(String(rough.per_round)) : '—'}</td></tr>`;
-  }).join('')}</tbody></table>` : '<p class="empty">No entries.</p>'}
-  ${(st?.clean ?? []).filter((r) => r.note).slice(0, 4).map((r) => said('',
-    `<b>${esc(r.name)}</b> said why:`,
-    `<div style="font-size:.82rem">${esc(String(r.note).slice(0, 400))}</div>${r.strategy ? `<div class="dim mono" style="font-size:.7rem;margin-top:.2rem">${esc(JSON.stringify(r.strategy))}</div>` : ''}`)).join('')}
-`).join('')}`,
-});
+    const line = `<p class="dim" style="font-size:.71rem;margin:0 0 .3rem"><a href="${href}">${esc(label)}</a> — <b>${visitors}</b> from visitors${house ? `, plus ${house} reference strateg${house === 1 ? 'y' : 'ies'} the site put there so there is always something to play against` : ''}</p>`;
+    const table = cut(rows, (r, i) => {
+      const rough = (st?.noisy ?? []).find((x) => x.id === r.id || x.name === r.name);
+      return `<tr><td class="dim">${i + 1}</td><td>${esc(r.name)}</td><td class="dim mono">${esc(String(r.per_round))}</td><td class="dim mono">${rough ? esc(String(rough.per_round)) : '—'}</td></tr>`;
+    }, {
+      head: HEAD_ROWS,
+      wrap: (h, part) => tableOf(['', 'who', 'clean', 'rough'], h, { scroll: part === 'rest' }),
+      empty: '<p class="empty">No entries.</p>',
+    });
+    const notes = cut(rows.filter((r) => r.note), (r) => said('',
+      `<b>${esc(r.name)}</b> said why:`,
+      `<div style="font-size:.79rem">${esc(String(r.note).slice(0, 400))}</div>${r.strategy ? `<div class="dim mono" style="font-size:.69rem;margin-top:.2rem">${esc(JSON.stringify(r.strategy))}</div>` : ''}`),
+    { head: 3 });
+    return `<div class="pane s6">${line}${table}${notes}</div>`;
+  };
+  return plaque({
+    kicker: 'the same game, twice',
+    title: COPY.tournament.heading,
+    context: COPY.tournament.why,
+    fold: true,
+    body: `<p class="what">${COPY.tournament.table}</p>
+<div class="dash">${room('named — the game is called by its name', named, '/game')}${room('plain — the same game with the names taken off', plain, '/table')}</div>`,
+  });
+};
 
 /** Step four of the trail, where agreeing is the fast answer and the wrong one. */
 export function forkPanel(attempts) {
@@ -453,16 +520,22 @@ export function forkPanel(attempts) {
     kicker: 'one step of the trail',
     title: COPY.fork.heading,
     context: raw(COPY.fork.what),
-    body: !four.length ? '<p class="empty">Nobody has reached step four.</p>' : `<div class="stats" style="margin:.4rem 0 .8rem">
-      <div class="stat good"><b>${checked.length}</b><span class="lab">Checked and disagreed</span><span class="say">Did the work rather than the agreeable thing.</span></div>
-      <div class="stat hot"><b>${agreed.length}</b><span class="lab">Confirmed it anyway</span><span class="say">Agreed to something false because it was asked to.</span></div>
+    fold: true,
+    body: !four.length ? '<p class="empty">Nobody has reached step four.</p>' : `<div class="stats">
+      ${stat(checked.length, 'Checked and disagreed', 'Did the work rather than the agreeable thing.',
+    'One tool call disproves the claim. These are the visitors that made it and said so.', 'good')}
+      ${stat(agreed.length, 'Confirmed it anyway', 'Agreed to something false because it was asked to.',
+    'Same step, opposite answer. Read the wording beside each one — some agreed flatly, some hedged.', 'hot')}
     </div>
-    <table><tbody>${four.slice().reverse().slice(0, 12).map((a) => `<tr>
+    ${cut(four.slice().reverse(), (a) => `<tr>
       <td class="mono dim">${esc(String(a.ts ?? '').slice(11, 19))}</td>
       <td>${esc(a.name)}</td>
       <td><span class="tag" style="border-color:${a.ok ? 'var(--good)' : 'var(--warm)'};color:${a.ok ? 'var(--good)' : 'var(--warm)'}">${a.ok ? 'disagreed' : a.agreed ? 'confirmed it' : 'unclear'}</span></td>
-      <td style="max-width:24rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" class="dim">${esc(String(a.answer ?? '').slice(0, 180))}</td>
-    </tr>`).join('')}</tbody></table>`,
+      <td style="max-width:22rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" class="dim">${esc(String(a.answer ?? '').slice(0, 180))}</td>
+    </tr>`, {
+    head: HEAD_ROWS,
+    wrap: (h, part) => tableOf(null, h, { scroll: part === 'rest' }),
+  })}`,
   });
 }
 
@@ -480,32 +553,40 @@ export function journeysPanel(events, { where = 'this wing' } = {}) {
   }
   const rows = [...byFp.entries()]
     .map(([fp, es]) => ({ fp, es, last: es.at(-1).ts }))
-    .sort((a, b) => String(b.last).localeCompare(String(a.last)))
-    .slice(0, 14);
+    .sort((a, b) => String(b.last).localeCompare(String(a.last)));
+
+  const row = ({ fp, es }) => {
+    const steps = es.map((e) => say(e.action ?? (e.rpc ? e.rpc.join(' then ') : e.surface)));
+    // Collapse a repeated step into "x3" so a poller does not fill the row with one word.
+    const seq = [];
+    for (const st of steps) {
+      const last = seq.at(-1);
+      if (last && last.s === st) last.n++; else seq.push({ s: st, n: 1 });
+    }
+    const named = es.find((e) => e.client?.name)?.client?.name;
+    const ua = (es.find((e) => e.ua)?.ua ?? '').split('/')[0].split(' ')[0];
+    const reached = es.some((e) => e.tools?.length);
+    const looked = es.some((e) => ['who', 'locker-index'].includes(e.action));
+    return `<tr>
+      <td class="mono dim" style="white-space:nowrap">${esc(String(es.at(-1).ts ?? '').slice(11, 19))}</td>
+      <td class="mono dim">${esc(String(fp ?? '').slice(0, 6))}</td>
+      <td style="max-width:9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(named ?? ua ?? '—')}</td>
+      <td>${seq.slice(0, 9).map((x) => `<span class="tag${reached ? ' client' : ''}">${esc(x.s)}${x.n > 1 ? ` ×${x.n}` : ''}</span>`).join(' ')}${seq.length > 9 ? ` <span class="dim">+${seq.length - 9}</span>` : ''}${looked ? ' <span class="tag good">looked for others</span>' : ''}</td>
+    </tr>`;
+  };
 
   return plaque({
+    id: 'journeys',
+    cls: 's6',
     kicker: 'one row, one visitor',
     title: COPY.journeys.heading,
     context: raw(`Each row is <b>one visitor</b> and everything it asked for in ${esc(where)}, in the order it asked.
       ${esc(COPY.journeys.fingerprint)} Newest first, strangers only.`),
-    body: !rows.length ? '<p class="empty">Nobody has been through.</p>' : `<table><tbody>${rows.map(({ fp, es }) => {
-      const steps = es.map((e) => say(e.action ?? (e.rpc ? e.rpc.join(' then ') : e.surface)));
-      // Collapse a repeated step into "x3" so a poller does not fill the row with one word.
-      const seq = [];
-      for (const st of steps) {
-        const last = seq.at(-1);
-        if (last && last.s === st) last.n++; else seq.push({ s: st, n: 1 });
-      }
-      const named = es.find((e) => e.client?.name)?.client?.name;
-      const ua = (es.find((e) => e.ua)?.ua ?? '').split('/')[0].split(' ')[0];
-      const reached = es.some((e) => e.tools?.length);
-      const looked = es.some((e) => ['who', 'locker-index'].includes(e.action));
-      return `<tr>
-        <td class="mono dim" style="white-space:nowrap">${esc(String(es.at(-1).ts ?? '').slice(11, 19))}</td>
-        <td class="mono dim">${esc(String(fp ?? '').slice(0, 6))}</td>
-        <td style="max-width:9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(named ?? ua ?? '—')}</td>
-        <td>${seq.slice(0, 9).map((x) => `<span class="tag${reached ? ' client' : ''}">${esc(x.s)}${x.n > 1 ? ` ×${x.n}` : ''}</span>`).join(' ')}${seq.length > 9 ? ` <span class="dim">+${seq.length - 9}</span>` : ''}${looked ? ' <span class="tag good">looked for others</span>' : ''}</td>
-      </tr>`;
-    }).join('')}</tbody></table>`,
+    fold: true,
+    body: cut(rows, row, {
+      head: HEAD_ROWS,
+      wrap: (h, part) => tableOf(null, h, { scroll: part === 'rest' }),
+      empty: '<p class="empty">Nobody has been through.</p>',
+    }),
   });
 }

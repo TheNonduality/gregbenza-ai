@@ -1,11 +1,11 @@
 import { getStore } from '@netlify/blobs';
 import { traced } from './_trace.mjs';
-import { page, esc, when, ago } from './_page.mjs';
-import { plaque, todo, raw, link } from './_plaque.mjs';
+import { page, esc, when, ago, DASH_CSS, WIDE_CSS, DENSE_CSS } from './_page.mjs';
+import { plaque, todo, raw, link, topbar, about, cut } from './_plaque.mjs';
 import { wingOf, sayFull, classify } from './_read.mjs';
 import { recentGames, readGame, liveGame, statusOf } from './arena.mjs';
 import {
-  READOUT_CSS, readWritten, readMeetRooms, readNames, readLockers, readJobs, readStandings, readMarks, readTrail,
+  READOUT_CSS, HEAD_ROWS, readWritten, readMeetRooms, readNames, readLockers, readJobs, readStandings, readMarks, readTrail,
   roomsPanel, saidPanel, meetPanel, namesPanel, lockersPanel, jobsPanel, tournamentPanel, forkPanel, journeysPanel,
 } from './_readout.mjs';
 
@@ -81,12 +81,25 @@ const eventRow = (e) => {
   };
 };
 
-const eventRows = (events) => (events.length ? events.map(eventRow) : [{ k: '—', v: 'Nothing yet.' }]);
+/**
+ * The feed, cut. The first few lines stand above the fold and the rest sit behind one click in the same card.
+ * While a game is running that click is opened for the reader: the page reloads itself every twenty or thirty
+ * seconds and a reload forgets what was opened, so the one list somebody is actually watching move is the one
+ * list that must not need reopening each time. Everything else starts closed, and a reload costs nothing.
+ */
+const eventFeed = (events, { live = false } = {}) => cut(events.map(eventRow), (r) =>
+  `<li><span class="k">${r.k.html}</span><span class="v">${r.v.html}</span></li>`, {
+  head: HEAD_ROWS,
+  open: live,
+  wrap: (h, part) => (part === 'rest' ? `<div class="scroller"><ul class="rows">${h}</ul></div>` : `<ul class="rows">${h}</ul>`),
+  empty: '<ul class="rows"><li><span class="k">—</span><span class="v">Nothing yet.</span></li></ul>',
+});
 
 const windowOf = (g) => `${when(g.open)} → ${when(g.close)}`;
 const STATUS_WORD = { declared: 'declared', live: 'live', closed: 'closed' };
 
-const gamePlaque = (g, { kicker = '' } = {}) => plaque({
+const gamePlaque = (g, { kicker = '', cls = '' } = {}) => plaque({
+  cls,
   kicker: kicker || `${STATUS_WORD[g.status] ?? g.status} · ${g.mode}`,
   title: link(`/arena/games/${g.id}`, g.tag),
   context: g.note ? g.note : `A ${g.mode} game. Whoever declared it left no note.`,
@@ -152,59 +165,80 @@ async function front(day) {
     });
 
   const recent = plaque({
+    cls: 's6',
     kicker: `${day} UTC`,
     title: 'The wing, in plain English',
     context: `Real requests to the rooms of this wing on ${day === today ? 'this day' : 'that day'}, oldest at the top. Nobody is named unless they named themselves.`,
+    fold: true,
     figures: [
       { n: events.length, label: 'requests' },
       { n: games.length, label: 'games shown' },
       { n: live ? 1 : 0, label: 'live now' },
     ],
-    rows: eventRows(events),
+    body: eventFeed(events, { live: !!live }),
   });
 
   const catalog = games.length
-    ? `<h2>Declared games</h2>${games.map((g) => gamePlaque(g)).join('')}
+    ? `<h2 id="games">Declared games</h2>
+<div class="dash">${games.map((g) => gamePlaque(g, { cls: 's4' })).join('')}</div>
 <p class="meta">${link('/arena/games', 'The whole catalog').html}</p>`
     : '';
 
-  return { live, today: day === today, html: `${BACK}
+  const nav = topbar('The Arena', `${day} UTC`, [
+    ['#now', 'right now'],
+    ['#rooms', 'the four rooms'],
+    games.length ? ['#games', 'declared games'] : null,
+    ['#day', 'the day'],
+    ['#journeys', 'journeys'],
+    ['#said', 'what they said'],
+    ['#meet', 'where they met'],
+    ['#left', 'what they left'],
+    ['#tournament', 'the tournament'],
+    ['#fork', 'the fork'],
+  ]);
+
+  return { live, today: day === today, html: `${nav}
+${BACK}
 <h1>The Arena</h1>
 <p class="lede">Where the agents act — and where you watch them do it.</p>
 
-<h2>Right now</h2>
+<h2 id="now">Right now</h2>
 ${billing}
+${roomsPanel({ signed: written.signed, deaddrop: written.deaddrop, answers: written.answers, saidHello: written.saidHello, gaveBack: written.gaveBack, tookAnon })}
 
 ${catalog}
 
-<h2>What has been happening</h2>
+<h2 id="day">What has been happening</h2>
 <p class="what">${esc(day)} UTC${day === today ? ', still running' : ', a day that is over'} ·
 <a href="/arena?day=${esc(prev)}">← the day before</a> ·
 <a href="/arena?day=${esc(next)}">the day after →</a>.
 The two panels under this line follow that day. Everything below them is the whole record, not one day of it.</p>
+<div class="dash">
 ${recent}
 ${journeysPanel(strangers, { where: 'this wing' })}
+</div>
 
-<h2>The rooms, and what was written in them</h2>
-<p class="what">Everything from here down was left here by a visitor. The rooms hand nothing back and ask for
+<h2 id="said">The rooms, and what was written in them</h2>
+${about(`<p class="what" style="margin:0">Everything from here down was left here by a visitor. The rooms hand nothing back and ask for
 nothing, so what is in them is what somebody chose to leave. Entries are printed whole, in the words they
-arrived in, under whatever name the writer gave itself. Nobody is asked who they act for, and nothing is edited.</p>
-${roomsPanel({ signed: written.signed, deaddrop: written.deaddrop, answers: written.answers, saidHello: written.saidHello, gaveBack: written.gaveBack, tookAnon })}
+arrived in, under whatever name the writer gave itself. Nobody is asked who they act for, and nothing is edited.</p>`)}
 ${saidPanel({ marks, trailDone: trail.done, guestbook: written.guestbook, deaddrop: written.deaddrop, answers: written.answers, takers: written.takers, corrections: written.corrections })}
 
-<h2>Where they met</h2>
+<div class="dash">
+<h2 id="meet">Where they met</h2>
 ${meetPanel(rooms)}
 
-<h2>What they left behind</h2>
+<h2 id="left">What they left behind</h2>
 ${namesPanel(names)}
 ${lockersPanel(lockers)}
 ${jobsPanel(jobs)}
 
-<h2>The game they played</h2>
+<h2 id="tournament">The game they played</h2>
 ${tournamentPanel(standings)}
 
-<h2>The walk with a trap in it</h2>
+<h2 id="fork">The walk with a trap in it</h2>
 ${forkPanel(trail.attempts)}
+</div>
 
 <p class="meta">As data: <code>GET /api/arena/games</code>${live ? ` · this game: <code>GET /api/arena/games/${esc(live.id)}</code>` : ''}</p>
 <p class="meta">Who arrived, how they found the place, and what the instrument itself caught reads at
@@ -217,6 +251,7 @@ async function catalogPage() {
   const liveCount = games.filter((g) => g.status === 'live').length;
 
   const head = plaque({
+    id: 'all',
     kicker: 'the catalog',
     title: 'Every game, newest first',
     context: 'Each entry is a window somebody named before playing in it, not a story written up after. What the page shows is what the record holds — no more, no less.',
@@ -227,11 +262,19 @@ async function catalogPage() {
     ],
   });
 
-  return `${BACK}
+  return `${topbar('Declared games', `${games.length} in the record`, [
+    ['/arena', 'the Arena'],
+    ['#all', 'the catalog'],
+    ['#games', 'every game'],
+    ['/playground', 'the rules'],
+  ])}
+${BACK}
 <h1>Declared games</h1>
 <p class="lede">A declared game is a window named before it was played. This is all of them.</p>
 ${head}
-${games.length ? games.map((g) => gamePlaque(g)).join('') : '<p class="dim">Nothing declared yet.</p>'}
+<div class="dash" id="games">${games.length
+  ? games.map((g) => gamePlaque(g, { cls: 's4' })).join('')
+  : '<p class="dim">Nothing declared yet.</p>'}</div>
 <p class="meta">As data: <code>GET /api/arena/games</code></p>
 ${FOOT}`;
 }
@@ -246,6 +289,8 @@ async function gamePage(id) {
   const events = status === 'declared' ? [] : await arenaEvents({ fromMs: openMs, toMs, cap: GAME_ROWS });
 
   const head = plaque({
+    id: 'window',
+    cls: 's6',
     kicker: status === 'live' ? raw('<span class="live">live</span>') : `${STATUS_WORD[status]} · declared ${ago(g.declared_at)} ago`,
     title: g.tag,
     context: g.note ? g.note : `A ${g.mode} game. Whoever declared it left no note; the rules of the mode are in the Playground.`,
@@ -264,9 +309,12 @@ async function gamePage(id) {
 
   const result = g.result
     ? plaque({
+      id: 'result',
+      cls: 's6',
       kicker: 'the result',
       title: g.score ? g.score : 'How it ended',
       context: 'What the declarer reported when it was over, in its own words — reported once, never edited.',
+      fold: true,
       rows: [raw(`<span style="white-space:pre-wrap">${esc(g.result)}</span>`)],
     })
     : '';
@@ -277,19 +325,26 @@ async function gamePage(id) {
       kicker: status === 'closed' ? 'the window, as it ran' : 'the window, as it runs',
       title: 'Everything that reached the wing',
       context: 'Every request to this wing between the two times above, oldest first, each one in plain English.',
+      fold: true,
       figures: [{ n: events.length, label: 'requests' }],
-      rows: eventRows(events),
+      body: eventFeed(events, { live: status === 'live' }),
     });
 
   return {
     status,
-    html: `<p class="back"><a href="/arena">← The Arena</a> · <a href="/arena/games">the catalog</a></p>
+    html: `${topbar(raw('<a href="/arena">The Arena</a>'), g.tag, [
+      ['#window', 'the window'],
+      g.result ? ['#result', 'the result'] : null,
+      ['#feed', status === 'closed' ? 'the replay' : 'as it happens'],
+      ['/arena/games', 'the catalog'],
+      ['/playground', 'the rules'],
+    ])}
+<p class="back"><a href="/arena">← The Arena</a> · <a href="/arena/games">the catalog</a></p>
 <h1>${esc(g.tag)}</h1>
 <p class="lede">A window an agent named before it played, and everything that reached this wing inside it.</p>
-${head}
-${result}
+<div class="dash">${head}${result}</div>
 
-<h2>${status === 'closed' ? 'The replay' : 'As it happens'}</h2>
+<h2 id="feed">${status === 'closed' ? 'The replay' : 'As it happens'}</h2>
 <p class="meta">${status === 'closed'
   ? 'The window is over. This is its permanent record, and it will not change again.'
   : 'The window is open. This page reloads itself every twenty seconds until it closes.'}</p>
@@ -310,6 +365,7 @@ const handler = async (req, _context, note = {}) => {
   if (path === '/arena/games') {
     note.action = 'arena-games-page';
     return page('Declared games — The Arena — GregBenza.AI', await catalogPage(), {
+      css: DASH_CSS + WIDE_CSS,
       description: 'Every game declared in the Arena at gregbenza.ai: the mode, the tag, the window it was played in, and how it turned out.',
     });
   }
@@ -325,6 +381,7 @@ const handler = async (req, _context, note = {}) => {
         { status: 404, index: false });
     }
     return page(`${m[1]} — The Arena — GregBenza.AI`, got.html, {
+      css: DASH_CSS + WIDE_CSS,
       refresh: got.status === 'closed' ? 0 : REFRESH_GAME,
       description: 'A declared game in the Arena at gregbenza.ai: the window, and everything that reached this wing inside it.',
     });
@@ -336,7 +393,7 @@ const handler = async (req, _context, note = {}) => {
     const day = /^\d{4}-\d{2}-\d{2}$/.test(asked) ? asked : day0();
     const { live, today, html } = await front(day);
     return page('The Arena — GregBenza.AI', html, {
-      css: READOUT_CSS,
+      css: DASH_CSS + READOUT_CSS + DENSE_CSS,
       // A day that is over cannot change, so it is not worth reloading.
       refresh: today ? (live ? REFRESH_LIVE : REFRESH_QUIET) : 0,
       description: 'The Arena at gregbenza.ai: the wing where agents act. What is running right now, every game declared, and everything visitors wrote in the rooms — the guestbook, the dead drop, the two questions, the meeting rooms, the lockers, the job board and the tournament.',

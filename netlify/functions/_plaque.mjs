@@ -45,8 +45,11 @@ export const link = (href, label) => raw(`<a href="${esc(href)}">${esc(label)}</
  * @param body    optional markup under the rows, for a readout that needs a table or a run of entries rather
  *                than a list. Already HTML: built by the page next door, never from anything a visitor sent.
  * @param id      optional anchor.
+ * @param cls     optional extra classes — how wide this plaque sits in a dashboard grid, and nothing else.
+ * @param fold    when true the context paragraph goes behind "what is this?" instead of standing above the
+ *                figures. The words are the same words; they are one click away rather than in the way.
  */
-export function plaque({ kicker = '', title = '', context = '', figures = [], rows = [], body = '', id = '' } = {}) {
+export function plaque({ kicker = '', title = '', context = '', figures = [], rows = [], body = '', id = '', cls = '', fold = false } = {}) {
   const strip = (figures ?? []).filter(Boolean).map((f) => {
     const n = f.n;
     const word = !(typeof n === 'number' || /^[\d.,+-]+$/.test(String(n ?? '')));
@@ -60,6 +63,63 @@ export function plaque({ kicker = '', title = '', context = '', figures = [], ro
     return `<li><span class="v">${out(r)}</span></li>`;
   }).join('');
 
-  return `<section class="plaque"${id ? ` id="${esc(id)}"` : ''}>
-${kicker ? `<p class="kicker">${out(kicker)}</p>\n` : ''}${title ? `<p class="name">${out(title)}</p>\n` : ''}${context ? `<p class="context">${out(context)}</p>\n` : ''}${strip ? `<dl class="figures">${strip}</dl>\n` : ''}${list ? `<ul class="rows">${list}</ul>\n` : ''}${body ? `${String(body)}\n` : ''}</section>`;
+  const ctx = context ? `<p class="context">${out(context)}</p>` : '';
+
+  return `<section class="plaque${cls ? ` ${esc(cls)}` : ''}"${id ? ` id="${esc(id)}"` : ''}>
+${kicker ? `<p class="kicker">${out(kicker)}</p>\n` : ''}${title ? `<p class="name">${out(title)}</p>\n` : ''}${ctx && !fold ? `${ctx}\n` : ''}${strip ? `<dl class="figures">${strip}</dl>\n` : ''}${ctx && fold ? `${about(ctx)}\n` : ''}${list ? `<ul class="rows">${list}</ul>\n` : ''}${body ? `${String(body)}\n` : ''}</section>`;
 }
+
+// ---------------------------------------------------------------------------
+// The three pieces a dashboard needs on top of the plaque. All three are markup and nothing else — no script,
+// because a page that needs one is closed to most of the readers this site is for.
+// ---------------------------------------------------------------------------
+
+/**
+ * The bar that stays at the top of a readout: what the page is, which day it is showing, and a link to every
+ * section on it. Anchors only; the scrolling is the browser's own.
+ *
+ * @param name  the page's name. Text, or `{html}` for a name that is also a link.
+ * @param day   optional small line beside it — the date being looked at.
+ * @param links [[href, label]] — one per section, in the order the sections appear.
+ */
+export const topbar = (name, day, links = []) => `<header class="topbar"><div class="bar">
+<span class="brand">${out(name)}</span>${day ? `<span class="day">${out(day)}</span>` : ''}
+<nav class="jump" aria-label="sections">${(links ?? []).filter(Boolean)
+  .map(([href, label]) => `<a href="${esc(href)}">${esc(label)}</a>`).join('')}</nav>
+</div></header>`;
+
+/**
+ * An explanation, folded away. The heading and the figures stay where a reader can see them; the paragraph
+ * that says what they are is one click behind this. Nothing is lost and nothing is rewritten.
+ */
+export const about = (html, label = 'what is this?') => (html
+  ? `<details class="about"><summary>${esc(label)}</summary><div class="inner">${String(html)}</div></details>`
+  : '');
+
+/**
+ * A long list, cut. The first few rows are printed; the rest sit behind one click in the same card.
+ *
+ * @param items  the rows, already in the order they should read
+ * @param render (item, i) => the HTML for one row
+ * @param head   how many stand above the fold
+ * @param wrap   (rowsHtml, part) => the markup around a run of rows. `part` is 'head' or 'rest', so a table
+ *               can give the hidden half its own scroller and its own sticky heading.
+ * @param label  the summary line. Defaults to the honest one: the whole count.
+ * @param empty  what to print when there is nothing — a quiet line, never a blank card.
+ * @param open   start open. A page that reloads itself every half minute forgets what a reader opened, so the
+ *               one list they are most likely watching while it moves is opened for them instead.
+ */
+export function cut(items, render, { head = 8, wrap = (h) => h, label = '', empty = '', open = false } = {}) {
+  const rows = items ?? [];
+  if (!rows.length) return empty;
+  const first = wrap(rows.slice(0, head).map(render).join(''), 'head');
+  if (rows.length <= head) return first;
+  const rest = wrap(rows.slice(head).map((r, i) => render(r, i + head)).join(''), 'rest');
+  return `${first}<details class="more"${open ? ' open' : ''}><summary>${esc(label || `show all ${rows.length}`)}</summary>${rest}</details>`;
+}
+
+/** A table. `heads` may be an array of column names, or null for a table that needs none. */
+export const tableOf = (heads, body, { scroll = false } = {}) => {
+  const t = `<table>${heads ? `<thead><tr>${heads.map((h) => `<th>${h}</th>`).join('')}</tr></thead>` : ''}<tbody>${body}</tbody></table>`;
+  return scroll ? `<div class="scroller">${t}</div>` : t;
+};

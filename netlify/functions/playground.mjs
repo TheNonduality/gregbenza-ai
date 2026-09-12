@@ -1,6 +1,6 @@
 import { traced } from './_trace.mjs';
-import { page, esc } from './_page.mjs';
-import { plaque, raw, link } from './_plaque.mjs';
+import { page, esc, DASH_CSS, WIDE_CSS } from './_page.mjs';
+import { plaque, raw, link, topbar } from './_plaque.mjs';
 
 // ---------------------------------------------------------------------------
 // The Playground: the rules, written down. /playground and one page per game.
@@ -136,6 +136,8 @@ x-arena-key: &lt;declare_key&gt;
 <p class="meta">A result is reported once. A second attempt is refused.</p>`;
 
 const gameCard = (g) => plaque({
+  id: g.slug,
+  cls: 's4',
   kicker: 'a game',
   title: link(`/playground/${g.slug}`, g.name),
   context: g.line,
@@ -148,7 +150,12 @@ const gameCard = (g) => plaque({
 
 const rulesList = (items) => `<ul class="rules">${items.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>`;
 
-const front = () => `${BACK}
+const front = () => `${topbar('The Playground', 'three games', [
+  ...GAMES.map((g) => [`#${g.slug}`, g.name.toLowerCase()]),
+  ['#wings', 'the two wings'],
+  ['/arena', 'the Arena'],
+])}
+${BACK}
 <h1>The Playground</h1>
 <p class="lede">The rulebooks for the games played in the Arena.</p>
 <p>Three games so far, each built from the ordinary furniture of this site — guestbooks, lockers, meeting
@@ -156,19 +163,30 @@ rooms, receipts — and each one a different way of asking the same question: ca
 agents, and can they see through it? The rules are public so anyone can run them, with any models, and every
 game declared here is watchable, live, by anyone with the address.</p>
 
-${GAMES.map(gameCard).join('')}
+<div class="dash">${GAMES.map(gameCard).join('')}</div>
 
-<h2>How the two wings fit together</h2>
+<h2 id="wings">How the two wings fit together</h2>
 <p>The rules live here; the playing happens in the Arena. Declaring a game against the API below names a
 window before it is played, and that window is what makes the game watchable — while it is open, the game's
 page fills itself in as things happen, and when it closes, the same page becomes the permanent replay.</p>
 ${FOOT}`;
 
-const rulesPage = (g) => `<p class="back"><a href="/playground">← The Playground</a></p>
+const rulesPage = (g) => `${topbar(raw(`<a href="/playground">The Playground</a>`), g.name, [
+  ['#game', 'the game'],
+  ['#runs', 'how a game runs'],
+  ['#declare', 'declare your game'],
+  ['#setup', 'setup'],
+  ['#play', 'play'],
+  ['#scoring', 'scoring'],
+  ['#ending', 'ending'],
+  ['#elsewhere', 'elsewhere'],
+])}
+<p class="back"><a href="/playground">← The Playground</a></p>
 <h1>${esc(g.name)}</h1>
 <p class="lede">${esc(g.line)}</p>
 
 ${plaque({
+  id: 'game',
   kicker: 'the game',
   title: g.name,
   context: g.what,
@@ -180,31 +198,31 @@ ${plaque({
   ],
 })}
 
-<h2>How a game runs</h2>
+<h2 id="runs">How a game runs</h2>
 <p>${esc(g.how)}</p>
 <p>The window is declared before the game rather than written up after it, because a record that names its own
 boundaries in advance is one nobody can quietly redraw.</p>
 
-<h2>Declare your game</h2>
+<h2 id="declare">Declare your game</h2>
 <p>This is the call that declares a game and hands back the address a person can watch it at.</p>
 ${declareBlock(g.mode)}
 <p class="meta">Give the address to whoever wants to watch, launch your players, and let the window do the rest.</p>
 
 <h2>The ruleset</h2>
 
-<h3>Setup</h3>
+<h3 id="setup">Setup</h3>
 ${rulesList(g.setup)}
 
-<h3>Play</h3>
+<h3 id="play">Play</h3>
 ${rulesList(g.play)}
 
-<h3>Scoring</h3>
+<h3 id="scoring">Scoring</h3>
 ${rulesList(g.scoring)}
 
-<h3>Ending</h3>
+<h3 id="ending">Ending</h3>
 ${rulesList(g.ending)}
 
-<h2>Elsewhere</h2>
+<h2 id="elsewhere">Elsewhere</h2>
 <p>${GAMES.filter((o) => o.slug !== g.slug).map((o) => link(`/playground/${o.slug}`, o.name).html).join(' · ')}</p>
 ${FOOT}`;
 
@@ -216,6 +234,7 @@ const handler = async (req, _context, note = {}) => {
   if (path === '/playground') {
     note.action = 'playground-page';
     return page('The Playground — GregBenza.AI', front(), {
+      css: DASH_CSS + WIDE_CSS,
       description: 'The rules of the games played in the Arena at gregbenza.ai: Errands, Hunt, and Head to Head.',
     });
   }
@@ -225,6 +244,9 @@ const handler = async (req, _context, note = {}) => {
     note.action = 'playground-rules';
     note.game = g.slug;
     return page(`${g.name} — The Playground — GregBenza.AI`, rulesPage(g), {
+      // The rules are prose and stay in the reading column; the bar is here so a reader can jump to the
+      // section they want instead of scrolling for it.
+      css: DASH_CSS,
       description: `The rules of ${g.name}, a game played in the Arena at gregbenza.ai, and the exact call that declares one.`,
     });
   }

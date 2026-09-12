@@ -89,6 +89,129 @@ button{justify-self:start;font:inherit;font-weight:600;padding:.5em 1.15em;borde
 
 `;
 
+// ---------------------------------------------------------------------------
+// The dashboard chrome: the three blocks a readout page adds on top of the shell.
+//
+// A readout is a lot of small things at once, and a single column of full-width cards turns that into a mile of
+// scrolling where nothing sits next to anything it should be read against. These blocks give a page a bar that
+// stays put with a link to every section on it, a twelve-column grid the cards claim a width in, and one
+// disclosure shape used for both halves of the density problem — the long list that only needs its first few
+// rows, and the explanation that only needs reading once.
+//
+// Everything here is CSS and anchors. No script: an agent that renders a page runs none, and neither does a
+// reader who has turned it off, so anything that needed one would be a section of the record they cannot see.
+//
+// DASH_CSS  structure, on any page that wants it.
+// WIDE_CSS  a wider column, for a page of cards rather than a page of prose.
+// DENSE_CSS the tighter type and spacing the two big readouts use. Assumes DASH_CSS is already in.
+// ---------------------------------------------------------------------------
+
+export const DASH_CSS = `
+html{scroll-behavior:smooth}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+/* Anything a jump link can land on clears the bar that is parked over it. */
+[id]{scroll-margin-top:4.6rem}
+
+/* ---- the bar that stays put ---- */
+.topbar{position:sticky;top:0;z-index:80;padding:.3rem 0 .45rem;margin:0 0 .9rem;background:var(--bg)}
+.topbar .bar{display:flex;align-items:center;gap:.55rem;height:40px;padding:0 .55rem;
+  border:1px solid var(--line);border-radius:10px;background:var(--card);box-shadow:0 1px 10px rgba(0,0,0,.05)}
+.topbar .brand{flex:0 0 auto;font-size:.85rem;font-weight:650;letter-spacing:-.01em;white-space:nowrap}
+.topbar .brand a{color:inherit;text-decoration:none}
+.topbar .day{flex:0 0 auto;font-size:.71rem;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.jump{flex:1 1 auto;min-width:0;display:flex;gap:.05rem;white-space:nowrap;
+  overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.jump::-webkit-scrollbar{height:0}
+.jump a{flex:0 0 auto;font-size:.71rem;line-height:1.2;color:var(--muted);text-decoration:none;
+  padding:.28rem .42rem;border-radius:6px}
+.jump a:hover{color:var(--ink);background:color-mix(in srgb,var(--ink) 8%,transparent);text-decoration:none}
+
+/* ---- the grid the cards claim a width in ---- */
+/* Plain row flow, not dense: a heading in here spans the whole width and acts as the line between one group of
+   cards and the next, and dense packing would pull a card from the group below up past its own heading. */
+.dash{display:grid;grid-template-columns:repeat(12,1fr);gap:.75rem;align-items:start;margin:0 0 .9rem}
+.dash>*{grid-column:1/-1;margin:0}
+.dash>h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:650;
+  margin:.75rem 0 -.15rem}
+.dash>h2:first-child{margin-top:0}
+.dash>p{font-size:.78rem;color:var(--muted);margin:0}
+@media(min-width:48rem){.dash>.s4,.dash>.s6{grid-column:span 6}}
+@media(min-width:66rem){
+  .dash>.s4{grid-column:span 4}
+  .dash>.s6{grid-column:span 6}
+  .dash>.s8{grid-column:span 8}
+}
+
+/* ---- one disclosure shape, for the long list and for the explanation ---- */
+details.about,details.more{margin:.45rem 0 0}
+details.about>summary,details.more>summary{cursor:pointer;list-style:none;display:inline-flex;align-items:center;
+  gap:.35rem;font-size:.73rem;font-weight:600;color:var(--muted);padding:.18rem .3rem .18rem .1rem;border-radius:6px}
+details.about>summary::-webkit-details-marker,details.more>summary::-webkit-details-marker{display:none}
+details.about>summary::before,details.more>summary::before{content:"";flex:0 0 auto;width:.4rem;height:.4rem;
+  border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(-45deg) translate(-.06rem,-.06rem)}
+details.about[open]>summary::before,details.more[open]>summary::before{transform:rotate(45deg) translate(-.04rem,-.04rem)}
+details.about>summary:hover,details.more>summary:hover{color:var(--ink)}
+details.more>summary{color:var(--accent)}
+details.about .inner>:first-child{margin-top:.2rem}
+details.about .inner>:last-child{margin-bottom:0}
+
+/* ---- a wide table scrolls inside its own card, never sideways across the page ---- */
+.scroller{max-height:420px;overflow:auto;overscroll-behavior:contain;border:1px solid var(--line);
+  border-radius:8px;margin:.4rem 0 0}
+.scroller>table{margin:0}
+.scroller thead th{position:sticky;top:0;z-index:2;background:var(--card);box-shadow:inset 0 -1px 0 var(--line)}
+.scroller td:first-child,.scroller th:first-child{padding-left:.5rem}
+
+/* ---- the keyboard has to be able to see where it is ---- */
+a:focus-visible,summary:focus-visible,.tip:focus-visible{outline:2px solid var(--accent);outline-offset:2px;
+  border-radius:4px;color:var(--ink)}
+
+@media(max-width:48rem){
+  .topbar .brand{font-size:.78rem}
+  .topbar .bar{gap:.4rem;padding:0 .4rem}
+  /* The shell turns every table into its own sideways scroller on a phone. Inside a .scroller the card is
+     already doing that, and a block-level table cannot hold a sticky header. */
+  .scroller>table{display:table}
+  .dash{gap:.6rem}
+}
+`;
+
+/** A page of cards rather than a page of prose needs more than the reading column. */
+export const WIDE_CSS = `
+main{max-width:64rem}
+`;
+
+/** The two big readouts: smaller type, tighter cards, numbers that line up under each other. */
+export const DENSE_CSS = `
+body{font-size:14px;line-height:1.45}
+main{max-width:78rem;padding:0 1.1rem 3rem}
+h1{font-size:1.55rem;margin:.2rem 0 .1rem}
+.lede{font-size:.95rem;margin:.1rem 0 .8rem}
+.card,.plaque{padding:.7rem .85rem;margin:.75rem 0}
+.plaque .kicker{font-size:.67rem;margin:0 0 .2rem}
+.plaque .name{font-size:.95rem;margin:0 0 .25rem}
+.plaque .context{font-size:.78rem;line-height:1.45;margin:.15rem 0 0}
+.figures{gap:.9rem;margin:.6rem 0 0;padding:.55rem 0 0}
+.figures div{min-width:4rem}
+.figures dt{font-size:.66rem}
+.figures dd{font-size:1.1rem}
+.figures dd.word{font-size:.85rem}
+.rows{margin:.6rem 0 0;padding:.5rem 0 0;font-size:.8rem}
+.rows li{padding:.22rem 0}
+.rows .k{flex:0 0 7rem}
+.back,.meta,.dim{font-size:.78rem}
+.note{font-size:.78rem;margin-top:1.6rem;padding-top:.8rem}
+h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:650;margin:1.1rem 0 .4rem}
+h3{font-size:.8rem;margin:.9rem 0 .25rem}
+.stat b,.figures dd,.bars b,.mono,td,th,.topbar .day{font-variant-numeric:tabular-nums}
+table{font-size:.78rem}
+td,th{padding:.22rem .45rem .22rem 0}
+@media(max-width:48rem){
+  main{padding:0 .8rem 2.5rem}
+  h1{font-size:1.3rem}
+}
+`;
+
 // Structured data. Search engines and the crawlers behind AI answers parse this to decide what a page *is*,
 // rather than inferring it from prose — which matters most for the glossary, where "a dataset of 148 terms with
 // reasoning" is a thing a machine can be told directly instead of guessing.
