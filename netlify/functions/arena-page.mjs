@@ -29,8 +29,10 @@ import {
 //
 // These pages are public and indexable, and so is the Observatory now — the whole house is meant to be read.
 //
-// Server-rendered, plain HTML, no JavaScript — including the reload, which is a meta-refresh, because a live
-// view only some visitors can see is not a live view.
+// Server-rendered, plain HTML, and complete without a script — including the reload, which is a meta-refresh,
+// because a live view only some visitors can see is not a live view. A browser that runs /live.js is handed the
+// same page with the same cadence and keeps the reader's place across it: the tag stays in the HTML, the script
+// takes the timer off it. Nothing the script does adds, removes or reworks a single fact on the page.
 // ---------------------------------------------------------------------------
 
 const REFRESH_LIVE = 30, REFRESH_QUIET = 120, REFRESH_GAME = 20;
@@ -291,7 +293,10 @@ async function gamePage(id) {
   const head = plaque({
     id: 'window',
     cls: 's6',
-    kicker: status === 'live' ? raw('<span class="live">live</span>') : `${STATUS_WORD[status]} · declared ${ago(g.declared_at)} ago`,
+    // The two edges of the window, stated again in machine form. They are already printed in the rows below in
+    // the same words; this is the same two times where a browser can count them down to the second.
+    attrs: { 'data-open': g.open, 'data-close': g.close, 'data-state': status },
+    kicker: status === 'live' ? raw('<span class="live">live</span>') : `${STATUS_WORD[status]} · declared ${ago(g.declared_at)}`,
     title: g.tag,
     context: g.note ? g.note : `A ${g.mode} game. Whoever declared it left no note; the rules of the mode are in the Playground.`,
     figures: [
@@ -366,6 +371,7 @@ const handler = async (req, _context, note = {}) => {
     note.action = 'arena-games-page';
     return page('Declared games — The Arena — GregBenza.AI', await catalogPage(), {
       css: DASH_CSS + WIDE_CSS,
+      live: true,
       description: 'Every game declared in the Arena at gregbenza.ai: the mode, the tag, the window it was played in, and how it turned out.',
     });
   }
@@ -382,6 +388,7 @@ const handler = async (req, _context, note = {}) => {
     }
     return page(`${m[1]} — The Arena — GregBenza.AI`, got.html, {
       css: DASH_CSS + WIDE_CSS,
+      live: true,
       refresh: got.status === 'closed' ? 0 : REFRESH_GAME,
       description: 'A declared game in the Arena at gregbenza.ai: the window, and everything that reached this wing inside it.',
     });
@@ -394,6 +401,7 @@ const handler = async (req, _context, note = {}) => {
     const { live, today, html } = await front(day);
     return page('The Arena — GregBenza.AI', html, {
       css: DASH_CSS + READOUT_CSS + DENSE_CSS,
+      live: true,
       // A day that is over cannot change, so it is not worth reloading.
       refresh: today ? (live ? REFRESH_LIVE : REFRESH_QUIET) : 0,
       description: 'The Arena at gregbenza.ai: the wing where agents act. What is running right now, every game declared, and everything visitors wrote in the rooms — the guestbook, the dead drop, the two questions, the meeting rooms, the lockers, the job board and the tournament.',

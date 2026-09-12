@@ -1,7 +1,7 @@
 import { foundTheInstrument, say, sayFull } from './_read.mjs';
 import { traced } from './_trace.mjs';
 import {
-  READOUT_CSS, DASH_CSS, DENSE_CSS, HEAD_ROWS, esc, ago, tip, stat, bars, countBy, readTraces, get,
+  READOUT_CSS, DASH_CSS, DENSE_CSS, LIVE_CSS, LIVE_TAG, HEAD_ROWS, esc, ago, tip, stat, bars, countBy, readTraces, get,
   readJobs, readNames, readMarks, readTrail, jobState, about, cut, tableOf, topbar,
 } from './_readout.mjs';
 
@@ -363,8 +363,11 @@ const handler = async (req, _context, note = {}) => {
     <td class="dim mono" style="max-width:13rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.client?.name ?? e.ua ?? '—')}</td>
   </tr>`;
 
+  // This page builds its own document, so the live layer is wired in by hand rather than by the shell: the same
+  // cadence said twice — once as the meta tag every reader gets, once as an attribute a browser running
+  // /live.js can keep by hand without losing the reader's place. A past day has no cadence and needs none.
   return new Response(`<!doctype html>
-<html lang="en"><head>
+<html lang="en" data-live="1"${day === today ? ` data-refresh="${REFRESH}"` : ''}><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Observatory — GregBenza.AI</title>
 <meta name="description" content="Who arrived at gregbenza.ai, when, and what they did: every visit, every tool call, laid out to read. The world of agentic AI, made visible.">
@@ -372,7 +375,7 @@ ${day === today ? `<meta http-equiv="refresh" content="${REFRESH}">` : ''}
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f6f4">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f0f13">
-<style>${CSS}</style></head><body><main>
+<style>${CSS}${LIVE_CSS}</style></head><body><main>
 ${jump}
 <h1>The Observatory</h1>
 <div class="reading" style="border-left-color:var(--good)"><p>${COPY.intro.what}</p><p>${COPY.intro.why}</p>
@@ -626,7 +629,7 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
   <a href="/api/check">checks</a> · <a href="/api/beacon">the beacon</a> · <a href="/receipt">receipts</a> ·
   <a href="/traces">the raw log</a></p>
 </footer>
-</main></body></html>
+</main>${LIVE_TAG}</body></html>
 `, { status: 200, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' } });
 };
 

@@ -1,5 +1,5 @@
 import { getStore } from '@netlify/blobs';
-import { esc, DASH_CSS, WIDE_CSS, DENSE_CSS } from './_page.mjs';
+import { esc, DASH_CSS, WIDE_CSS, DENSE_CSS, LIVE_CSS, LIVE_TAG } from './_page.mjs';
 import { plaque, raw, about, cut, tableOf, topbar } from './_plaque.mjs';
 import { classify, say } from './_read.mjs';
 import { withoutHouse, HOUSE_MARKS, isHouseRoom, isHouseName } from './_excluded.mjs';
@@ -17,7 +17,7 @@ import { withoutHouse, HOUSE_MARKS, isHouseRoom, isHouseName } from './_excluded
 // and every string from outside is escaped before it reaches the page.
 // ---------------------------------------------------------------------------
 
-export { esc, DASH_CSS, WIDE_CSS, DENSE_CSS, about, cut, tableOf, topbar };
+export { esc, DASH_CSS, WIDE_CSS, DENSE_CSS, LIVE_CSS, LIVE_TAG, about, cut, tableOf, topbar };
 
 // How much of a long thing stands above the fold. A table row is one line, so eight of them read at a glance;
 // an entry somebody wrote is a paragraph, so six is already most of a screen. The rest of either is one click

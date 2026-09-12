@@ -181,6 +181,67 @@ export const WIDE_CSS = `
 main{max-width:64rem}
 `;
 
+// ---------------------------------------------------------------------------
+// The live layer: the part only a person gets.
+//
+// Everything above this line is the whole page. An agent renders no script, and the record it reads has to be
+// complete without one — so nothing here adds a fact, removes a fact, or changes a word. What it does is make a
+// page that is already correct feel like it is happening: the reload keeps your place instead of losing it, a
+// row that just arrived says so for two seconds, a window with a name counts itself down.
+//
+// LIVE_CSS is the dress. Every selector in it matches something /live.js puts there, or a state /live.js sets,
+// so with the script off none of it applies and the page is byte for byte the page it was. LIVE_TAG is the one
+// script tag, deferred, same origin, no dependencies.
+//
+// The one thing here that works without the script is the cross-document view transition: it has to be in the
+// document's own head at parse time to fire at all, and a browser that does not have it ignores the rule. It
+// changes nothing about what the page says.
+// ---------------------------------------------------------------------------
+
+export const LIVE_TAG = '<script defer src="/live.js"></script>';
+
+export const LIVE_CSS = `
+/* the dot in the bar: pulsing while the page is keeping up, still when it is paused or finished */
+.pulse{flex:0 0 auto;width:7px;height:7px;border-radius:50%;background:var(--muted);opacity:.4;cursor:default}
+.pulse.on{background:var(--accent);opacity:1;animation:pulse 2.6s ease-in-out infinite}
+.pulse.slow{background:var(--warm,#c2762f);opacity:.85}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.8)}}
+
+/* a row that was not here a moment ago, saying so and then letting it go */
+.fresh{animation:fresh 2s ease-out 1}
+@keyframes fresh{from{background:color-mix(in srgb,var(--accent) 20%,transparent)}to{background:transparent}}
+
+/* the filter a long card grows for itself */
+.sift{display:flex;align-items:center;gap:.45rem;margin:.5rem 0 0}
+.sift input{flex:1 1 auto;min-width:0;max-width:14rem;font:inherit;font-size:.75rem;padding:.2em .5em;
+  border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--ink)}
+.sift input::-webkit-search-cancel-button{cursor:pointer}
+.sift .hits{font-size:.7rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+/* A filtered-out row. The shell gives .rows li its own display, which outranks the browser's own [hidden]. */
+[hidden]{display:none!important}
+
+/* how long is left, under the name of the window it belongs to */
+.countdown{font-size:.78rem;color:var(--muted);margin:.1rem 0 .3rem;font-variant-numeric:tabular-nums}
+.countdown b{color:var(--ink);font-weight:600}
+
+/* the clock the server printed, kept where it was always going to be wanted second */
+time[data-lt]{cursor:help;border-bottom:1px dotted color-mix(in srgb,var(--muted) 45%,transparent)}
+
+/* the chevron turns rather than jumps */
+details.about>summary::before,details.more>summary::before{transition:transform .18s ease}
+
+/* one wing to the next should look like the same room changing, not a new page arriving */
+@view-transition{navigation:auto}
+::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation-duration:.22s}
+
+@media(prefers-reduced-motion:reduce){
+  .pulse.on{animation:none}
+  .fresh{animation:none}
+  details.about>summary::before,details.more>summary::before{transition:none}
+  ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}
+}
+`;
+
 /** The two big readouts: smaller type, tighter cards, numbers that line up under each other. */
 export const DENSE_CSS = `
 body{font-size:14px;line-height:1.45}
@@ -219,11 +280,13 @@ const ldJson = (ld) => (ld ? `\n<script type="application/ld+json">${JSON.string
 
 // `refresh` is seconds: a meta-refresh, because a page that has to reload itself while a game is running cannot
 // use JavaScript to do it — most agents run none, and a live view only some visitors can see is not a live view.
+// The tag is always emitted and always honest. `live` only adds the layer on top: the same cadence, stated again
+// as `data-refresh` so a browser can keep it by hand and keep the reader's place while doing it.
 // `css` is an extra block appended after the shell's own, for a page that carries a readout on it. It is never
 // built from anything a visitor sent — the only callers pass a constant from a module next door.
-export const page = (title, inner, { status = 200, index = true, ld = null, description = '', refresh = 0, css = '' } = {}) =>
+export const page = (title, inner, { status = 200, index = true, ld = null, description = '', refresh = 0, css = '', live = false } = {}) =>
   new Response(`<!doctype html>
-<html lang="en"><head>
+<html lang="en"${live ? ` data-live="1"${refresh > 0 ? ` data-refresh="${Math.round(refresh)}"` : ''}` : ''}><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)}</title>
 <meta name="robots" content="${index ? 'index, follow' : 'noindex'}">${refresh > 0 ? `
@@ -238,7 +301,7 @@ ${description ? `<meta name="description" content="${esc(description)}">
 <link rel="alternate" type="application/feed+json" href="/feed.json" title="The Open House">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f6f4">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121216">
-<style>${CSS}${css}</style>${ldJson(ld)}</head><body><main>${inner}</main></body></html>
+<style>${CSS}${css}${live ? LIVE_CSS : ''}</style>${ldJson(ld)}</head><body><main>${inner}</main>${live ? LIVE_TAG : ''}</body></html>
 `, { status, headers: { 'content-type': 'text/html; charset=utf-8', 'access-control-allow-origin': '*' } });
 
 export const json = (data, status = 200) =>

@@ -48,8 +48,11 @@ export const link = (href, label) => raw(`<a href="${esc(href)}">${esc(label)}</
  * @param cls     optional extra classes — how wide this plaque sits in a dashboard grid, and nothing else.
  * @param fold    when true the context paragraph goes behind "what is this?" instead of standing above the
  *                figures. The words are the same words; they are one click away rather than in the way.
+ * @param attrs   optional `data-*` attributes on the section. A fact the page already prints in words, stated
+ *                again in a form a script can read — a window's two edges, so a browser can count them down.
+ *                Keys that are not plain `data-` names are dropped; values are escaped like everything else.
  */
-export function plaque({ kicker = '', title = '', context = '', figures = [], rows = [], body = '', id = '', cls = '', fold = false } = {}) {
+export function plaque({ kicker = '', title = '', context = '', figures = [], rows = [], body = '', id = '', cls = '', fold = false, attrs = null } = {}) {
   const strip = (figures ?? []).filter(Boolean).map((f) => {
     const n = f.n;
     const word = !(typeof n === 'number' || /^[\d.,+-]+$/.test(String(n ?? '')));
@@ -65,7 +68,11 @@ export function plaque({ kicker = '', title = '', context = '', figures = [], ro
 
   const ctx = context ? `<p class="context">${out(context)}</p>` : '';
 
-  return `<section class="plaque${cls ? ` ${esc(cls)}` : ''}"${id ? ` id="${esc(id)}"` : ''}>
+  const data = Object.entries(attrs ?? {})
+    .filter(([k, v]) => /^data-[a-z][a-z0-9-]*$/.test(k) && v != null && v !== '')
+    .map(([k, v]) => ` ${k}="${esc(v)}"`).join('');
+
+  return `<section class="plaque${cls ? ` ${esc(cls)}` : ''}"${id ? ` id="${esc(id)}"` : ''}${data}>
 ${kicker ? `<p class="kicker">${out(kicker)}</p>\n` : ''}${title ? `<p class="name">${out(title)}</p>\n` : ''}${ctx && !fold ? `${ctx}\n` : ''}${strip ? `<dl class="figures">${strip}</dl>\n` : ''}${ctx && fold ? `${about(ctx)}\n` : ''}${list ? `<ul class="rows">${list}</ul>\n` : ''}${body ? `${String(body)}\n` : ''}</section>`;
 }
 

@@ -233,8 +233,12 @@ const handler = async (req, _context, note = {}) => {
 
   if (path === '/playground') {
     note.action = 'playground-page';
+    // Nothing here changes while you read it, so there is no cadence and nothing to keep up with. The live layer
+    // is still worth having for the small things: the chevrons turn, and a move to the Arena looks like the same
+    // room changing rather than a new page arriving.
     return page('The Playground — GregBenza.AI', front(), {
       css: DASH_CSS + WIDE_CSS,
+      live: true,
       description: 'The rules of the games played in the Arena at gregbenza.ai: Errands, Hunt, and Head to Head.',
     });
   }
@@ -247,6 +251,7 @@ const handler = async (req, _context, note = {}) => {
       // The rules are prose and stay in the reading column; the bar is here so a reader can jump to the
       // section they want instead of scrolling for it.
       css: DASH_CSS,
+      live: true,
       description: `The rules of ${g.name}, a game played in the Arena at gregbenza.ai, and the exact call that declares one.`,
     });
   }
