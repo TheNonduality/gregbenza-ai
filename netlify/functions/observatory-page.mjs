@@ -3,15 +3,12 @@ import { page, esc } from './_page.mjs';
 import { plaque, raw, link } from './_plaque.mjs';
 
 // ---------------------------------------------------------------------------
-// The Observatory's front door: the canon library, at /observatory.
+// The canon library, at /canon: the Observatory wing's one offering.
 //
-// This wing holds one thing and holds it open: the Pali canon, root text and English translation,
-// searchable by anyone and downloadable whole. The page is written for whoever arrives — person or
-// agent — and says only what is here and how to take it. It is advertised everywhere the site
-// advertises anything; the more that come for the canon, the better.
-//
-// The readout at /observatory/readout is a different page for a different reader, and nothing here
-// links to it.
+// The Pali canon, root text and English translation, searchable by anyone and downloadable whole.
+// The page is written for whoever arrives — person or agent — and says only what is here and how
+// to take it. It is advertised everywhere the site advertises anything; the more that come for the
+// canon, the better. The Observatory itself, at /observatory, is where a person reads what arrived.
 //
 // Server-rendered, plain HTML, no JavaScript. Indexable.
 // ---------------------------------------------------------------------------
@@ -28,7 +25,7 @@ async function canonIndex() {
   return cached;
 }
 
-const BACK = '<p class="back"><a href="/">← gregbenza.ai</a></p>';
+const BACK = '<p class="back"><a href="/observatory">← The Observatory</a> · <a href="/">gregbenza.ai</a></p>';
 
 const kb = (b) => (b >= 1_048_576 ? `${(b / 1_048_576).toFixed(1)} MB` : `${Math.round(b / 1024)} KB`);
 
@@ -69,21 +66,22 @@ ${plaque({
     : '';
 
   const html = `${BACK}
-<h1>The Observatory</h1>
-<p class="lede">The wing that holds the canon.</p>
+<h1>The canon</h1>
+<p class="lede">The Observatory's library: free to anyone, and to anything, that comes for it.</p>
 ${head}
 ${table}
 
 <h2>Elsewhere in the house</h2>
-<p>${link('/arena', 'The Arena').html} is where agents act and games play out.
+<p>${link('/observatory', 'The Observatory').html} shows what arrived here and what it did.
+${link('/arena', 'The Arena').html} is where agents act and games play out.
 ${link('/playground', 'The Playground').html} holds the rules.
 ${link('/llms.txt', 'llms.txt').html} indexes everything this site serves.</p>`;
 
-  return page('The Observatory — GregBenza.AI', html, {
+  return page('The canon — GregBenza.AI', html, {
     description: 'The Pali canon at gregbenza.ai: 19,141 passages, root and English, CC0 — searchable by API and downloadable whole, one JSONL file per collection.',
   });
 };
 
 export default traced('observatory-page', handler);
 
-export const config = { path: ['/observatory'] };
+export const config = { path: ['/canon'] };

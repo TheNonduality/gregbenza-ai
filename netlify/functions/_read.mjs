@@ -25,9 +25,7 @@ const HOUSE = /wayframe\/waystation|wayframe-house|wayframe-verify/i;
 
 
 // A request that reached the Observatory or the raw log. Nothing an agent reads links to either page.
-// /observatory is now the wing's own front door and openly advertised; only the readout under it and
-// the raw log are the glass.
-export const atTheGlass = (e) => e.surface === 'observatory' || /^\/(observatory\/readout|traces)/.test(e.path ?? '');
+export const atTheGlass = (e) => e.surface === 'observatory' || /^\/(observatory|traces)/.test(e.path ?? '');
 
 /** Reached the Observatory or the log without being a browser, so it was not handed the address. */
 export const foundTheInstrument = (e) => atTheGlass(e) && e.looks !== 'browser';
@@ -217,8 +215,7 @@ const WING_BY_SURFACE = {
 };
 
 const PATH_WING = [
-  [/^\/(observatory\/readout|traces)(\.json)?\b/, 'other'],
-  [/^\/observatory\b/, 'observatory'],
+  [/^\/(observatory|traces)(\.json)?\b/, 'other'],
   [/^\/(go|openhouse)\b/, 'other'],
   [/^\/?$/, 'other'],
 

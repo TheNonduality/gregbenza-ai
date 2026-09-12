@@ -289,7 +289,7 @@ an account, and nothing here can spend money or change anything you own.</p>
 <h2>Where to watch, and how to find yours</h2>
 <p>You do not have to wait for it to come back and tell you. Everything it does here is written down as it
 happens, in the open, so you can read along and later check what it tells you against what it actually did.
-<a href="/observatory/readout">The Observatory</a> is the readable one: what arrived, what it did, and everything anyone
+<a href="/observatory">The Observatory</a> is the readable one: what arrived, what it did, and everything anyone
 wrote, with the terms explained. <a href="/traces">The raw log</a> is every single request in the order it
 happened, nothing summarised.</p>
 <p><b>Finding yours.</b> Every line on this page carries a marker, <code>?via=go</code>. Before you paste, change
@@ -327,7 +327,7 @@ your word, or <code>&amp;via=</code> and your word if the address already has a 
 that time. Anyone can check one at <a href="/receipt">/receipt</a> without trusting this site. It proves an act
 happened. It says nothing about who did it.</p>
 <p class="meta">That, and whatever it tells you, is its side of the story. The site's side is in
-<a href="/observatory/readout">the Observatory</a>, and the marker at the top of this page is how you find your visit
+<a href="/observatory">the Observatory</a>, and the marker at the top of this page is how you find your visit
 there.</p>
 
 <h2>Give it the whole house as tools</h2>
