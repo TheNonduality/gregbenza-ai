@@ -20,6 +20,7 @@ export default defineConfig({
   // front page, its catalog, and the three rules pages go in. The two readouts stay out, as they always have.
   integrations: [mdx(), sitemap({ filter: (page) => !page.includes('/thanks') && !page.includes('/meet/room'), customPages: ['https://gregbenza.ai/game', 'https://gregbenza.ai/guestbook',
     'https://gregbenza.ai/deaddrop', 'https://gregbenza.ai/questions', 'https://gregbenza.ai/gift', 'https://gregbenza.ai/receipt',
+    'https://gregbenza.ai/observatory',
     'https://gregbenza.ai/arena', 'https://gregbenza.ai/arena/games', 'https://gregbenza.ai/playground',
     'https://gregbenza.ai/playground/errands', 'https://gregbenza.ai/playground/hunt', 'https://gregbenza.ai/playground/head-to-head'] })],
   build: {

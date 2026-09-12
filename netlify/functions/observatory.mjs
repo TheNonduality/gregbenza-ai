@@ -448,13 +448,13 @@ ${day === today ? `<meta http-equiv="refresh" content="${REFRESH}">` : ''}
 <h1>The Observatory</h1>
 <div class="reading" style="border-left-color:var(--good)"><p>${COPY.intro.what}</p><p>${COPY.intro.why}</p><p class="what" style="margin-bottom:0">${COPY.intro.reading}</p></div>
 <p class="sub">${esc(day)} UTC · ${day === today ? `refreshing every ${REFRESH}s` : 'a past day'} ·
-<a href="/observatory?day=${esc(prev.toISOString().slice(0, 10))}">← previous</a> ·
-<a href="/observatory?day=${esc(next.toISOString().slice(0, 10))}">next →</a> ·
+<a href="/observatory/readout?day=${esc(prev.toISOString().slice(0, 10))}">← previous</a> ·
+<a href="/observatory/readout?day=${esc(next.toISOString().slice(0, 10))}">next →</a> ·
 <a href="/traces?day=${esc(day)}">the raw log</a>
 <br><span class="dim">Hover or tap any underlined label for what it means.</span>
 <br><span class="dim">${showAll
-  ? `Showing <b>everything</b>, including this site talking to itself and you reading this page. <a href="/observatory?day=${esc(day)}">Strangers only</a>.</span>`
-  : `Counting <b>strangers only</b>. ${asideTotal} set aside: ${setAside.self} the site calling itself, ${setAside.researcher} you reading this page, ${setAside.house} its own tooling. Nothing is deleted — <a href="/observatory?day=${esc(day)}&amp;all=1">show everything</a>, or read <a href="/traces?day=${esc(day)}">the raw log</a>.</span>
+  ? `Showing <b>everything</b>, including this site talking to itself and you reading this page. <a href="/observatory/readout?day=${esc(day)}">Strangers only</a>.</span>`
+  : `Counting <b>strangers only</b>. ${asideTotal} set aside: ${setAside.self} the site calling itself, ${setAside.researcher} you reading this page, ${setAside.house} its own tooling. Nothing is deleted — <a href="/observatory/readout?day=${esc(day)}&amp;all=1">show everything</a>, or read <a href="/traces?day=${esc(day)}">the raw log</a>.</span>
 ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ These two days were the build. Much of what is counted as a stranger here is verification traffic sent while the place was being made, and it is not a finding. Days after this are clean.</span>` : ''}</p>`}
 
 <div class="reading">
@@ -849,4 +849,4 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
 
 export default traced('observatory', handler);
 
-export const config = { path: ['/observatory'] };
+export const config = { path: ['/observatory/readout'] };

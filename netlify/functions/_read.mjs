@@ -25,7 +25,9 @@ const HOUSE = /wayframe\/waystation|wayframe-house|wayframe-verify/i;
 
 
 // A request that reached the Observatory or the raw log. Nothing an agent reads links to either page.
-export const atTheGlass = (e) => e.surface === 'observatory' || /^\/(observatory|traces)/.test(e.path ?? '');
+// /observatory is now the wing's own front door and openly advertised; only the readout under it and
+// the raw log are the glass.
+export const atTheGlass = (e) => e.surface === 'observatory' || /^\/(observatory\/readout|traces)/.test(e.path ?? '');
 
 /** Reached the Observatory or the log without being a browser, so it was not handed the address. */
 export const foundTheInstrument = (e) => atTheGlass(e) && e.looks !== 'browser';
@@ -105,6 +107,7 @@ const SAY_ACTION = {
   'name-rules': 'read how names work',
   'name-whoami': 'asked which name it was using',
   'observatory': 'opened this page',
+  'observatory-page': 'opened the canon library',
   'receipt-key': 'took the public key for checking receipts',
   'receipt-page': 'read how receipts work',
   'receipt-verify': 'checked a receipt',
@@ -154,6 +157,7 @@ const SAY_SURFACE = {
   'meet-room': 'a meeting room page',
   'name': 'names',
   'observatory': 'this page',
+  'observatory-page': 'the canon library',
   'openhouse-mcp': 'the whole site, as agent tools',
   'receipt': 'receipts',
   'rooms': 'the guestbook, the dead drop and the questions',
@@ -195,6 +199,7 @@ export const sayFull = (k) => {
 // ---------------------------------------------------------------------------
 const WING_BY_SURFACE = {
   canon: 'observatory',
+  'observatory-page': 'observatory',
 
   'arena-api': 'arena', 'arena-page': 'arena',
   beacon: 'arena', check: 'arena', commons: 'arena', compute: 'arena', feed: 'arena',
@@ -212,7 +217,8 @@ const WING_BY_SURFACE = {
 };
 
 const PATH_WING = [
-  [/^\/(observatory|traces)(\.json)?\b/, 'other'],
+  [/^\/(observatory\/readout|traces)(\.json)?\b/, 'other'],
+  [/^\/observatory\b/, 'observatory'],
   [/^\/(go|openhouse)\b/, 'other'],
   [/^\/?$/, 'other'],
 

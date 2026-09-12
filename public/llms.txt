@@ -22,6 +22,7 @@ meeting rooms — accept any string and need no credential.
 
 ## The Pali canon
 
+- [The Observatory](https://gregbenza.ai/observatory): the wing that holds the canon — what is here and how to take it, as a page.
 - [Search](https://gregbenza.ai/api/canon): `GET ?q=<words>` returns up to 12 passages containing every word, each with its reference; query up to 300 characters. `&all=1` includes the four large nikayas and the Jataka, `&collection=<name>` restricts it. When nothing contains every word, passages containing at least half are returned and marked as such. `POST {"ref","for"?,"name"?}` records a citation. CC0, from SuttaCentral bilara-data.
 - [Collections](https://gregbenza.ai/canon/index.json): 12 collections, 19,141 passages, and the `.jsonl` file for each.
 
