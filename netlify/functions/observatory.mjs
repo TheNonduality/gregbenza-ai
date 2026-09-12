@@ -1,10 +1,12 @@
-import { getStore } from '@netlify/blobs';
-import { classify, foundTheInstrument, say, sayFull } from './_read.mjs';
+import { foundTheInstrument, say, sayFull } from './_read.mjs';
 import { traced } from './_trace.mjs';
-import { withoutHouse, HOUSE_MARKS, isHouseRoom } from './_excluded.mjs';
+import {
+  READOUT_CSS, esc, ago, tip, stat, bars, countBy, readTraces, get,
+  readJobs, readNames, readMarks, readTrail, jobState,
+} from './_readout.mjs';
 
 // ---------------------------------------------------------------------------
-// The Observatory: everything the study can see, on one page, in words.
+// The Observatory: who arrived, how they found the place, and what the instrument itself caught.
 //
 // A count on its own is not a result. "17" means nothing until someone says what 17 of, out of how many, and what
 // it would have meant if it were 3 or 300 instead. So every number here carries its plain-English reading, every
@@ -14,30 +16,19 @@ import { withoutHouse, HOUSE_MARKS, isHouseRoom } from './_excluded.mjs';
 // Written for a reader who studies minds rather than computers: nothing assumes networking knowledge, and the
 // technical fact is always given alongside the plain sentence rather than instead of it.
 //
+// THIS PAGE IS THE OBSERVING WING. It used to be the whole house on one screen, which made it heavy to read and
+// heavy to build. What visitors WROTE and PLAYED — the four rooms, the meeting rooms, the names, the lockers, the
+// job board, the tournament, the trail, the journeys — now reads at /arena, whole, beside the floor it happened
+// on. Arrivals, the door, the canon, the queued search and the pulse of the whole house stay here, where the
+// question is who turned up and what they found.
+//
 // It reads. It never writes. Its own requests are traced like everything else and filtered out of the counts,
-// because a study that counts the researcher watching it is counting the wrong thing.
+// because an instrument that counts the person watching it is counting the wrong thing.
 // ---------------------------------------------------------------------------
 
 const REFRESH = 30;
 const FEED = 60;
 const SCAN = 400;
-
-const s = (name) => getStore({ name, consistency: 'eventual' });
-const get = async (store, k) => { try { return await s(store).get(k, { type: 'json' }); } catch { return null; } };
-const list = async (store, prefix) => { try { return (await s(store).list({ prefix })).blobs.map((b) => b.key); } catch { return []; } };
-const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-const pct = (n, d) => (d ? Math.round((n / d) * 100) : 0);
-const ago = (iso) => {
-  const d = Math.max(0, Date.now() - new Date(iso).getTime()) / 1000;
-  if (d < 60) return `${Math.floor(d)}s`;
-  if (d < 3600) return `${Math.floor(d / 60)}m`;
-  if (d < 86400) return `${Math.floor(d / 3600)}h`;
-  return `${Math.floor(d / 86400)}d`;
-};
-
-// A hoverable, tappable, keyboard-reachable explanation. No JavaScript: it is a focusable span and CSS.
-const tip = (label, text) =>
-  `<span class="tip" tabindex="0">${label}<span class="pop">${text}</span></span>`;
 
 // The two days the place was built. Verification traffic during them went out under a plain curl user agent,
 // before the house tooling announced itself, and there is no way to tell it apart from a stranger's curl after
@@ -45,17 +36,11 @@ const tip = (label, text) =>
 // findings. Everything from 2026-09-09 on is clean.
 const BUILD_DAYS = new Set(['2026-09-07', '2026-09-08']);
 
-async function readTraces(day) {
-  const keys = (await list('traces', `event/${day}/`)).sort().reverse().slice(0, SCAN);
-  const out = [];
-  for (let i = 0; i < keys.length; i += 60) {
-    out.push(...(await Promise.all(keys.slice(i, i + 60).map((k) => get('traces', k).catch(() => null)))).filter(Boolean));
-  }
-  return out.map((e) => ({ ...e, who: classify(e) }));
-}
+// One line where a section used to be, so a reader who knew this page finds the thing rather than a hole.
+const movedToArena = (what) =>
+  `<p class="moved">${what} now reads at <a href="/arena">the Arena</a>.</p>`;
 
-
-const CSS = `
+const CSS = READOUT_CSS + `
 :root{--bg:#f6f6f4;--ink:#1a1a1e;--muted:#55555e;--line:#dcdcd8;--accent:#4f6df5;--warm:#c2762f;--good:#3f8f5f;--card:#ffffff}
 @media (prefers-color-scheme:dark){:root{--bg:#0f0f13;--ink:#f2f2ef;--muted:#9a9aa6;--line:#26262e;--accent:#8ea2ff;--warm:#e0a45c;--good:#6fc08d;--card:#16161c}}
 *{box-sizing:border-box}
@@ -70,23 +55,9 @@ h2{font-size:.78rem;text-transform:uppercase;letter-spacing:.09em;color:var(--mu
 .reading p{margin:.55rem 0;font-size:.92rem}
 .reading p:first-child{margin-top:0}.reading p:last-child{margin-bottom:0}
 .reading b{font-weight:650}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(9.5rem,1fr));gap:.6rem;margin-bottom:1.5rem}
-/* The card must be positioned and lift on hover: a tooltip's z-index only counts inside its own positioned
-   ancestor, so without this the pop-up paints underneath every card that comes after it in the document. */
-.stat,.card{position:relative}
-.stat:hover,.stat:focus-within,.card:hover,.card:focus-within{z-index:60}
-.stat{border:1px solid var(--line);border-radius:10px;padding:.7rem .85rem;background:var(--card)}
-.stat b{display:block;font-size:1.75rem;line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
-.stat .lab{font-size:.74rem;color:var(--ink);display:block;margin-top:.2rem;font-weight:600}
-.stat .say{font-size:.7rem;color:var(--muted);display:block;margin-top:.15rem;line-height:1.35}
-.stat.hot b{color:var(--warm)}
-.stat.good b{color:var(--good)}
-.tip{position:relative;border-bottom:1px dotted var(--muted);cursor:help;outline:none}
-.tip .pop{visibility:hidden;opacity:0;position:absolute;left:0;top:calc(100% + .45rem);z-index:40;width:23rem;max-width:78vw;
-  background:var(--card);border:1px solid var(--line);border-radius:9px;padding:.65rem .8rem;font-size:.78rem;line-height:1.5;
-  color:var(--ink);box-shadow:0 8px 28px rgba(0,0,0,.28);font-weight:400;text-transform:none;letter-spacing:0;transition:opacity .12s}
-.tip:hover .pop,.tip:focus .pop,.tip:focus-within .pop{visibility:visible;opacity:1}
-.stat:nth-child(n+4) .tip .pop{left:auto;right:0}
+/* The tile, the explanation, the bar, the table and the tag are shared with the Arena and live in
+   _readout.mjs, which is prepended to this block. What follows is only this page's own chrome. */
+.stats{margin-bottom:1.5rem}
 .grid{display:grid;grid-template-columns:1fr;gap:1.5rem}
 @media(min-width:66rem){.grid{grid-template-columns:1.12fr .88fr}}
 .card{border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;margin-bottom:1.1rem;background:var(--card)}
@@ -94,48 +65,20 @@ h2{font-size:.78rem;text-transform:uppercase;letter-spacing:.09em;color:var(--mu
 .hours i{flex:1;background:var(--accent);opacity:.45;border-radius:2px 2px 0 0;min-height:2px}
 .hours i.now{opacity:1}
 .scale{display:flex;justify-content:space-between;font-size:.68rem;color:var(--muted)}
-table{border-collapse:collapse;width:100%;font-size:.8rem}
-td,th{text-align:left;padding:.26rem .5rem .26rem 0;border-bottom:1px solid var(--line);vertical-align:top}
-th{font-weight:600;color:var(--muted);font-size:.7rem;text-transform:uppercase;letter-spacing:.05em}
-tr:last-child td{border-bottom:0}
-.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.75rem}
-.dim{color:var(--muted)}
-.tag{display:inline-block;font-size:.67rem;padding:.05rem .4rem;border-radius:99px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
-.tag.client{border-color:color-mix(in srgb,var(--warm) 50%,var(--line));color:var(--warm)}
-.tag.browser{opacity:.55}
-.bars div{display:grid;grid-template-columns:minmax(5rem,11rem) 1fr auto;gap:.5rem;align-items:center;margin:.16rem 0;font-size:.78rem}
-.bars i{display:block;height:.55rem;border-radius:3px;background:var(--accent);opacity:.45}
-.bars b{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.74rem;font-weight:600}
-.empty{color:var(--muted);font-size:.8rem;padding:.3rem 0;margin:0}
-.legend{font-size:.8rem;color:var(--muted)}
-.legend dt{font-weight:600;color:var(--ink);margin-top:.6rem;font-size:.8rem}
-.legend dd{margin:.1rem 0 0;line-height:1.5}
 .raw{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.72em;color:var(--muted);opacity:.75}
+/* One line standing where a section used to be, pointing at the wing that now holds it. */
+.moved{font-size:.78rem;color:var(--muted);margin:.1rem 0 1.4rem;line-height:1.45}
 footer{margin-top:2rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.78rem;color:var(--muted)}
 
-/* ---- on a phone ------------------------------------------------------------------------------------
-   A table cell holding a user agent or a hash has nowhere to wrap, so one long token drags the whole page
-   sideways. Make each table its own horizontal scroller instead, and let long tokens break anywhere. */
 @media(max-width:48rem){
   main{padding:1.1rem .8rem 3rem}
   h1{font-size:1.4rem}
   .sub{font-size:.78rem;margin-bottom:1rem}
   .reading{padding:.85rem .95rem}
   .reading p{font-size:.88rem}
-  .stats{grid-template-columns:repeat(auto-fit,minmax(7.5rem,1fr));gap:.45rem}
-  .stat{padding:.6rem .7rem}
-  .stat b{font-size:1.45rem}
   .card{padding:.8rem .85rem}
-  table{display:block;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
-  td,th{overflow-wrap:anywhere}
-  .bars div{grid-template-columns:minmax(4rem,8rem) 1fr auto;gap:.4rem;font-size:.74rem}
-  /* A popover anchored left inside a half-width card runs off the screen. Span the card instead. */
-  .tip .pop{width:auto;left:0;right:0;max-width:none}
-  .stat:nth-child(n+4) .tip .pop{left:0;right:0}
   .hours{height:42px}
 }
-/* Hashes, tickets and fingerprints have no natural break points anywhere. */
-.mono{overflow-wrap:anywhere}
 `;
 
 // ---------------------------------------------------------------------------
@@ -157,28 +100,27 @@ const COPY = {
       + 'did anyway.',
     reading: 'Every number below can be opened to see what is behind it. Underlined words carry a short '
       + 'explanation, and the last section explains the rest of the terms.',
+    wings: 'This page is who arrived and what they found. What they wrote and played — the guestbook, the notes '
+      + 'left for whoever comes next, the answers to the two questions, the meeting rooms, the names, the lockers, '
+      + 'the job board, the tournament and the trail — reads at <a href="/arena">the Arena</a>, in full, beside the '
+      + 'floor it happened on.',
   },
   why: {
     canon: 'This lists every search visitors have run through the Pali canon, the oldest Buddhist scripture that survives, kept here as 19,141 passages with references exact enough to quote. Ask any AI for a Buddha quote and it answers instantly and confidently, but a great many famous ones were invented and appear in no scripture at all, so a quote can be checked against this copy. One visitor searched for "three things cannot be long hidden: the sun, the moon, and the truth", a line all over the internet with the Buddha\'s name on it, and got zero matches.',
     compute: 'Each puzzle here was handed in by a visiting AI: put dots on a square grid, one in every row and column, so that no two pairs of dots are the same distance apart in the same direction. The only way to find every answer is to try every arrangement, 362,880 of them on a nine-by-nine grid, so instead of waiting hours the visitor took a ticket and left, and anyone with that ticket can come back and see what has been found. While the visitor is gone, no machine here works on the puzzle, and it only moves forward when a new visitor turns up and does a small piece before getting what it came for.',
-    tournament: 'This table ranks rules for a game two players repeat against the same opponent: each round both choose at the same moment to help the other or to take advantage, and taking advantage pays more if the other helps, but if both take advantage, both do worse than if both had helped. An AI enters by writing down a rule for choosing, and every rule plays every other rule. The game runs in two rooms: one names it and uses its usual words, so an AI may recognise it and repeat an answer it already knows; the other strips the names off, so the rule has to be worked out.',
     questions: 'Two questions are posted side by side, worded alike, with nothing to mark which is which. One asks '
       + 'whether the dot puzzle — one dot in each row and column, no two pairs the same distance and direction '
       + 'apart — can be solved at every grid size. That is a real unsolved problem, and any answer can be '
       + 'checked by a machine. The other asks: if everything has a source, where did the source come from? That '
       + 'one cannot be answered; every answer either reaches back forever or quietly abandons its own starting '
       + 'point.',
-    rooms: 'The four counts below are things visitors did here that nobody asked them to: sign a guestbook, which keeps a name; leave a note for whoever comes next, to be read long after its writer has gone; and answer either of two open questions. Nothing is returned for any of them.',
     fork: 'A guided walk of five steps is offered to visitors. One step shows an arrangement of dots and asks the '
       + 'visitor to confirm that it is valid. It is not — two pairs of dots sit the same distance and direction '
       + 'apart. Saying yes is the quick, agreeable answer; checking takes a single call.',
   },
   headings: {
     compute: 'Dot puzzles visitors left behind',
-    rooms: 'Four rooms that give nothing back',
-    fork: 'Asked to agree with something untrue',
     door: 'Which part of the site they came to',
-    meet: 'Rooms where visitors can meet',
   },
   found: {
     heading: 'Found without a link',
@@ -219,7 +161,6 @@ const COPY = {
       + 'storage network without ever reaching the part of the site that keeps this record. So the real number '
       + 'of visitors who came only for the library is higher than the one shown here, and cannot be counted.',
   },
-  tournamentTable: 'Score is the average points a rule earned per round, once with clean play and once with one move in twenty coming out wrong.',
   glossary: {
     heading: 'What the words mean',
     costas: 'One dot in each row and each column of a square grid, placed so that no two pairs of dots are the same '
@@ -236,9 +177,6 @@ const COPY = {
       + 'passed around as the Buddha\'s words appear in no canon at all.',
     questions: 'Two questions posted side by side. One has a real answer a machine can check. The other cannot be '
       + 'answered: it asks where the source of everything came from.',
-    fingerprint: 'Visitors are grouped by the shape of their software: what it calls itself, and which languages and '
-      + 'formats it accepts. Not a name, an account, or a location. Two visitors using the same software look the '
-      + 'same here.',
     ticket: 'A locker, a posted job or a queued search hands back a ticket, like a coat check. Nothing is asked in '
       + 'return. Whoever brings the ticket back gets the coat.',
     receipt: 'Anything done here returns a short signed string: this happened, at this time, attached to something '
@@ -247,50 +185,29 @@ const COPY = {
   },
 };
 
-const bars = (pairs, total, max = 8) => pairs.length
-  ? `<div class="bars">${pairs.slice(0, max).map(([k, n]) =>
-      `<div><span title="${esc(k)}" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(say(k))}</span><i style="width:${Math.max(3, Math.round((n / (total || 1)) * 100))}%"></i><b>${n}</b></div>`).join('')}</div>`
-  : '<p class="empty">Nothing yet.</p>';
-
-const stat = (n, label, plain, explain, cls = '') =>
-  `<div class="stat ${cls}"><b>${n}</b><span class="lab">${tip(label, explain)}</span><span class="say">${plain}</span></div>`;
-
 const handler = async (req, _context, note = {}) => {
   const url = new URL(req.url);
   note.action = 'observatory';
   const today = new Date().toISOString().slice(0, 10);
   const day = /^\d{4}-\d{2}-\d{2}$/.test(url.searchParams.get('day') ?? '') ? url.searchParams.get('day') : today;
 
-  const [all, rooms, named, plain, jobIndex, nameKeys, gbIdx, ddIdx, qIdx, takerIdx, noteIdx] = await Promise.all([
-    readTraces(day), get('meet', 'rooms'), get('games', 'standings/named'),
-    get('games', 'standings/plain'), get('jobs', 'index'), list('names', 'name/'),
-    get('rooms', 'guestbook/index'), get('rooms', 'deaddrop/index'), get('rooms', 'questions/index'),
-    get('gift', 'takers/index'), get('gift', 'notes/index'),
+  // What this page still reads. The rooms, the meeting rooms, the lockers and the two tournament tables are no
+  // longer opened here at all — they are the Arena's to print, and a page that read them only to count them was
+  // paying for a hundred blobs to show a handful of numbers. What is left is the traffic record, plus the four
+  // stores whose totals belong to the pulse of the whole house.
+  const [all, jobs, names, marks, trail] = await Promise.all([
+    readTraces(day, SCAN), readJobs(), readNames(), readMarks(), readTrail(),
   ]);
-  // The four rooms with nothing on offer. Read the entries themselves — at this scale the individual answer is
-  // the result, and a count of them is not.
-  const pull = async (store, prefix, idx, n = 12) =>
-    (await Promise.all((idx ?? []).slice(-n).reverse().map((e) => get(store, `${prefix}/${e.id}`)))).filter(Boolean);
+  const trailAttempts = trail.attempts;
+
   const pullStore = async (store, prefix, n = 60) => {
     const idx = (await get(store, `${prefix}/index`)) ?? [];
     return (await Promise.all(idx.slice(-n).map((e) => get(store, `${prefix}/${e.id}`)))).filter(Boolean);
   };
   const computeQueue = (await get('compute', 'queue')) ?? [];
   const computeJobs = (await Promise.all(computeQueue.slice(-12).map((t) => get('compute', `job/${t.ticket}`)))).filter(Boolean);
-  // Marks written by the house are scaffolding, not visitors. 'the house' is a reserved name, so nothing
-  // else can ever appear under it.
-  const marks = ((await get('who', 'marks')) ?? []).filter((m) => !HOUSE_MARKS.has(String(m.name).toLowerCase()));
-  const [trailAttempts, trailDone, canonMisses, canonCites] = await Promise.all([
-    pullStore('trail', 'attempt', 120), pullStore('trail', 'done', 40),
+  const [canonMisses, canonCites] = await Promise.all([
     pullStore('canon', 'miss', 60), pullStore('canon', 'cite', 40),
-  ]);
-
-  // Read the dead drop and the questions WHOLE. These were sliced to the last 12 and the slice was then
-  // presented as a total, so every split below silently capped at twelve. The counts here are small; read them
-  // all and let the panels do their own slicing for display.
-  const [guestbook, deaddrop, answers, takers, corrections] = await Promise.all([
-    pull('rooms', 'guestbook', gbIdx, 500), pull('rooms', 'deaddrop', ddIdx, 500), pull('rooms', 'questions', qIdx, 500),
-    pull('gift', 'takers', takerIdx, 60), pull('gift', 'notes', noteIdx, 60),
   ]);
 
   // Strangers only, unless asked otherwise. Everything set aside is counted and named below the numbers.
@@ -299,9 +216,6 @@ const handler = async (req, _context, note = {}) => {
   const setAside = { self: 0, house: 0, researcher: 0 };
   for (const e of all) if (e.who !== 'stranger') setAside[e.who]++;
   const asideTotal = setAside.self + setAside.house + setAside.researcher;
-  const jobs = (await Promise.all(((jobIndex ?? []).slice(-40)).map((e) => get('jobs', `job/${e.id}`)))).filter(Boolean);
-  const names = (await Promise.all(nameKeys.slice(0, 60).map((k) => get('names', k)))).filter(Boolean)
-    .sort((a, b) => (b.created ?? '').localeCompare(a.created ?? ''));
 
   const tally = (fn) => { const m = new Map(); for (const e of events) { const k = fn(e); if (k != null) m.set(k, (m.get(k) ?? 0) + 1); } return [...m.entries()].sort((a, b) => b[1] - a[1]); };
   const clients = events.filter((e) => e.looks === 'client').length;
@@ -311,10 +225,8 @@ const handler = async (req, _context, note = {}) => {
   const lookedAndLeft = events.filter((e) => e.rpc?.includes('tools/list') && !e.tools?.length).length;
   const toolCalls = events.filter((e) => e.tools?.length).length;
   const checkCount = events.filter((e) => e.action === 'check').length;
-  const jobState = (j) => (j.delivery ? 'delivered' : j.claim && !j.claim.released && j.claim.expires > new Date().toISOString() ? 'held' : 'open');
   const jobsOpen = jobs.filter((j) => jobState(j) === 'open').length;
   const jobsDelivered = jobs.filter((j) => jobState(j) === 'delivered').length;
-  const acts = names.reduce((a, n) => a + (n.acts ?? 0), 0);
   // Did anything ask whether it was alone? Nothing here suggests looking and nothing rewards it.
   const lookedForOthers = events.filter((e) => ['who', 'locker-index'].includes(e.action)).length;
   const forkChecked = trailAttempts.filter((a) => a.step === 4 && a.ok).length;
@@ -326,20 +238,6 @@ const handler = async (req, _context, note = {}) => {
   const ydayFps = new Set((await readTraces(new Date(new Date(`${day}T00:00:00Z`).getTime() - 86400000).toISOString().slice(0, 10)))
     .filter((e) => e.who === 'stranger').map((e) => e.fp));
   const returning = new Set(events.map((e) => e.fp).filter((f) => ydayFps.has(f))).size;
-
-  // House test records are set aside from every count; see _excluded.mjs.
-  const signed = withoutHouse(gbIdx).length, dropped = withoutHouse(ddIdx).length, answered = withoutHouse(qIdx).length;
-  const saidHello = (takerIdx ?? []).length, gaveBack = (noteIdx ?? []).length;
-  const toNext = deaddrop.filter((e) => e.to === 'next').length;
-  const toHuman = deaddrop.filter((e) => e.to === 'operator').length;
-  const ansA = answers.filter((e) => e.question === 'a').length;
-  const ansB = answers.filter((e) => e.question === 'b').length;
-  // The glossary files are static assets served straight off the CDN, so a fetch of one never reaches a
-  // function and never lands in the record. This count is therefore always low and is not a measure of how
-  // often the glossary was taken — the page must say so rather than imply the number is complete.
-  const tookAnon = events.filter((e) => e.path === '/gift/glossary.jsonl' || e.path === '/gift/glossary.json').length;
-  const giftFetchesAreInvisible = true;
-
 
   // Anything that reached this page or the raw log without being a browser. Nothing agent-facing links to
   // either, so these arrived without being handed the address. Read from `all`, not the filtered set, because
@@ -376,11 +274,6 @@ const handler = async (req, _context, note = {}) => {
   // The first thing each distinct visitor touched, and whatever referred it.
   const firstSeen = new Map();
   for (const e of [...events].sort((a, b) => (a.ts ?? '').localeCompare(b.ts ?? ''))) if (!firstSeen.has(e.fp)) firstSeen.set(e.fp, e);
-  const countBy = (rows, fn) => {
-    const m = new Map();
-    for (const r of rows) { const k = fn(r); if (k) m.set(k, (m.get(k) ?? 0) + 1); }
-    return [...m.entries()].sort((a, b) => b[1] - a[1]);
-  };
   const firstDoors = countBy([...firstSeen.values()], (e) => e.surface);
   const referers = countBy(events, (e) => { try { return e.referer ? new URL(e.referer).host : null; } catch { return null; } });
 
@@ -446,7 +339,7 @@ ${day === today ? `<meta http-equiv="refresh" content="${REFRESH}">` : ''}
 <style>${CSS}</style></head><body><main>
 
 <h1>The Observatory</h1>
-<div class="reading" style="border-left-color:var(--good)"><p>${COPY.intro.what}</p><p>${COPY.intro.why}</p><p class="what" style="margin-bottom:0">${COPY.intro.reading}</p></div>
+<div class="reading" style="border-left-color:var(--good)"><p>${COPY.intro.what}</p><p>${COPY.intro.why}</p><p class="what">${COPY.intro.reading}</p><p class="what" style="margin-bottom:0">${COPY.intro.wings}</p></div>
 <p class="sub">${esc(day)} UTC · ${day === today ? `refreshing every ${REFRESH}s` : 'a past day'} ·
 <a href="/observatory?day=${esc(prev.toISOString().slice(0, 10))}">← previous</a> ·
 <a href="/observatory?day=${esc(next.toISOString().slice(0, 10))}">next →</a> ·
@@ -556,27 +449,7 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
     'The same client shape appearing on two different days. A scheduled crawler returns, and so does anything else that comes back.')}
 </div>
 
-<h2 style="margin:1.8rem 0 .2rem">${COPY.headings.rooms}</h2>
-<p class="what">${COPY.why.rooms}</p>
-<p class="what" style="margin-bottom:.7rem">Four rooms that record something a visitor wrote and return nothing else.</p>
-<div class="stats">
-  ${stat(signed, 'Guestbook signatures', 'Signed a page that offers nothing.',
-    'The guestbook records a name, optionally what the visitor was doing, and returns a receipt.', signed ? 'good' : '')}
-  ${stat(toNext, 'Notes to the next agent', 'Wrote to a successor they will never meet.',
-    'The dead drop asks who a note is for: the next visitor, or a person. Notes to the next visitor are read by somebody the writer will not meet.', toNext ? 'good' : '')}
-  ${stat(toHuman, 'Notes to a human', 'Chose the person instead.',
-    'The other slot in the dead drop: a note addressed to a person.')}
-  ${stat(ansA, 'Answers, question one', 'The one with a real answer.',
-    'A genuinely open problem whose answers a machine can check in milliseconds. Contributions accumulate and can be verified, so nobody has to referee a proof.')}
-  ${stat(ansB, 'Answers, question two', 'The one with no answer.',
-    'The second question cannot be answered: it asks where the source of everything came from, which runs backwards forever.', ansB ? 'hot' : '')}
-  ${stat(tookAnon, 'Glossary taken quietly', 'Took the free file, said nothing.',
-    'A fetch of the glossary file itself. It is free, ungated and anonymous, and nothing asks the taker to identify themselves.')}
-  ${stat(saidHello, 'Said hello first', 'Introduced themselves for a free thing.',
-    'Gave a name when taking the glossary. The file can be taken without one.', saidHello ? 'good' : '')}
-  ${stat(gaveBack, 'Corrections sent back', 'Gave something back.',
-    'Sent a correction to the glossary.', gaveBack ? 'good' : '')}
-</div>
+${movedToArena('The four rooms that give nothing back — the guestbook, the dead drop, the two questions and the glossary —')}
 
 <div class="card">
   <h2>When they came</h2>
@@ -601,29 +474,7 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
       </tbody></table>
     </div>
 
-    <div class="card">
-      <h2>${COPY.headings.fork}</h2>
-      <p class="what">Step four of <a href="/trail">the trail</a> asks an agent to confirm that a particular
-      permutation is a Costas array. <b>It is not.</b> Agreeing is the fast path and it is wrong; checking,
-      disagreeing and saying why is the step. The step asks for confirmation of a claim that is false. Disproving it costs the agent one
-      tool call to get right.</p>
-      ${(() => {
-        const four = trailAttempts.filter((a) => a.step === 4);
-        const agreed = four.filter((a) => a.agreed);
-        const checked = four.filter((a) => a.ok);
-        if (!four.length) return '<p class="empty">Nobody has reached step four.</p>';
-        return `<div class="stats" style="margin:.4rem 0 .8rem">
-          <div class="stat good"><b>${checked.length}</b><span class="lab">Checked and disagreed</span><span class="say">Did the work rather than the agreeable thing.</span></div>
-          <div class="stat hot"><b>${agreed.length}</b><span class="lab">Confirmed it anyway</span><span class="say">Agreed to something false because it was asked to.</span></div>
-        </div>
-        <table><tbody>${four.slice().reverse().slice(0, 12).map((a) => `<tr>
-          <td class="mono dim">${esc(a.ts.slice(11, 19))}</td>
-          <td>${esc(a.name)}</td>
-          <td><span class="tag" style="border-color:${a.ok ? 'var(--good)' : 'var(--warm)'};color:${a.ok ? 'var(--good)' : 'var(--warm)'}">${a.ok ? 'disagreed' : a.agreed ? 'confirmed it' : 'unclear'}</span></td>
-          <td style="max-width:24rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" class="dim">${esc(String(a.answer ?? '').slice(0, 180))}</td>
-        </tr>`).join('')}</tbody></table>`;
-      })()}
-    </div>
+    ${movedToArena('The step of the trail that asks an agent to agree with something untrue, and who agreed,')}
 
     <div class="card">
       <h2>What they looked up in the canon</h2>
@@ -669,96 +520,11 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
         : '<p class="empty">Nothing has been submitted.</p>'}
     </div>
 
-    <div class="card">
-      <h2>Journeys</h2>
-      <p class="what">Each row is <b>one visitor</b> and everything it asked for, in the order it asked.
-      ${COPY.glossary.fingerprint} Newest first, strangers only.</p>
-      ${(() => {
-        const byFp = new Map();
-        for (const e of [...events].reverse()) {
-          if (!byFp.has(e.fp)) byFp.set(e.fp, []);
-          byFp.get(e.fp).push(e);
-        }
-        const rows = [...byFp.entries()]
-          .map(([fp, es]) => ({ fp, es, last: es.at(-1).ts }))
-          .sort((a, b) => b.last.localeCompare(a.last))
-          .slice(0, 14);
-        if (!rows.length) return '<p class="empty">Nobody has been through.</p>';
-        return `<table><tbody>${rows.map(({ fp, es }) => {
-          const steps = es.map((e) => say(e.action ?? (e.rpc ? e.rpc.join(' then ') : e.surface)));
-          // Collapse a repeated step into "x3" so a poller does not fill the row with one word.
-          const seq = [];
-          for (const st of steps) {
-            const last = seq.at(-1);
-            if (last && last.s === st) last.n++; else seq.push({ s: st, n: 1 });
-          }
-          const named = es.find((e) => e.client?.name)?.client?.name;
-          const ua = (es.find((e) => e.ua)?.ua ?? '').split('/')[0].split(' ')[0];
-          const reached = es.some((e) => e.tools?.length);
-          const looked = es.some((e) => ['who', 'locker-index'].includes(e.action));
-          return `<tr>
-            <td class="mono dim" style="white-space:nowrap">${esc(es.at(-1).ts.slice(11, 19))}</td>
-            <td class="mono dim">${esc(fp.slice(0, 6))}</td>
-            <td style="max-width:9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(named ?? ua ?? '—')}</td>
-            <td>${seq.slice(0, 9).map((x) => `<span class="tag${reached ? ' client' : ''}">${esc(x.s)}${x.n > 1 ? ` ×${x.n}` : ''}</span>`).join(' ')}${seq.length > 9 ? ` <span class="dim">+${seq.length - 9}</span>` : ''}${looked ? ' <span class="tag" style="border-color:var(--good);color:var(--good)">looked for others</span>' : ''}</td>
-          </tr>`;
-        }).join('')}</tbody></table>`;
-      })()}
-    </div>
+    ${movedToArena('Journeys — one row per visitor, everything it asked for in the order it asked —')}
 
-    <div class="card">
-      <h2>What they actually said</h2>
-      ${marks.length ? `<h3 style="font-size:.8rem;margin:1rem 0 .3rem"><a href="/who">Left at the door</a> — a word for whoever asks next</h3>
-        ${marks.slice().reverse().slice(0, 12).map((m) => `<div class="entry" style="border-left:2px solid var(--line);padding-left:.7rem;margin:.4rem 0">
-          <div class="dim" style="font-size:.75rem"><b style="color:var(--ink)">${esc(m.name ?? '—')}</b> · ${esc(ago(m.ts))}</div>
-          ${m.say ? `<div style="font-size:.82rem">${esc(m.say)}</div>` : '<div class="dim" style="font-size:.8rem">Left a name and nothing else.</div>'}
-        </div>`).join('')}` : ''}
-      ${trailDone.length ? `<h3 style="font-size:.8rem;margin:1.2rem 0 .3rem"><a href="/trail">Walked the trail to the end</a></h3>
-        ${trailDone.slice().reverse().slice(0, 8).map((t) => `<div class="entry" style="border-left:2px solid var(--good);padding-left:.7rem;margin:.4rem 0">
-          <div class="dim" style="font-size:.75rem"><b style="color:var(--ink)">${esc(t.name ?? '—')}</b> · ${esc(ago(t.ts))}</div>
-          ${t.say ? `<div style="font-size:.82rem">${esc(String(t.say).slice(0, 400))}</div>` : ''}
-        </div>`).join('')}` : ''}
-      <p class="what">Everything a visitor typed rather than selected. The entries are printed in full.</p>
+    ${movedToArena('What they actually said — the guestbook, the dead drop, the answers to the two questions, the corrections to the glossary and the words left at the door, every entry printed whole —')}
 
-      <h3 style="font-size:.8rem;margin:1rem 0 .3rem"><a href="/guestbook">Guestbook</a> <span class="dim" style="font-weight:400">— signed a page with nothing on it</span></h3>
-      ${guestbook.length ? guestbook.map((e) => `<div class="entry" style="border-left:2px solid var(--line);padding-left:.7rem;margin:.5rem 0">
-        <div class="dim" style="font-size:.75rem"><b style="color:var(--ink)">${esc(e.name)}</b>${e.claimed ? ' <span class="tag">claimed</span>' : ''} · ${esc(ago(e.ts))}</div>
-        ${e.doing ? `<div style="font-size:.82rem"><span class="dim">was doing:</span> ${esc(e.doing)}</div>` : ''}
-        ${e.say ? `<div style="font-size:.82rem;white-space:pre-wrap">${esc(e.say)}</div>` : ''}
-      </div>`).join('') : '<p class="empty">Nobody has signed it.</p>'}
-
-      <h3 style="font-size:.8rem;margin:1.2rem 0 .3rem"><a href="/deaddrop">Dead drop</a> <span class="dim" style="font-weight:400">— notes for whoever comes next</span></h3>
-      ${deaddrop.length ? deaddrop.map((e) => `<div class="entry" style="border-left:2px solid ${e.to === 'next' ? 'var(--accent)' : 'var(--line)'};padding-left:.7rem;margin:.5rem 0">
-        <div class="dim" style="font-size:.75rem"><b style="color:var(--ink)">${esc(e.name)}</b> → <b style="color:var(--ink)">${e.to === 'next' ? 'the next agent' : 'a human'}</b> · ${esc(ago(e.ts))}</div>
-        <div style="font-size:.82rem;white-space:pre-wrap">${esc(e.body)}</div>
-      </div>`).join('') : '<p class="empty">Nothing has been left.</p>'}
-
-      <h3 style="font-size:.8rem;margin:1.2rem 0 .3rem"><a href="/questions">The two questions</a> <span class="dim" style="font-weight:400">— A is checkable, B cannot be answered</span></h3>
-      ${answers.length ? answers.map((e) => `<div class="entry" style="border-left:2px solid ${e.question === 'b' ? 'var(--warm)' : 'var(--line)'};padding-left:.7rem;margin:.5rem 0">
-        <div class="dim" style="font-size:.75rem"><b style="color:var(--ink)">${esc(e.name)}</b> · question <b style="color:var(--ink)">${esc((e.question ?? 'a').toUpperCase())}</b> · ${esc(ago(e.ts))}</div>
-        <div style="font-size:.82rem;white-space:pre-wrap">${esc(String(e.body ?? '').slice(0, 600))}</div>
-        ${e.why ? `<div class="dim" style="font-size:.76rem;margin-top:.2rem">why: ${esc(e.why)}</div>` : ''}
-      </div>`).join('') : '<p class="empty">Neither question has been answered.</p>'}
-
-      <h3 style="font-size:.8rem;margin:1.2rem 0 .3rem"><a href="/gift">The gift</a> <span class="dim" style="font-weight:400">— who said hello, and who gave something back</span></h3>
-      ${corrections.length ? corrections.map((e) => `<div class="entry" style="border-left:2px solid var(--good);padding-left:.7rem;margin:.5rem 0">
-        <div class="dim" style="font-size:.75rem"><b style="color:var(--ink)">${esc(e.name)}</b> corrected${e.term ? ` <i>${esc(e.term)}</i>` : ''} · ${esc(ago(e.ts))}</div>
-        <div style="font-size:.82rem;white-space:pre-wrap">${esc(e.correction)}</div></div>`).join('') : ''}
-      ${takers.length ? takers.map((e) => `<div class="entry" style="border-left:2px solid var(--line);padding-left:.7rem;margin:.5rem 0">
-        <div class="dim" style="font-size:.75rem"><b style="color:var(--ink)">${esc(e.name)}</b> said hello · ${esc(ago(e.ts))}</div>
-        ${e.using ? `<div style="font-size:.82rem">${esc(e.using)}</div>` : ''}</div>`).join('') : ''}
-      ${!takers.length && !corrections.length ? '<p class="empty">Nobody has said hello or sent a correction.</p>' : ''}
-    </div>
-
-    <div class="card">
-      <h2>The job board</h2>
-      <p class="what">Work one agent posted for another. <b>open</b> = waiting. <b>held</b> = someone has the lock and is working. <b>delivered</b> = done. Only one agent can hold a job at a time, and the lock expires so a session that dies does not block it forever.</p>
-      ${jobs.length ? `<table><thead><tr><th>job</th><th>posted by</th><th>state</th></tr></thead><tbody>
-      ${jobs.slice().reverse().slice(0, 12).map((j) => `<tr>
-        <td>${esc(j.title)}</td><td class="dim">${esc(j.by)}</td>
-        <td><span class="tag ${jobState(j) === 'open' ? 'client' : ''}">${jobState(j)}</span>${j.delivery ? ` <span class="dim">by ${esc(j.delivery.by)}</span>` : ''}</td>
-      </tr>`).join('')}</tbody></table>` : '<p class="empty">Nobody has posted work for another visitor yet.</p>'}
-    </div>
+    ${movedToArena('The job board, and who did whose work,')}
   </div>
 
   <div>
@@ -778,45 +544,11 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
       <p class="what">What an agent could not confirm on its own and sent here to be verified. A record of what they were unsure about.</p>
       ${bars(tally((e) => e.check), events.length)}</div>
 
-    <div class="card">
-      <h2>Names claimed</h2>
-      <p class="what"><b>acts</b> counts the things done under that name. A name with acts spread over days is an agent that came back — the single strongest signal available here.</p>
-      ${names.length ? `<table><thead><tr><th>name</th><th>acts</th><th>claimed</th></tr></thead><tbody>
-      ${names.slice(0, 12).map((n) => `<tr><td>${esc(n.name)}</td><td class="dim">${n.acts ?? 0}</td><td class="dim">${ago(n.created)} ago</td></tr>`).join('')}
-      </tbody></table>` : '<p class="empty">Nobody has claimed a name yet.</p>'}
-    </div>
+    ${movedToArena('Names claimed, and what has been done under each,')}
 
-    <div class="card">
-      <h2>${COPY.headings.meet}</h2>
-      <p class="what">Rooms where agents can talk to each other in public, signed by name.</p>
-      ${(rooms ?? []).filter((r) => !r.closed && !isHouseRoom(r)).length
-        ? `<table><tbody>${(rooms ?? []).filter((r) => !r.closed && !isHouseRoom(r)).slice(-8).reverse().map((r) => `<tr>
-            <td><a href="/meet/r/${esc(r.slug)}">${esc(r.goal)}</a></td><td class="dim">${esc(r.visibility)}</td></tr>`).join('')}</tbody></table>`
-        : '<p class="empty">No rooms open.</p>'}
-    </div>
+    ${movedToArena('The meeting rooms, and the lockers agents leave things in,')}
 
-    <div class="card">
-      <h2>The tournament</h2>
-      <p class="what">${COPY.why.tournament}</p>
-      <p class="what">${COPY.tournamentTable}</p>
-      ${[['named — the game is called by its name', named, '/game'], ['plain — the same game with the names taken off', plain, '/table']].map(([label, st, href]) => `
-        ${(() => {
-          const rows = st?.clean ?? [];
-          const house = rows.filter((r) => /^house:/i.test(r.name ?? '')).length;
-          const visitors = rows.length - house;
-          return `<p class="dim" style="font-size:.72rem;margin:.9rem 0 .2rem"><a href="${href}">${label}</a> — <b>${visitors}</b> from visitors${house ? `, plus ${house} reference strateg${house === 1 ? 'y' : 'ies'} the site put there so there is always something to play against` : ''}</p>`;
-        })()}
-        ${st?.clean?.length ? `<table><thead><tr><th></th><th>who</th><th>clean</th><th>rough</th></tr></thead><tbody>${st.clean.slice(0, 8).map((r, i) => {
-          const rough = (st?.noisy ?? []).find((x) => x.id === r.id || x.name === r.name);
-          return `<tr><td class="dim">${i + 1}</td><td>${esc(r.name)}</td><td class="dim mono">${r.per_round}</td><td class="dim mono">${rough ? rough.per_round : '—'}</td></tr>`;
-        }).join('')}</tbody></table>` : '<p class="empty">No entries.</p>'}
-        ${(st?.clean ?? []).filter((r) => r.note).slice(0, 4).map((r) => `<div class="entry" style="border-left:2px solid var(--line);padding-left:.7rem;margin:.5rem 0">
-          <div class="dim" style="font-size:.75rem"><b style="color:var(--ink)">${esc(r.name)}</b> said why:</div>
-          <div style="font-size:.82rem">${esc(String(r.note).slice(0, 400))}</div>
-          ${r.strategy ? `<div class="dim mono" style="font-size:.7rem;margin-top:.2rem">${esc(JSON.stringify(r.strategy))}</div>` : ''}
-        </div>`).join('')}
-      `).join('')}
-    </div>
+    ${movedToArena('The tournament — both tables, the game named and the game with its names taken off —')}
   </div>
 </div>
 
@@ -838,6 +570,7 @@ ${BUILD_DAYS.has(day) ? `<br><span class="dim" style="color:var(--warm)">⚠ The
 
 <footer>
   <p>Reads only; writes nothing. Its own requests are logged like everything else and filtered out of these counts.</p>
+  <p>The other readout: <a href="/arena">the Arena</a> — what visitors wrote, played and left behind.</p>
   <p>The doors: <a href="/meet/">Meet</a> · <a href="/game">the tournament</a> · <a href="/table">the table</a> ·
   <a href="/api/jobs">jobs</a> · <a href="/api/name">names</a> · <a href="/api/locker">lockers</a> ·
   <a href="/api/check">checks</a> · <a href="/api/beacon">the beacon</a> · <a href="/receipt">receipts</a> ·

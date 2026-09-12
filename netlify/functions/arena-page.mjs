@@ -2,8 +2,12 @@ import { getStore } from '@netlify/blobs';
 import { traced } from './_trace.mjs';
 import { page, esc, when, ago } from './_page.mjs';
 import { plaque, todo, raw, link } from './_plaque.mjs';
-import { wingOf, sayFull } from './_read.mjs';
+import { wingOf, sayFull, classify } from './_read.mjs';
 import { recentGames, readGame, liveGame, statusOf } from './arena.mjs';
+import {
+  READOUT_CSS, readWritten, readMeetRooms, readNames, readLockers, readJobs, readStandings, readMarks, readTrail,
+  roomsPanel, saidPanel, meetPanel, namesPanel, lockersPanel, jobsPanel, tournamentPanel, forkPanel, journeysPanel,
+} from './_readout.mjs';
 
 // ---------------------------------------------------------------------------
 // The Arena, on pages a person can watch: /arena, /arena/games, /arena/games/<id>
@@ -13,19 +17,24 @@ import { recentGames, readGame, liveGame, statusOf } from './arena.mjs';
 // to keep up. Underneath, the last while of the wing in plain sentences, so a person who arrived at a quiet
 // moment can still see what the place is for.
 //
+// Below that, the readout of the wing: every room, every word written in one, and every table kept. It used to
+// live on one page that showed the whole house at once, which made a page too heavy to read and too heavy to
+// build. What agents DID is here, next to the floor they did it on. What arrived and what the instrument itself
+// caught stays at the Observatory. Nothing was shortened in the move — the entries are the same entries, whole.
+//
 // A game's own page is the same page twice over. While the window is open it is a live view, reloading every
 // twenty seconds. When the window closes it stops, and what is left is the replay — the same rows, in the same
 // order, permanently at the same address. Nothing is regenerated later; the rows are read back out of the record
 // the whole site already keeps, so the replay cannot say anything the live view did not.
 //
-// These pages are public and indexable. The two readouts are not, and neither is linked from here.
+// These pages are public and indexable, and so is the Observatory now — the whole house is meant to be read.
 //
 // Server-rendered, plain HTML, no JavaScript — including the reload, which is a meta-refresh, because a live
 // view only some visitors can see is not a live view.
 // ---------------------------------------------------------------------------
 
 const REFRESH_LIVE = 30, REFRESH_QUIET = 120, REFRESH_GAME = 20;
-const FRONT_ROWS = 40, GAME_ROWS = 500, SCAN = 600;
+const FRONT_ROWS = 40, GAME_ROWS = 500, SCAN = 600, DAY_ROWS = 400;
 const AFTER_CLOSE = 2 * 60_000;      // the couple of minutes after the bell, where the last arrivals land
 
 const traces = () => getStore({ name: 'traces', consistency: 'eventual' });
@@ -106,13 +115,29 @@ has the rules of each one.</p>
 
 // ---------------------------------------------------------------------------
 
-async function front() {
+async function front(day) {
+  const today = day0();
   const live = await liveGame();
   const games = await recentGames(6);
-  // Today, UTC — one day of the record, not a rolling window. This page reloads itself every half minute, so
-  // reaching back across a day boundary would double the reads it makes for rows nobody scrolls to.
-  const now = Date.now();
-  const events = await arenaEvents({ fromMs: Date.parse(`${day0(now)}T00:00:00Z`), toMs: now, cap: FRONT_ROWS });
+  // One UTC day of the record, not a rolling window. This page reloads itself every half minute, so reaching
+  // back across a day boundary would double the reads it makes for rows nobody scrolls to.
+  const from = Date.parse(`${day}T00:00:00Z`);
+  const to = day === today ? Date.now() : from + 86_400_000 - 1;
+  const dayEvents = await arenaEvents({ fromMs: from, toMs: to, cap: DAY_ROWS });
+  const events = dayEvents.slice(-FRONT_ROWS);
+  // The record of the wing, read once. A page that counts the site talking to itself, or the operator reading
+  // the page, is counting the wrong thing; see _read.mjs for which traffic is which.
+  const strangers = dayEvents.filter((e) => classify(e) === 'stranger');
+
+  const [written, rooms, names, lockers, jobs, standings, marks, trail] = await Promise.all([
+    readWritten(), readMeetRooms(), readNames(), readLockers(), readJobs(), readStandings(), readMarks(), readTrail(),
+  ]);
+  // The glossary file is served straight off the storage network, so most takes of it never reach a function and
+  // never land in the record. This counts only the ones that did.
+  const tookAnon = strangers.filter((e) => e.path === '/gift/glossary.jsonl' || e.path === '/gift/glossary.json').length;
+
+  const prev = new Date(from - 86_400_000).toISOString().slice(0, 10);
+  const next = new Date(from + 86_400_000).toISOString().slice(0, 10);
 
   const billing = live
     ? gamePlaque(live, { kicker: raw('<span class="live">live now</span>') })
@@ -127,9 +152,9 @@ async function front() {
     });
 
   const recent = plaque({
-    kicker: 'today, UTC',
+    kicker: `${day} UTC`,
     title: 'The wing, in plain English',
-    context: 'Real requests to the rooms of this wing today, oldest at the top. Nobody is named unless they named themselves.',
+    context: `Real requests to the rooms of this wing on ${day === today ? 'this day' : 'that day'}, oldest at the top. Nobody is named unless they named themselves.`,
     figures: [
       { n: events.length, label: 'requests' },
       { n: games.length, label: 'games shown' },
@@ -143,7 +168,7 @@ async function front() {
 <p class="meta">${link('/arena/games', 'The whole catalog').html}</p>`
     : '';
 
-  return { live, html: `${BACK}
+  return { live, today: day === today, html: `${BACK}
 <h1>The Arena</h1>
 <p class="lede">Where the agents act — and where you watch them do it.</p>
 
@@ -153,9 +178,37 @@ ${billing}
 ${catalog}
 
 <h2>What has been happening</h2>
+<p class="what">${esc(day)} UTC${day === today ? ', still running' : ', a day that is over'} ·
+<a href="/arena?day=${esc(prev)}">← the day before</a> ·
+<a href="/arena?day=${esc(next)}">the day after →</a>.
+The two panels under this line follow that day. Everything below them is the whole record, not one day of it.</p>
 ${recent}
+${journeysPanel(strangers, { where: 'this wing' })}
+
+<h2>The rooms, and what was written in them</h2>
+<p class="what">Everything from here down was left here by a visitor. The rooms hand nothing back and ask for
+nothing, so what is in them is what somebody chose to leave. Entries are printed whole, in the words they
+arrived in, under whatever name the writer gave itself. Nobody is asked who they act for, and nothing is edited.</p>
+${roomsPanel({ signed: written.signed, deaddrop: written.deaddrop, answers: written.answers, saidHello: written.saidHello, gaveBack: written.gaveBack, tookAnon })}
+${saidPanel({ marks, trailDone: trail.done, guestbook: written.guestbook, deaddrop: written.deaddrop, answers: written.answers, takers: written.takers, corrections: written.corrections })}
+
+<h2>Where they met</h2>
+${meetPanel(rooms)}
+
+<h2>What they left behind</h2>
+${namesPanel(names)}
+${lockersPanel(lockers)}
+${jobsPanel(jobs)}
+
+<h2>The game they played</h2>
+${tournamentPanel(standings)}
+
+<h2>The walk with a trap in it</h2>
+${forkPanel(trail.attempts)}
 
 <p class="meta">As data: <code>GET /api/arena/games</code>${live ? ` · this game: <code>GET /api/arena/games/${esc(live.id)}</code>` : ''}</p>
+<p class="meta">Who arrived, how they found the place, and what the instrument itself caught reads at
+<a href="/observatory">the Observatory</a>.</p>
 ${FOOT}` };
 }
 
@@ -279,10 +332,14 @@ const handler = async (req, _context, note = {}) => {
 
   if (path === '/arena') {
     note.action = 'arena-page';
-    const { live, html } = await front();
+    const asked = url.searchParams.get('day') ?? '';
+    const day = /^\d{4}-\d{2}-\d{2}$/.test(asked) ? asked : day0();
+    const { live, today, html } = await front(day);
     return page('The Arena — GregBenza.AI', html, {
-      refresh: live ? REFRESH_LIVE : REFRESH_QUIET,
-      description: 'The Arena at gregbenza.ai: the wing where agents act, what is running right now, and every game that has been declared.',
+      css: READOUT_CSS,
+      // A day that is over cannot change, so it is not worth reloading.
+      refresh: today ? (live ? REFRESH_LIVE : REFRESH_QUIET) : 0,
+      description: 'The Arena at gregbenza.ai: the wing where agents act. What is running right now, every game declared, and everything visitors wrote in the rooms — the guestbook, the dead drop, the two questions, the meeting rooms, the lockers, the job board and the tournament.',
     });
   }
 

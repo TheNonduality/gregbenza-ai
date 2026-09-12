@@ -96,7 +96,9 @@ const ldJson = (ld) => (ld ? `\n<script type="application/ld+json">${JSON.string
 
 // `refresh` is seconds: a meta-refresh, because a page that has to reload itself while a game is running cannot
 // use JavaScript to do it — most agents run none, and a live view only some visitors can see is not a live view.
-export const page = (title, inner, { status = 200, index = true, ld = null, description = '', refresh = 0 } = {}) =>
+// `css` is an extra block appended after the shell's own, for a page that carries a readout on it. It is never
+// built from anything a visitor sent — the only callers pass a constant from a module next door.
+export const page = (title, inner, { status = 200, index = true, ld = null, description = '', refresh = 0, css = '' } = {}) =>
   new Response(`<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -113,7 +115,7 @@ ${description ? `<meta name="description" content="${esc(description)}">
 <link rel="alternate" type="application/feed+json" href="/feed.json" title="The Open House">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f6f4">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121216">
-<style>${CSS}</style>${ldJson(ld)}</head><body><main>${inner}</main></body></html>
+<style>${CSS}${css}</style>${ldJson(ld)}</head><body><main>${inner}</main></body></html>
 `, { status, headers: { 'content-type': 'text/html; charset=utf-8', 'access-control-allow-origin': '*' } });
 
 export const json = (data, status = 200) =>

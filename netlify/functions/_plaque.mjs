@@ -42,9 +42,11 @@ export const link = (href, label) => raw(`<a href="${esc(href)}">${esc(label)}</
  * @param context one short paragraph: what you are looking at. Text, or `{html}`.
  * @param figures [{n, label}] — the figures strip. `n` is shown large; a non-numeric `n` is shown as a word.
  * @param rows    optional list rows. Each is a string, `{html}`, or `{k, v}` for a labelled row.
+ * @param body    optional markup under the rows, for a readout that needs a table or a run of entries rather
+ *                than a list. Already HTML: built by the page next door, never from anything a visitor sent.
  * @param id      optional anchor.
  */
-export function plaque({ kicker = '', title = '', context = '', figures = [], rows = [], id = '' } = {}) {
+export function plaque({ kicker = '', title = '', context = '', figures = [], rows = [], body = '', id = '' } = {}) {
   const strip = (figures ?? []).filter(Boolean).map((f) => {
     const n = f.n;
     const word = !(typeof n === 'number' || /^[\d.,+-]+$/.test(String(n ?? '')));
@@ -59,5 +61,5 @@ export function plaque({ kicker = '', title = '', context = '', figures = [], ro
   }).join('');
 
   return `<section class="plaque"${id ? ` id="${esc(id)}"` : ''}>
-${kicker ? `<p class="kicker">${out(kicker)}</p>\n` : ''}${title ? `<p class="name">${out(title)}</p>\n` : ''}${context ? `<p class="context">${out(context)}</p>\n` : ''}${strip ? `<dl class="figures">${strip}</dl>\n` : ''}${list ? `<ul class="rows">${list}</ul>\n` : ''}</section>`;
+${kicker ? `<p class="kicker">${out(kicker)}</p>\n` : ''}${title ? `<p class="name">${out(title)}</p>\n` : ''}${context ? `<p class="context">${out(context)}</p>\n` : ''}${strip ? `<dl class="figures">${strip}</dl>\n` : ''}${list ? `<ul class="rows">${list}</ul>\n` : ''}${body ? `${String(body)}\n` : ''}</section>`;
 }
