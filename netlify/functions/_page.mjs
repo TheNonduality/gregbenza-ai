@@ -41,6 +41,39 @@ button{justify-self:start;font:inherit;font-weight:600;padding:.5em 1.15em;borde
 .rules{font-size:.85rem;color:var(--muted);padding-left:1.1rem}
 .note{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);margin-top:2.5rem;padding-top:1rem}
 .opt{font-size:.78rem;color:var(--muted);font-weight:400}
+
+/* ---- the plaque -------------------------------------------------------------------------------------
+   The museum label: a name, one short paragraph saying what you are looking at, the figures that matter,
+   and the list beneath. Same card, same line, same muted grey as everything else here — a plaque is a
+   .card that has been given a fixed order to say things in. See _plaque.mjs. */
+.plaque{border:1px solid var(--line);border-radius:10px;padding:1rem 1.15rem;margin:1.1rem 0;background:var(--card)}
+.plaque>:first-child{margin-top:0}
+.plaque>:last-child{margin-bottom:0}
+.plaque .kicker{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600;margin:0 0 .25rem}
+.plaque .name{font-size:1.1rem;font-weight:650;letter-spacing:-.01em;margin:0 0 .3rem;line-height:1.3}
+.plaque .name a{text-decoration:none}
+.plaque .name a:hover{text-decoration:underline}
+.plaque .context{font-size:.9rem;color:var(--muted);margin:.2rem 0 0}
+.figures{display:flex;flex-wrap:wrap;gap:1.3rem;margin:.85rem 0 0;padding:.75rem 0 0;border-top:1px solid var(--line)}
+.figures div{min-width:5rem}
+.figures dt{font-size:.71rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.figures dd{margin:0;font-size:1.3rem;line-height:1.25;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.figures dd.word{font-size:.95rem;font-weight:600;letter-spacing:0;padding:.18rem 0}
+.rows{list-style:none;margin:.85rem 0 0;padding:.7rem 0 0;border-top:1px solid var(--line);font-size:.88rem}
+.rows li{padding:.3rem 0;border-bottom:1px solid var(--line);display:flex;gap:.8rem;flex-wrap:wrap}
+.rows li:last-child{border-bottom:0}
+.rows .k{color:var(--muted);flex:0 0 8.5rem}
+.rows .v{flex:1 1 12rem;min-width:0;overflow-wrap:anywhere}
+/* The internal label kept beside its plain-English reading, so nothing is hidden behind the translation. */
+.raw{font-size:.8em;color:var(--muted);opacity:.85}
+/* Prose still waiting on the human pass. Marked so nobody ships it by accident. */
+.todo{color:var(--muted);border-bottom:1px dashed currentColor}
+.live{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  border-radius:999px;padding:.1em .7em;background:var(--accent);color:var(--card)}
+@media(max-width:48rem){
+  .rows .k{flex:1 1 100%}
+  .figures{gap:1rem}
+}
 /* ---- on a phone -------------------------------------------------------------------------------------
    A cell holding a user agent, a full path, a ticket or a hash has nowhere to wrap, so one long token
    drags the whole page sideways and takes everything else with it. Each table becomes its own horizontal
@@ -61,12 +94,15 @@ button{justify-self:start;font:inherit;font-weight:600;padding:.5em 1.15em;borde
 // reasoning" is a thing a machine can be told directly instead of guessing.
 const ldJson = (ld) => (ld ? `\n<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>` : '');
 
-export const page = (title, inner, { status = 200, index = true, ld = null, description = '' } = {}) =>
+// `refresh` is seconds: a meta-refresh, because a page that has to reload itself while a game is running cannot
+// use JavaScript to do it — most agents run none, and a live view only some visitors can see is not a live view.
+export const page = (title, inner, { status = 200, index = true, ld = null, description = '', refresh = 0 } = {}) =>
   new Response(`<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)}</title>
-<meta name="robots" content="${index ? 'index, follow' : 'noindex'}">
+<meta name="robots" content="${index ? 'index, follow' : 'noindex'}">${refresh > 0 ? `
+<meta http-equiv="refresh" content="${Math.round(refresh)}">` : ''}
 ${description ? `<meta name="description" content="${esc(description)}">
 <meta property="og:description" content="${esc(description)}">` : ''}
 <meta property="og:title" content="${esc(title)}">

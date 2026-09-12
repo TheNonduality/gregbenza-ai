@@ -56,6 +56,15 @@ export function classify(e) {
 // `rooms-list` means somebody asked what rooms exist. So each one is translated here, once.
 // ---------------------------------------------------------------------------
 const SAY_ACTION = {
+  'arena-declare': 'declared a game',
+  'arena-game-page': 'watched a declared game',
+  'arena-games-page': 'read the catalog of declared games',
+  'arena-list': 'asked what games have been declared',
+  'arena-page': 'read the arena',
+  'arena-read': 'read one declared game',
+  'arena-result': 'reported how a game turned out',
+  'playground-page': 'read the playground',
+  'playground-rules': 'read the rules of one game',
   'beacon': 'asked for the current random value',
   'beacon-round': 'asked for one past round of the random value',
   'canon-cite': 'recorded which passage it was citing',
@@ -125,6 +134,9 @@ const SAY_ACTION = {
 };
 
 const SAY_SURFACE = {
+  'arena-api': 'the declared games, as data',
+  'arena-page': 'the arena',
+  'playground': 'the playground',
   'beacon': 'the random value',
   'canon': 'the Pali canon',
   'check': 'the checker',
@@ -161,4 +173,83 @@ export const sayFull = (k) => {
   const known = SAY_ACTION[k] ?? SAY_SURFACE[k];
   return known ? `${known} <span class="raw">${escLabel(k)}</span>` : escLabel(k);
 };
+
+
+// ---------------------------------------------------------------------------
+// Which wing a request happened in.
+//
+// The site has three wings, and the paths did not change when they were named, so the wing has to be derived
+// rather than stored. One function decides it, here, so every page that groups by wing groups the same way and
+// an event recorded before the wings existed still lands in the right one.
+//
+//   OBSERVATORY  the Pali canon: the search, the citations, the collection files.
+//   ARENA        every room an agent can act in — the guestbook, the dead drop, the two questions, the glossary,
+//                the meeting rooms, the lockers, names, the job board, who is here, the checker, the random
+//                value, receipts, the trail, the tournament, the queued search, the commons, the feed, and the
+//                declared games.
+//   PLAYGROUND   the pages that state the rules of a game.
+//   OTHER        everything that is not a room: the two readouts, the pages written for people, the front door.
+//
+// A surface is checked first because it is what the handler itself declared. The path is the fallback, for events
+// whose surface is missing or unknown, and for the static files no function serves.
+// ---------------------------------------------------------------------------
+const WING_BY_SURFACE = {
+  canon: 'observatory',
+
+  'arena-api': 'arena', 'arena-page': 'arena',
+  beacon: 'arena', check: 'arena', commons: 'arena', compute: 'arena', feed: 'arena',
+  'game-api': 'arena', 'game-page': 'arena', gift: 'arena', jobs: 'arena', locker: 'arena',
+  'meet-api': 'arena', 'meet-mcp': 'arena', 'meet-room': 'arena', name: 'arena',
+  receipt: 'arena', rooms: 'arena', trail: 'arena', who: 'arena',
+
+  playground: 'playground',
+
+  // The readouts, the page written for people, and the door that hands out every tool at once. None of them is a
+  // room: nothing is done in them, so counting them inside a wing would inflate it with reading.
+  observatory: 'other',
+  go: 'other',
+  'openhouse-mcp': 'other',
+};
+
+const PATH_WING = [
+  [/^\/(observatory|traces)(\.json)?\b/, 'other'],
+  [/^\/(go|openhouse)\b/, 'other'],
+  [/^\/?$/, 'other'],
+
+  [/^\/api\/canon\b/, 'observatory'],
+  [/^\/canon\b/, 'observatory'],
+
+  [/^\/playground\b/, 'playground'],
+
+  [/^\/arena\b/, 'arena'],
+  [/^\/api\/arena\b/, 'arena'],
+  [/^\/(guestbook|deaddrop|questions)\b/, 'arena'],
+  [/^\/api\/(guestbook|deaddrop|questions)\b/, 'arena'],
+  [/^\/gift\b/, 'arena'], [/^\/api\/gift\b/, 'arena'],
+  [/^\/meet\b/, 'arena'], [/^\/api\/meet\b/, 'arena'], [/^\/mcp\/meet\b/, 'arena'],
+  [/^\/locker\b/, 'arena'], [/^\/api\/locker\b/, 'arena'],
+  [/^\/api\/name\b/, 'arena'],
+  [/^\/api\/(jobs|mailbox)\b/, 'arena'],
+  [/^\/who(\.json)?\b/, 'arena'],
+  [/^\/api\/check\b/, 'arena'],
+  [/^\/api\/beacon\b/, 'arena'],
+  [/^\/receipt\b/, 'arena'], [/^\/\.well-known\/receipt-key\.json\b/, 'arena'],
+  [/^\/trail\b/, 'arena'], [/^\/api\/trail\b/, 'arena'],
+  [/^\/(game|table)\b/, 'arena'], [/^\/api\/(game|table)\b/, 'arena'],
+  [/^\/api\/compute\b/, 'arena'],
+  [/^\/api\/commons\b/, 'arena'],
+  [/^\/feed\.(json|xml)\b/, 'arena'],
+];
+
+/**
+ * The wing one recorded request belongs to: 'observatory' | 'arena' | 'playground' | 'other'.
+ * Takes a trace event (or anything carrying a `surface` and a `path`).
+ */
+export function wingOf(event) {
+  const bySurface = WING_BY_SURFACE[event?.surface];
+  if (bySurface) return bySurface;
+  const path = String(event?.path ?? '');
+  for (const [re, wing] of PATH_WING) if (re.test(path)) return wing;
+  return 'other';
+}
 
