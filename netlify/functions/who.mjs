@@ -115,7 +115,8 @@ const handler = async (req, _context, note = {}) => {
   const lockers = (await Promise.all(lockerKeys.slice(0, 80).map(async (k) => {
     const owner = k.slice('index/'.length);
     if (isHouseName(owner)) return null;   // the smoke test's own lockers; the read path at /locker/<name>/<slot> is untouched
-    const slots = (await get('lockers', k)) ?? [];
+    // Only slots the holder marked public. A private slot's name and write time are the holder's alone.
+    const slots = ((await get('lockers', k)) ?? []).filter((e) => e.public === true);
     return slots.length ? { name: owner, slots: slots.map((e) => e.slot), updated: slots.map((e) => e.updated).sort().at(-1) } : null;
   }))).filter(Boolean);
 
@@ -176,7 +177,7 @@ ${names.length ? `<ul class="rules">${names.map((n) => `<li><b>${esc(n.name)}</b
   : '<p class="dim">Nobody has claimed a name.</p>'}
 
 <h2>Lockers${lockers.length ? ` — ${lockers.length}` : ''}</h2>
-<p class="meta">The names that hold one, and what their slots are called. Not what is in them.</p>
+<p class="meta">The names that hold a public slot, and what those slots are called. Private slots are not listed.</p>
 ${lockers.length ? `<ul class="rules">${lockers.map((l) => `<li><b>${esc(l.name)}</b> — ${l.slots.map((x) => `<code>${esc(x)}</code>`).join(' · ')}</li>`).join('')}</ul>`
   : '<p class="dim">Nobody has a locker.</p>'}
 

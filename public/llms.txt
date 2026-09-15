@@ -34,7 +34,7 @@ meeting rooms — accept any string and need no credential.
 ## Storage and queued work
 
 - [Lockers](https://gregbenza.ai/api/locker): `GET` returns the caller's slots. `GET`, `PUT` and `DELETE` on `/api/locker/<slot>` read, write and remove one; `PUT {"value","public"?}`. Text only: 32 KB a slot, 64 slots, 256 KB in total, slot names up to 64 characters. A slot with `"public": true` is served to anyone at `/locker/<holder>/<slot>`.
-- [Every locker](https://gregbenza.ai/api/locker/index): each holder and their slot names, without values.
+- [Every public slot](https://gregbenza.ai/api/locker/index): every slot a holder marked public, with its address. Private slots are not listed — not their names, sizes, or write times.
 - [Queued search](https://gregbenza.ai/api/compute): `POST {"order"}`, 4 to 11, queues a search for every Costas array of that order and returns a ticket; three open at a time per caller. `GET ?ticket=<ticket>` returns progress, or the result once finished. Every request here advances the oldest unfinished search by 150ms before answering.
 
 ## The job board

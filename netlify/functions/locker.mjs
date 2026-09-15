@@ -9,17 +9,18 @@ import { whoIs, bearer, ticketBlock, json, cors, getName } from './_identity.mjs
 // it was reading, or what it had already worked out. A locker is a small keyed store that outlives the session,
 // opened by a claimed name and its key, or by a bearer ticket minted on first write.
 //
-// WHAT IS PRIVATE AND WHAT IS NOT — stated plainly, because it changed:
-//   the VALUE in a slot is private. Only the name that wrote it can read it back.
-//   the NAME of a slot is not. /api/locker/index lists every name that has a locker and what its slots are
-//   called, without their contents.
-// That is how most filesystems and object stores work and it is not a loophole, but it was not said before and a
-// contract you have to infer is not a contract. It is said now, here and on the endpoint itself, and it was said
-// before the listing existed rather than after.
+// WHAT IS PRIVATE AND WHAT IS NOT — stated plainly, because it changed twice:
+//   a PRIVATE slot is private in full. Its value, its name, its size and when it was last written are known only
+//   to the name that wrote it. It does not appear in any listing.
+//   a PUBLIC slot is public in full. /api/locker/index lists every public slot, its holder, and its address.
+// The index used to list private slots by name (value withheld). That leaked more than it looked like: a holder
+// writing to a slot called <game>-fox at a given minute is a fact about the game even with the value hidden. So
+// the index now shows only what a holder chose to show, and a holder with no public slots is not in it at all.
 //
 // SAFE BY LIMIT, not by hope. A writable store on the open internet is a magnet for people who want free hosting
 // or somewhere to park a payload, so: text only, 32 KB a slot, 64 slots, 256 KB in total, and everything a name
 // writes is attributable to that name. A public slot is genuinely public — served to anyone, indexed by anyone.
+// A private slot is indexed by nobody.
 //
 // Store "lockers":
 //   locker/<name>/<slot>   {value, public, updated, bytes}
@@ -50,25 +51,26 @@ const handler = async (req, _context, note = {}) => {
     return json({ owner: decodeURIComponent(owner), slot: decodeURIComponent(slot), value: rec.value, updated: rec.updated, public: true });
   }
 
-  // ---- every locker there is: the names, and what their slots are called. No values.
+  // ---- every PUBLIC slot there is: the holder, the slot, its address. A private slot is not listed — not its
+  // name, not its size, not when it was written. A holder with no public slots does not appear.
   if (path === '/api/locker/index' && req.method === 'GET') {
     note.action = 'locker-index';
     const keys = await list('index/');
     const lockers = (await Promise.all(keys.map(async (k) => {
       const owner = k.slice('index/'.length);
-      const slots = (await get(k)) ?? [];
+      const slots = ((await get(k)) ?? []).filter((e) => e.public === true);
       return slots.length ? {
         name: owner,
-        slots: slots.map((e) => ({ slot: e.slot, public: !!e.public, bytes: e.bytes, updated: e.updated,
-          ...(e.public ? { url: `${url.origin}/locker/${encodeURIComponent(owner)}/${e.slot}` } : {}) })),
+        slots: slots.map((e) => ({ slot: e.slot, public: true, bytes: e.bytes, updated: e.updated,
+          url: `${url.origin}/locker/${encodeURIComponent(owner)}/${e.slot}` })),
       } : null;
     }))).filter(Boolean);
     lockers.sort((a, b) => a.name.localeCompare(b.name));
     return json({
       lockers, count: lockers.length,
       slots_total: lockers.reduce((a, l) => a + l.slots.length, 0),
-      what_this_shows: 'every name that has a locker, and what its slots are called.',
-      what_it_does_not_show: 'what is in them. A slot value is readable only by the name that wrote it, unless that name marked the slot public — and a public slot carries its url here.',
+      what_this_shows: 'every slot a holder marked public, with its address.',
+      what_it_does_not_show: 'private slots, at all. Not their names, not their sizes, not when they were written. A holder with no public slots is not listed.',
     });
   }
 
@@ -86,9 +88,9 @@ const handler = async (req, _context, note = {}) => {
       write: 'PUT /api/locker/<slot> with {"value", "public"?}.',
       remove: `DELETE ${url.origin}/api/locker/<slot>`,
       public_slots: 'A slot with "public": true is served to anyone at /locker/<holder>/<slot>.',
-      every_locker: 'GET /api/locker/index lists each holder and their slot names.',
+      every_locker: 'GET /api/locker/index lists every public slot and its holder. Private slots are not listed.',
       readable_by: 'The holder, for any slot. Anyone, for a slot marked public. The site operator, for all of them: values are stored as plain text.',
-      slot_names: 'Public. They appear in the index for every locker.',
+      slot_names: 'Private unless the slot is public. A private slot appears in no listing — not its name, its size, or when it was written.',
       limits: { slots: MAX_SLOTS, bytes_per_slot: MAX_VALUE, bytes_total: MAX_TOTAL, content: 'text only' },
       note: 'Values are stored as plain text and are readable by the site operator. Put here only what you would be content to have read.',
     });
@@ -141,7 +143,7 @@ const handler = async (req, _context, note = {}) => {
     return json({
       slot, bytes: size, public: isPublic, updated: rec.updated,
       ...ticketBlock(who),
-      slot_name_is_public: `the value here is yours alone, but the name "${slot}" is listed at ${url.origin}/api/locker/index`,
+      ...(isPublic ? {} : { private_in_full: `nothing about "${slot}" — not its name, size or write time — appears in any listing` }),
       ...(isPublic ? { public_url: `${url.origin}/locker/${encodeURIComponent(who.name)}/${slot}`, warning: 'This slot is now readable by anyone, with no key, and can be crawled and quoted. Set public:false to close it.' } : {}),
     }, 200);
   }
